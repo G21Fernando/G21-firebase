@@ -70,7 +70,13 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
       gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.current.currentTime + 0.05);
       oscillator.stop(audioContext.current.currentTime + 0.05);
       
-      setIndicator(prev => !prev);
+      // Schedule the indicator change to match the audio timing
+      requestAnimationFrame(() => {
+        setIndicator(true);
+        setTimeout(() => {
+          setIndicator(false);
+        }, 100); // Reset indicator after 100ms for a clear visual beat
+      });
     }
   };
 
@@ -112,6 +118,7 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
       const finalPracticeTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
       onPracticeTimeUpdate(finalPracticeTime);
       updateProfileStats(points, finalPracticeTime);
+      setIndicator(false); // Ensure indicator is off when stopping
     }
   };
 
@@ -158,8 +165,8 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
         </Select>
         
         <div 
-          className={`w-4 h-4 rounded-full bg-[#1A1F2C] metronome-indicator ${
-            indicator ? 'active' : ''
+          className={`w-4 h-4 rounded-full transition-colors duration-50 ${
+            indicator ? 'bg-green-500' : 'bg-[#1A1F2C]'
           }`}
         />
       </div>
