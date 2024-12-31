@@ -14,6 +14,7 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
   const [bpm, setBpm] = useState(100);
   const [points, setPoints] = useState(0);
   const [indicator, setIndicator] = useState(false);
+  const [totalPracticeTime, setTotalPracticeTime] = useState(0);
   const audioContext = useRef<AudioContext | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
@@ -64,8 +65,8 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
           onPointsUpdate(newPoints);
           return newPoints;
         });
-        const practiceTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
-        onPracticeTimeUpdate(practiceTime);
+        const currentPracticeTime = totalPracticeTime + Math.floor((Date.now() - startTimeRef.current) / 1000);
+        onPracticeTimeUpdate(currentPracticeTime);
       }, interval);
 
       toast({
@@ -81,6 +82,9 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
+      const newTotalPracticeTime = totalPracticeTime + Math.floor((Date.now() - startTimeRef.current) / 1000);
+      setTotalPracticeTime(newTotalPracticeTime);
+      onPracticeTimeUpdate(newTotalPracticeTime);
       toast({
         title: "Metronome Stopped",
         description: `You earned ${points} points!`,
