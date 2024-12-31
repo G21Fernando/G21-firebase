@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { useToast } from '@/components/ui/use-toast';
+import { Slider } from '@/components/ui/slider';
 
 interface MetronomeControlProps {
   onPointsUpdate: (points: number) => void;
@@ -15,10 +15,10 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
   const [points, setPoints] = useState(0);
   const [indicator, setIndicator] = useState(false);
   const [totalPracticeTime, setTotalPracticeTime] = useState(0);
+  const [volume, setVolume] = useState(0.5);
   const audioContext = useRef<AudioContext | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
-  const { toast } = useToast();
 
   useEffect(() => {
     if (!audioContext.current) {
@@ -41,7 +41,7 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
       gainNode.connect(audioContext.current.destination);
       
       oscillator.frequency.value = 800;
-      gainNode.gain.value = 0.5;
+      gainNode.gain.value = volume;
       
       oscillator.start();
       gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.current.currentTime + 0.05);
@@ -68,11 +68,6 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
         const currentPracticeTime = totalPracticeTime + Math.floor((Date.now() - startTimeRef.current) / 1000);
         onPracticeTimeUpdate(currentPracticeTime);
       }, interval);
-
-      toast({
-        title: "Metronome Started",
-        description: `Playing at ${bpm} BPM`,
-      });
     }
   };
 
@@ -85,10 +80,6 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
       const newTotalPracticeTime = totalPracticeTime + Math.floor((Date.now() - startTimeRef.current) / 1000);
       setTotalPracticeTime(newTotalPracticeTime);
       onPracticeTimeUpdate(newTotalPracticeTime);
-      toast({
-        title: "Metronome Stopped",
-        description: `You earned ${points} points!`,
-      });
     }
   };
 
@@ -96,8 +87,18 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
     const newBpm = parseInt(value);
     setBpm(newBpm);
     if (isPlaying) {
-      stopMetronome();
-      setTimeout(startMetronome, 100);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      const interval = (60 / newBpm) * 1000;
+      intervalRef.current = setInterval(() => {
+        playTick();
+        setPoints(prev => {
+          const newPoints = prev + 1;
+          onPointsUpdate(newPoints);
+          return newPoints;
+        });
+      }, interval);
     }
   };
 
@@ -128,6 +129,16 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
           className={`w-4 h-4 rounded-full bg-[#1A1F2C] metronome-indicator ${
             indicator ? 'active' : ''
           }`}
+        />
+      </div>
+
+      <div className="mb-4">
+        <p className="text-sm text-gray-600 mb-2">Volume</p>
+        <Slider
+          value={[volume * 100]}
+          onValueChange={(value) => setVolume(value[0] / 100)}
+          max={100}
+          step={1}
         />
       </div>
 
