@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -57,6 +58,15 @@ const AuthPage = () => {
           view="sign_in"
           redirectTo={window.location.origin}
         />
+        <div className="mt-6 text-center">
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate('/')}
+            className="text-[#1A1F2C] hover:text-[#2A2F3C]"
+          >
+            Back to Metronome
+          </Button>
+        </div>
       </div>
     </div>
   );
