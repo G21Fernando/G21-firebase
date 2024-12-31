@@ -14,12 +14,6 @@ const Index = () => {
   const supabase = useSupabaseClient();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!session) {
-      navigate('/auth');
-    }
-  }, [session, navigate]);
-
   const handlePracticeTimeUpdate = async (time: number) => {
     setPracticeTime(time);
     if (session?.user) {
@@ -38,10 +32,6 @@ const Index = () => {
     navigate('/auth');
   };
 
-  if (!session) {
-    return null;
-  }
-
   return (
     <div className="min-h-screen p-6" style={{ backgroundColor: '#F5E6DB' }}>
       <div className="max-w-6xl mx-auto">
@@ -49,13 +39,23 @@ const Index = () => {
           <h1 className="text-4xl font-bold text-[#1A1F2C]">
             Stop scrolling Start strumming
           </h1>
-          <Button 
-            onClick={handleSignOut}
-            variant="outline"
-            className="bg-[#1A1F2C] text-white hover:bg-[#2A2F3C]"
-          >
-            Sign Out
-          </Button>
+          {session ? (
+            <Button 
+              onClick={handleSignOut}
+              variant="outline"
+              className="bg-[#1A1F2C] text-white hover:bg-[#2A2F3C]"
+            >
+              Sign Out
+            </Button>
+          ) : (
+            <Button 
+              onClick={() => navigate('/auth')}
+              variant="outline"
+              className="bg-[#1A1F2C] text-white hover:bg-[#2A2F3C]"
+            >
+              Sign In
+            </Button>
+          )}
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
