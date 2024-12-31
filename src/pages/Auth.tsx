@@ -16,6 +16,13 @@ const AuthPage = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    // Clear any existing session on mount
+    const clearSession = async () => {
+      const { error } = await supabase.auth.signOut();
+      if (error) console.error('Error clearing session:', error);
+    };
+    clearSession();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session) => {
       if (event === "SIGNED_IN") {
         setIsLoading(true);
@@ -59,15 +66,6 @@ const AuthPage = () => {
       }
     });
 
-    // Check if user is already signed in
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate("/");
-      }
-    };
-    
-    checkUser();
     return () => subscription.unsubscribe();
   }, [navigate, toast]);
 

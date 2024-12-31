@@ -26,7 +26,6 @@ export default function Index() {
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         
         if (userError) {
-          // If there's an auth error, sign out and redirect to auth page
           await supabase.auth.signOut();
           navigate("/auth");
           return;
@@ -34,6 +33,7 @@ export default function Index() {
         
         if (!user) {
           setIsLoading(false);
+          navigate("/auth");
           return;
         }
 
@@ -44,7 +44,7 @@ export default function Index() {
           .single();
 
         if (profileError) {
-          // If there's a profile error, sign out and redirect to auth page
+          console.error('Profile error:', profileError);
           await supabase.auth.signOut();
           navigate("/auth");
           return;
@@ -58,7 +58,6 @@ export default function Index() {
         setPracticeTime(profileData.practice_time || 0);
       } catch (error) {
         console.error('Error fetching profile:', error);
-        // On any error, sign out and redirect to auth page
         await supabase.auth.signOut();
         navigate("/auth");
       } finally {
@@ -69,8 +68,8 @@ export default function Index() {
     fetchProfile();
 
     // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event) => {
+      if (event === 'SIGNED_OUT') {
         setProfile(null);
         setPoints(0);
         setPracticeTime(0);
@@ -79,7 +78,7 @@ export default function Index() {
     });
 
     return () => subscription.unsubscribe();
-  }, [toast, navigate]);
+  }, [navigate, toast]);
 
   const handlePointsUpdate = async (newPoints: number) => {
     try {
