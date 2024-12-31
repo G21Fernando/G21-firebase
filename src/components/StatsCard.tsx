@@ -15,14 +15,16 @@ const StatsCard: React.FC<StatsCardProps> = ({ practiceTime, points }) => {
   };
 
   return (
-    <Card className="mt-6 p-6 bg-[#E2D1C3] max-w-md mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Today stats:</h2>
-      <ul className="space-y-4 text-lg">
-        <li>• Practice time: {formatTime(practiceTime)}</li>
-        <li className="flex items-center gap-2">
-          • Points: {points} <Link2 className="w-4 h-4" />
-        </li>
-      </ul>
+    <Card className="bg-[#E2D1C3]">
+      <div className="p-6">
+        <h2 className="text-2xl font-bold mb-4">Today stats:</h2>
+        <ul className="space-y-4 text-lg">
+          <li>• Practice time: {formatTime(practiceTime)}</li>
+          <li className="flex items-center gap-2">
+            • Points: {points} <Link2 className="w-4 h-4" />
+          </li>
+        </ul>
+      </div>
     </Card>
   );
 };
