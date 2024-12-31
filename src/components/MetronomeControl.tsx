@@ -3,6 +3,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
+import { supabase } from "@/integrations/supabase/client";
 
 interface MetronomeControlProps {
   onPointsUpdate: (points: number) => void;
@@ -14,11 +15,11 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
   const [bpm, setBpm] = useState(100);
   const [points, setPoints] = useState(0);
   const [indicator, setIndicator] = useState(false);
-  const [totalPracticeTime, setTotalPracticeTime] = useState(0);
   const [volume, setVolume] = useState(0.5);
   const audioContext = useRef<AudioContext | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
+  const practiceIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!audioContext.current) {
@@ -29,8 +30,30 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
+      if (practiceIntervalRef.current) {
+        clearInterval(practiceIntervalRef.current);
+      }
     };
   }, []);
+
+  const updateProfileStats = async (newPoints: number, newPracticeTime: number) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          points: newPoints,
+          practice_time: newPracticeTime
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating profile stats:', error);
+    }
+  };
 
   const playTick = () => {
     if (audioContext.current) {
@@ -63,11 +86,17 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
         setPoints(prev => {
           const newPoints = prev + 1;
           onPointsUpdate(newPoints);
+          updateProfileStats(newPoints, Math.floor((Date.now() - startTimeRef.current) / 1000));
           return newPoints;
         });
-        const currentPracticeTime = totalPracticeTime + Math.floor((Date.now() - startTimeRef.current) / 1000);
-        onPracticeTimeUpdate(currentPracticeTime);
       }, interval);
+
+      // Start tracking practice time
+      practiceIntervalRef.current = setInterval(() => {
+        const currentPracticeTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
+        onPracticeTimeUpdate(currentPracticeTime);
+        updateProfileStats(points, currentPracticeTime);
+      }, 1000);
     }
   };
 
@@ -77,9 +106,12 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
-      const newTotalPracticeTime = totalPracticeTime + Math.floor((Date.now() - startTimeRef.current) / 1000);
-      setTotalPracticeTime(newTotalPracticeTime);
-      onPracticeTimeUpdate(newTotalPracticeTime);
+      if (practiceIntervalRef.current) {
+        clearInterval(practiceIntervalRef.current);
+      }
+      const finalPracticeTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
+      onPracticeTimeUpdate(finalPracticeTime);
+      updateProfileStats(points, finalPracticeTime);
     }
   };
 
