@@ -1,16 +1,46 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Trophy } from 'lucide-react';
+import { supabase } from "@/integrations/supabase/client";
+
+interface Profile {
+  username: string;
+  points: number;
+}
 
 const LeaderboardCard: React.FC = () => {
-  // This is a mock leaderboard data - you can replace it with real data later
-  const leaderboardData = [
-    { name: "Alex", points: 1200 },
-    { name: "Sam", points: 900 },
-    { name: "Jordan", points: 750 },
-    { name: "Taylor", points: 600 },
-    { name: "Casey", points: 450 },
-  ];
+  const [leaderboardData, setLeaderboardData] = useState<Profile[]>([]);
+
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('username, points')
+        .order('points', { ascending: false })
+        .limit(5);
+      
+      if (data) {
+        setLeaderboardData(data);
+      }
+    };
+
+    fetchLeaderboard();
+    
+    // Subscribe to realtime changes
+    const channel = supabase
+      .channel('leaderboard_changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'profiles' }, 
+        () => {
+          fetchLeaderboard();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   return (
     <Card className="bg-[#f3f3f3]">
@@ -23,12 +53,12 @@ const LeaderboardCard: React.FC = () => {
         <ul className="space-y-4">
           {leaderboardData.map((player, index) => (
             <li 
-              key={player.name}
+              key={player.username}
               className="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm"
             >
               <span className="flex items-center gap-2">
                 <span className="font-bold text-gray-500">#{index + 1}</span>
-                <span>{player.name}</span>
+                <span>{player.username}</span>
               </span>
               <span className="font-semibold">{player.points} pts</span>
             </li>
