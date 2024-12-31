@@ -23,20 +23,32 @@ export default function Index() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        
+        if (userError) {
+          // If there's an auth error, sign out and redirect to auth page
+          await supabase.auth.signOut();
+          navigate("/auth");
+          return;
+        }
         
         if (!user) {
           setIsLoading(false);
           return;
         }
 
-        const { data: profileData, error } = await supabase
+        const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('username, points, practice_time, avatar_url')
           .eq('id', user.id)
           .single();
 
-        if (error) throw error;
+        if (profileError) {
+          // If there's a profile error, sign out and redirect to auth page
+          await supabase.auth.signOut();
+          navigate("/auth");
+          return;
+        }
 
         setProfile({
           username: profileData.username,
@@ -46,11 +58,9 @@ export default function Index() {
         setPracticeTime(profileData.practice_time || 0);
       } catch (error) {
         console.error('Error fetching profile:', error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to load profile data.",
-        });
+        // On any error, sign out and redirect to auth page
+        await supabase.auth.signOut();
+        navigate("/auth");
       } finally {
         setIsLoading(false);
       }
@@ -59,16 +69,17 @@ export default function Index() {
     fetchProfile();
 
     // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT') {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
         setProfile(null);
         setPoints(0);
         setPracticeTime(0);
+        navigate("/auth");
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [toast]);
+  }, [toast, navigate]);
 
   const handlePointsUpdate = async (newPoints: number) => {
     try {
