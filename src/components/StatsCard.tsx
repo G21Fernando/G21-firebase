@@ -15,20 +15,26 @@ const StatsCard: React.FC<StatsCardProps> = ({ practiceTime, points }) => {
   };
 
   return (
-    <Card className="bg-[#E2D1C3]">
-      <div className="p-6">
-        <h2 className="text-2xl font-bold mb-4">Your today stats:</h2>
-        <ul className="space-y-4 text-lg">
-          <li className="flex items-center gap-2">
-            <span className="flex items-center">
-              <Clock className="w-5 h-5" /> Practice
+    <Card className="bg-[#E2D1C3] p-8 rounded-xl shadow-lg">
+      <div className="space-y-6">
+        <h2 className="text-3xl font-bold text-[#1A1F2C] mb-8">
+          Your today stats:
+        </h2>
+        
+        <div className="space-y-6 text-lg text-[#1A1F2C]">
+          <div className="flex items-center gap-3">
+            <Clock className="w-6 h-6 text-[#1A1F2C]" />
+            <span className="flex items-center gap-1">
+              <span className="font-medium">Practice</span> {formatTime(practiceTime)}
             </span>
-            time: {formatTime(practiceTime)}
-          </li>
-          <li className="flex items-center gap-2">
-            <GuitarIcon className="w-4 h-4" /> Points: {points} <Link2 className="w-4 h-4" />
-          </li>
-        </ul>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <GuitarIcon className="w-6 h-6 text-[#1A1F2C]" />
+            <span className="font-medium">Points: {points}</span>
+            <Link2 className="w-5 h-5 text-[#1A1F2C] opacity-80" />
+          </div>
+        </div>
       </div>
     </Card>
   );
