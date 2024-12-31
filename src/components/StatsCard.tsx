@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { Link2 } from 'lucide-react';
+import { Link2, GuitarPick, Clock } from 'lucide-react';
 
 interface StatsCardProps {
   practiceTime: number;
@@ -17,11 +17,13 @@ const StatsCard: React.FC<StatsCardProps> = ({ practiceTime, points }) => {
   return (
     <Card className="bg-[#E2D1C3]">
       <div className="p-6">
-        <h2 className="text-2xl font-bold mb-4">Today stats:</h2>
+        <h2 className="text-2xl font-bold mb-4">Your today stats:</h2>
         <ul className="space-y-4 text-lg">
-          <li>• Practice time: {formatTime(practiceTime)}</li>
           <li className="flex items-center gap-2">
-            • Points: {points} <Link2 className="w-4 h-4" />
+            <Clock className="w-4 h-4" /> Practice time: {formatTime(practiceTime)}
+          </li>
+          <li className="flex items-center gap-2">
+            <GuitarPick className="w-4 h-4" /> Points: {points} <Link2 className="w-4 h-4" />
           </li>
         </ul>
       </div>
