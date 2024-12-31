@@ -6,6 +6,14 @@ import LeaderboardCard from '@/components/LeaderboardCard';
 const Index = () => {
   const [points, setPoints] = useState(0);
   const [practiceTime, setPracticeTime] = useState(0);
+  const [showSignUpMessage, setShowSignUpMessage] = useState(false);
+
+  const handlePracticeTimeUpdate = (time: number) => {
+    setPracticeTime(time);
+    if (time > 0 && !showSignUpMessage) {
+      setShowSignUpMessage(true);
+    }
+  };
 
   return (
     <div className="min-h-screen p-6 bg-white">
@@ -18,8 +26,13 @@ const Index = () => {
         <div className="bg-white p-6 rounded-lg shadow-md">
           <MetronomeControl 
             onPointsUpdate={setPoints}
-            onPracticeTimeUpdate={setPracticeTime}
+            onPracticeTimeUpdate={handlePracticeTimeUpdate}
           />
+          {showSignUpMessage && (
+            <div className="mt-4 p-4 bg-[#E2D1C3] rounded-lg text-gray-700 text-sm">
+              Sign up for free to join the community and track your progress
+            </div>
+          )}
         </div>
 
         {/* Stats Card Section */}
