@@ -16,26 +16,13 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen p-6 bg-white">
-      <h1 className="text-4xl font-bold text-[#8B5CF6] mb-8 text-center">
+    <div className="min-h-screen p-6" style={{ backgroundColor: '#F5E6DB' }}>
+      <h1 className="text-4xl font-bold text-[#1A1F2C] mb-8 text-center">
         Stop scrolling Start strumming
       </h1>
       
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Metronome Section */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <MetronomeControl 
-            onPointsUpdate={setPoints}
-            onPracticeTimeUpdate={handlePracticeTimeUpdate}
-          />
-          {showSignUpMessage && (
-            <div className="mt-4 p-4 bg-[#E2D1C3] rounded-lg text-gray-700 text-sm">
-              Sign up for free to join the community and track your progress
-            </div>
-          )}
-        </div>
-
-        {/* Stats Card Section */}
+        {/* Stats Card Section - Left */}
         <div className="bg-[#E2D1C3] p-6 rounded-lg shadow-md">
           <StatsCard 
             points={points}
@@ -43,7 +30,20 @@ const Index = () => {
           />
         </div>
 
-        {/* Leaderboard Section */}
+        {/* Metronome Section - Center */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <MetronomeControl 
+            onPointsUpdate={setPoints}
+            onPracticeTimeUpdate={handlePracticeTimeUpdate}
+          />
+          {showSignUpMessage && (
+            <div className="mt-4 p-4 bg-[#E2D1C3] rounded-lg text-[#1A1F2C] text-sm">
+              Sign up for free to join the community and track your progress
+            </div>
+          )}
+        </div>
+
+        {/* Leaderboard Section - Right */}
         <div className="bg-[#f3f3f3] p-6 rounded-lg shadow-md">
           <LeaderboardCard />
         </div>
