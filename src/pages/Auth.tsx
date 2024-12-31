@@ -110,7 +110,6 @@ const AuthPage = () => {
           providers={[]}
           view="sign_in"
           redirectTo={window.location.origin}
-          emailRedirectTo={window.location.origin}
           onlyThirdPartyProviders={false}
           magicLink={false}
           showLinks={true}
