@@ -64,7 +64,7 @@ const AuthPage = () => {
             onClick={() => navigate('/')}
             className="text-[#1A1F2C] hover:text-[#2A2F3C]"
           >
-            Back to Metronome
+            Back to Practice
           </Button>
         </div>
       </div>
