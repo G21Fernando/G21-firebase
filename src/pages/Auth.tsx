@@ -17,7 +17,7 @@ const AuthPage = () => {
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session) => {
-      if (event === "SIGNED_IN" || event === "SIGNED_UP") {
+      if (event === "SIGNED_IN") {
         setIsLoading(true);
         try {
           // Check if profile exists
@@ -40,8 +40,8 @@ const AuthPage = () => {
           // Redirect to home page
           navigate("/");
           toast({
-            title: event === "SIGNED_UP" ? "Welcome!" : "Welcome back!",
-            description: `You've successfully ${event === "SIGNED_UP" ? "signed up" : "signed in"}${profile?.username ? `, ${profile.username}` : ''}!`,
+            title: "Welcome back!",
+            description: `You've successfully signed in${profile?.username ? `, ${profile.username}` : ''}!`,
           });
         } catch (err) {
           console.error('Error during sign in:', err);
