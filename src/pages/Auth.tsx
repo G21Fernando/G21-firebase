@@ -69,8 +69,15 @@ const AuthPage = () => {
     return () => subscription.unsubscribe();
   }, [navigate, toast]);
 
-  const handleBackToPractice = () => {
-    navigate('/');
+  const handleBackToPractice = async () => {
+    try {
+      // Clear any error state
+      setError(null);
+      // Navigate to the home page
+      navigate('/', { replace: true });
+    } catch (err) {
+      console.error('Navigation error:', err);
+    }
   };
 
   return (
