@@ -30,7 +30,7 @@ export default function Index() {
           return;
         }
 
-        const { data: profile, error } = await supabase
+        const { data: profileData, error } = await supabase
           .from('profiles')
           .select('username, points, practice_time, avatar_url')
           .eq('id', user.id)
@@ -38,9 +38,12 @@ export default function Index() {
 
         if (error) throw error;
 
-        setProfile(profile);
-        setPoints(profile.points || 0);
-        setPracticeTime(profile.practice_time || 0);
+        setProfile({
+          username: profileData.username,
+          avatar_url: profileData.avatar_url
+        });
+        setPoints(profileData.points || 0);
+        setPracticeTime(profileData.practice_time || 0);
       } catch (error) {
         console.error('Error fetching profile:', error);
         toast({

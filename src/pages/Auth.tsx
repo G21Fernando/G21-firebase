@@ -119,7 +119,6 @@ const AuthPage = () => {
               sign_up: {
                 email_label: 'Email',
                 password_label: 'Password',
-                username_label: 'Username',
                 button_label: 'Sign up',
               },
             },
