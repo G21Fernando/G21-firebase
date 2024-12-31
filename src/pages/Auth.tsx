@@ -104,8 +104,7 @@ const AuthPage = () => {
             }
           }}
           providers={[]}
-          view="sign_in"
-          redirectTo={window.location.origin}
+          redirectTo={`${window.location.origin}/auth`}
           onlyThirdPartyProviders={false}
           magicLink={false}
           showLinks={true}
