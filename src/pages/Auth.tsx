@@ -56,11 +56,9 @@ const AuthPage = () => {
           providers={[]}
           view="sign_in"
           redirectTo={window.location.origin}
-          onSignIn={({ error }) => {
-            if (error) {
-              console.error('Auth error:', error);
-              setError(error.message);
-            }
+          onError={(error) => {
+            console.error('Auth error:', error);
+            setError(error.message);
           }}
         />
       </div>
