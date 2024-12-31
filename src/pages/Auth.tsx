@@ -69,17 +69,6 @@ const AuthPage = () => {
     return () => subscription.unsubscribe();
   }, [navigate, toast]);
 
-  const handleBackToPractice = async () => {
-    try {
-      // Clear any error state
-      setError(null);
-      // Navigate to the home page
-      navigate('/', { replace: true });
-    } catch (err) {
-      console.error('Navigation error:', err);
-    }
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F5E6DB' }}>
       <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
@@ -140,7 +129,7 @@ const AuthPage = () => {
         <div className="mt-6 text-center">
           <Button 
             variant="ghost" 
-            onClick={handleBackToPractice}
+            onClick={() => navigate('/')}
             className="text-[#1A1F2C] hover:text-[#2A2F3C]"
           >
             Back to Practice
