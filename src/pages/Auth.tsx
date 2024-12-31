@@ -16,13 +16,6 @@ const AuthPage = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Clear any existing session on mount
-    const clearSession = async () => {
-      const { error } = await supabase.auth.signOut();
-      if (error) console.error('Error clearing session:', error);
-    };
-    clearSession();
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session) => {
       if (event === "SIGNED_IN") {
         setIsLoading(true);
@@ -68,6 +61,11 @@ const AuthPage = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate, toast]);
+
+  const handleBackToPractice = () => {
+    setError(null);
+    navigate('/', { replace: true });
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F5E6DB' }}>
@@ -129,7 +127,7 @@ const AuthPage = () => {
         <div className="mt-6 text-center">
           <Button 
             variant="ghost" 
-            onClick={() => navigate('/')}
+            onClick={handleBackToPractice}
             className="text-[#1A1F2C] hover:text-[#2A2F3C]"
           >
             Back to Practice
