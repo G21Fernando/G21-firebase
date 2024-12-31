@@ -1,41 +1,116 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
-import MetronomeControl from '@/components/MetronomeControl';
-import StatsCard from '@/components/StatsCard';
-import LeaderboardCard from '@/components/LeaderboardCard';
-import { Button } from '@/components/ui/button';
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
+import { ProfileMenu } from "@/components/ProfileMenu";
+import MetronomeControl from "@/components/MetronomeControl";
+import StatsCard from "@/components/StatsCard";
+import LeaderboardCard from "@/components/LeaderboardCard";
+import { LogIn } from 'lucide-react';
 
-const Index = () => {
+export default function Index() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [points, setPoints] = useState(0);
   const [practiceTime, setPracticeTime] = useState(0);
-  const session = useSession();
-  const supabase = useSupabaseClient();
-  const navigate = useNavigate();
+  const [profile, setProfile] = useState<{
+    username: string;
+    avatar_url: string | null;
+  } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handlePracticeTimeUpdate = async (time: number) => {
-    setPracticeTime(time);
-    if (session?.user) {
-      await supabase
-        .from('profiles')
-        .update({ practice_time: time, points })
-        .eq('id', session.user.id);
-    }
-  };
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          setIsLoading(false);
+          return;
+        }
+
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('username, points, practice_time, avatar_url')
+          .eq('id', user.id)
+          .single();
+
+        if (error) throw error;
+
+        setProfile(profile);
+        setPoints(profile.points || 0);
+        setPracticeTime(profile.practice_time || 0);
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load profile data.",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProfile();
+
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        setProfile(null);
+        setPoints(0);
+        setPracticeTime(0);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [toast]);
 
   const handlePointsUpdate = async (newPoints: number) => {
-    setPoints(newPoints);
-    if (session?.user) {
-      await supabase
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      setPoints(prev => prev + newPoints);
+
+      const { error } = await supabase
         .from('profiles')
-        .update({ points: newPoints })
-        .eq('id', session.user.id);
+        .update({ points: points + newPoints })
+        .eq('id', user.id);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating points:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update points.",
+      });
     }
   };
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate('/auth');
+  const handlePracticeTimeUpdate = async (seconds: number) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      setPracticeTime(prev => prev + seconds);
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ practice_time: practiceTime + seconds })
+        .eq('id', user.id);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating practice time:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update practice time.",
+      });
+    }
   };
 
   return (
@@ -47,22 +122,20 @@ const Index = () => {
               Stop scrolling Start strumming
             </h1>
           </div>
-          <div className="flex-shrink-0">
-            {session ? (
-              <Button 
-                onClick={handleSignOut}
-                variant="outline"
-                className="bg-[#1A1F2C] text-white hover:bg-[#2A2F3C]"
-              >
-                Sign Out
-              </Button>
+          <div className="flex items-center gap-4">
+            {profile ? (
+              <ProfileMenu
+                username={profile.username}
+                avatarUrl={profile.avatar_url || undefined}
+              />
             ) : (
-              <Button 
-                onClick={() => navigate('/auth')}
+              <Button
                 variant="outline"
-                className="bg-[#1A1F2C] text-white hover:bg-[#2A2F3C]"
+                onClick={() => navigate('/auth')}
+                className="flex items-center gap-2"
               >
-                Sign In
+                <LogIn className="h-4 w-4" />
+                Sign in
               </Button>
             )}
           </div>
@@ -90,6 +163,4 @@ const Index = () => {
       </div>
     </div>
   );
-};
-
-export default Index;
+}

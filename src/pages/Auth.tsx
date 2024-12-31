@@ -4,25 +4,71 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 
 const AuthPage = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN") {
-        navigate("/");
+        setIsLoading(true);
+        try {
+          // Check if profile exists
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session?.user?.id)
+            .single();
+
+          if (profileError && profileError.code !== 'PGRST116') {
+            console.error('Error fetching profile:', profileError);
+            toast({
+              variant: "destructive",
+              title: "Error",
+              description: "Failed to fetch user profile. Please try again.",
+            });
+            return;
+          }
+
+          // Redirect to home page
+          navigate("/");
+          toast({
+            title: "Welcome back!",
+            description: `You've successfully signed in${profile?.username ? `, ${profile.username}` : ''}!`,
+          });
+        } catch (err) {
+          console.error('Error during sign in:', err);
+          setError('An unexpected error occurred. Please try again.');
+        } finally {
+          setIsLoading(false);
+        }
       }
       if (event === "SIGNED_OUT") {
         setError(null);
+        toast({
+          title: "Signed out",
+          description: "You've been successfully signed out.",
+        });
       }
     });
 
+    // Check if user is already signed in
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate("/");
+      }
+    };
+    
+    checkUser();
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, toast]);
 
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F5E6DB' }}>
@@ -33,10 +79,13 @@ const AuthPage = () => {
         {error && (
           <Alert variant="destructive" className="mb-4">
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Oops! Something went wrong. Please try again or check your internet connection.
-            </AlertDescription>
+            <AlertDescription>{error}</AlertDescription>
           </Alert>
+        )}
+        {isLoading && (
+          <div className="flex justify-center items-center mb-4">
+            <Loader2 className="h-6 w-6 animate-spin text-[#1A1F2C]" />
+          </div>
         )}
         <Auth
           supabaseClient={supabase}
@@ -52,11 +101,29 @@ const AuthPage = () => {
             },
             className: {
               message: 'text-center text-sm text-red-600 bg-red-50 rounded p-2',
+              button: 'bg-[#1A1F2C] hover:bg-[#2A2F3C] text-white font-medium py-2 px-4 rounded transition-colors',
+              input: 'border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-[#1A1F2C]',
+              label: 'block text-sm font-medium text-gray-700 mb-1',
             }
           }}
           providers={[]}
           view="sign_in"
           redirectTo={window.location.origin}
+          localization={{
+            variables: {
+              sign_in: {
+                email_label: 'Email',
+                password_label: 'Password',
+                button_label: 'Sign in',
+              },
+              sign_up: {
+                email_label: 'Email',
+                password_label: 'Password',
+                username_label: 'Username',
+                button_label: 'Sign up',
+              },
+            },
+          }}
         />
         <div className="mt-6 text-center">
           <Button 
