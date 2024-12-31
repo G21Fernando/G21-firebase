@@ -39,9 +39,9 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen p-4 md:p-6" style={{ backgroundColor: '#F5E6DB' }}>
+    <div className="min-h-screen p-2 md:p-6" style={{ backgroundColor: '#F5E6DB' }}>
       <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-6 md:mb-8">
+        <div className="flex justify-between items-center mb-3 md:mb-8">
           <div className="flex-grow text-center">
             <h1 className="text-2xl md:text-4xl font-bold text-[#1A1F2C]">
               Stop scrolling Start strumming
@@ -68,22 +68,22 @@ const Index = () => {
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-          <div className="bg-[#E2D1C3] p-4 md:p-6 rounded-lg shadow-md">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6">
+          <div className="order-2 md:order-1 bg-[#E2D1C3] p-3 md:p-6 rounded-lg shadow-md">
             <StatsCard 
               points={points}
               practiceTime={practiceTime}
             />
           </div>
 
-          <div className="bg-white p-4 md:p-6 rounded-lg shadow-md">
+          <div className="order-1 md:order-2 bg-white p-3 md:p-6 rounded-lg shadow-md">
             <MetronomeControl 
               onPointsUpdate={handlePointsUpdate}
               onPracticeTimeUpdate={handlePracticeTimeUpdate}
             />
           </div>
 
-          <div className="bg-[#f3f3f3] p-4 md:p-6 rounded-lg shadow-md">
+          <div className="order-3 bg-[#f3f3f3] p-3 md:p-6 rounded-lg shadow-md">
             <LeaderboardCard />
           </div>
         </div>
