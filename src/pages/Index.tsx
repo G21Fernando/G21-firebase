@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -11,6 +11,7 @@ import { LogIn } from 'lucide-react';
 
 export default function Index() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [points, setPoints] = useState(0);
   const [practiceTime, setPracticeTime] = useState(0);
@@ -23,6 +24,12 @@ export default function Index() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
+        // Skip auth check if coming from "Back to Practice" button
+        if (location.state?.skipAuthCheck) {
+          setIsLoading(false);
+          return;
+        }
+
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         
         if (userError) {
@@ -78,7 +85,7 @@ export default function Index() {
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate, toast]);
+  }, [navigate, toast, location.state]);
 
   const handlePointsUpdate = async (newPoints: number) => {
     try {

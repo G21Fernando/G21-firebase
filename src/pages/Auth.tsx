@@ -62,9 +62,15 @@ const AuthPage = () => {
     return () => subscription.unsubscribe();
   }, [navigate, toast]);
 
-  const handleBackToPractice = () => {
+  const handleBackToPractice = async () => {
     setError(null);
-    navigate('/', { replace: true });
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      // If not authenticated, navigate to home without auth check
+      navigate('/', { replace: true, state: { skipAuthCheck: true } });
+    } else {
+      navigate('/', { replace: true });
+    }
   };
 
   return (
