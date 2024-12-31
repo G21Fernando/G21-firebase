@@ -110,7 +110,7 @@ const AuthPage = () => {
             }
           }}
           providers={[]}
-          redirectTo={`${window.location.origin}/auth`}
+          redirectTo={window.location.origin + '/auth'}
           onlyThirdPartyProviders={false}
           magicLink={false}
           showLinks={true}
