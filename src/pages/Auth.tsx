@@ -69,6 +69,10 @@ const AuthPage = () => {
     return () => subscription.unsubscribe();
   }, [navigate, toast]);
 
+  const handleBackToPractice = () => {
+    navigate('/');
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F5E6DB' }}>
       <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
@@ -129,7 +133,7 @@ const AuthPage = () => {
         <div className="mt-6 text-center">
           <Button 
             variant="ghost" 
-            onClick={() => navigate('/')}
+            onClick={handleBackToPractice}
             className="text-[#1A1F2C] hover:text-[#2A2F3C]"
           >
             Back to Practice
