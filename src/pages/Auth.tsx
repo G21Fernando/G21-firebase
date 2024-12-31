@@ -2,15 +2,21 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 const AuthPage = () => {
   const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN") {
         navigate("/");
+      }
+      if (event === "SIGNED_OUT") {
+        setError(null);
       }
     });
 
@@ -23,6 +29,14 @@ const AuthPage = () => {
         <h1 className="text-3xl font-bold text-center text-[#1A1F2C] mb-8">
           Stop scrolling Start strumming
         </h1>
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Oops! Something went wrong. Please try again or check your internet connection.
+            </AlertDescription>
+          </Alert>
+        )}
         <Auth
           supabaseClient={supabase}
           appearance={{
@@ -34,10 +48,17 @@ const AuthPage = () => {
                   brandAccent: '#2A2F3C',
                 }
               }
+            },
+            className: {
+              message: 'text-center text-sm text-red-600 bg-red-50 rounded p-2',
             }
           }}
           providers={[]}
           redirectTo={window.location.origin}
+          onError={(error) => {
+            console.error('Auth error:', error);
+            setError(error.message);
+          }}
         />
       </div>
     </div>
