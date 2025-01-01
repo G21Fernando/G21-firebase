@@ -20,7 +20,7 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
   const practiceIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const totalPracticeTimeRef = useRef<number>(0);
+  const practiceTimeRef = useRef<number>(0);
 
   useEffect(() => {
     if (!audioContext.current) {
@@ -87,22 +87,24 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
       const interval = (60 / bpm) * 1000;
       
       playTick();
-      intervalRef.current = setInterval(() => {
-        playTick();
+      intervalRef.current = setInterval(playTick, interval);
+
+      // Start tracking practice time
+      practiceIntervalRef.current = setInterval(() => {
+        const currentTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
+        practiceTimeRef.current = currentTime;
+        onPracticeTimeUpdate(currentTime);
+      }, 1000);
+
+      // Start tracking points
+      setInterval(() => {
         setPoints(prev => {
           const newPoints = prev + 1;
           onPointsUpdate(newPoints);
+          updateProfileStats(newPoints, practiceTimeRef.current);
           return newPoints;
         });
       }, interval);
-
-      // Start tracking practice time independently
-      practiceIntervalRef.current = setInterval(() => {
-        const elapsedTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
-        totalPracticeTimeRef.current = elapsedTime;
-        onPracticeTimeUpdate(elapsedTime);
-        updateProfileStats(points, elapsedTime);
-      }, 1000);
     }
   };
 
@@ -116,7 +118,7 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
         clearInterval(practiceIntervalRef.current);
       }
       const finalPracticeTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
-      totalPracticeTimeRef.current = finalPracticeTime;
+      practiceTimeRef.current = finalPracticeTime;
       onPracticeTimeUpdate(finalPracticeTime);
       updateProfileStats(points, finalPracticeTime);
       setIndicator(false);
