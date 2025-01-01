@@ -20,7 +20,6 @@ const AuthPage = () => {
       if (event === "SIGNED_IN") {
         setIsLoading(true);
         try {
-          // Check if profile exists
           const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('*')
@@ -37,7 +36,6 @@ const AuthPage = () => {
             return;
           }
 
-          // Redirect to home page
           navigate("/");
           toast({
             title: "Welcome back!",
@@ -62,15 +60,9 @@ const AuthPage = () => {
     return () => subscription.unsubscribe();
   }, [navigate, toast]);
 
-  const handleBackToPractice = async () => {
+  const handleBackToPractice = () => {
     setError(null);
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      // If not authenticated, navigate to home without auth check
-      navigate('/', { replace: true, state: { skipAuthCheck: true } });
-    } else {
-      navigate('/', { replace: true });
-    }
+    navigate('/', { replace: true, state: { skipAuthCheck: true } });
   };
 
   return (
@@ -110,7 +102,7 @@ const AuthPage = () => {
             }
           }}
           providers={[]}
-          redirectTo={window.location.origin + '/auth'}
+          redirectTo={window.location.origin}
           onlyThirdPartyProviders={false}
           magicLink={false}
           showLinks={true}
@@ -120,11 +112,15 @@ const AuthPage = () => {
                 email_label: 'Email',
                 password_label: 'Password',
                 button_label: 'Sign in',
+                email_input_placeholder: 'Your email address',
+                password_input_placeholder: 'Your password',
               },
               sign_up: {
                 email_label: 'Email',
                 password_label: 'Password',
                 button_label: 'Sign up',
+                email_input_placeholder: 'Your email address',
+                password_input_placeholder: 'Choose a password',
               },
             },
           }}
