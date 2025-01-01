@@ -20,6 +20,7 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
   const practiceIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const totalPracticeTimeRef = useRef<number>(0);
 
   useEffect(() => {
     if (!audioContext.current) {
@@ -70,12 +71,11 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
       gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.current.currentTime + 0.05);
       oscillator.stop(audioContext.current.currentTime + 0.05);
       
-      // Schedule the indicator change to match the audio timing
       requestAnimationFrame(() => {
         setIndicator(true);
         setTimeout(() => {
           setIndicator(false);
-        }, 100); // Reset indicator after 100ms for a clear visual beat
+        }, 100);
       });
     }
   };
@@ -92,16 +92,16 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
         setPoints(prev => {
           const newPoints = prev + 1;
           onPointsUpdate(newPoints);
-          updateProfileStats(newPoints, Math.floor((Date.now() - startTimeRef.current) / 1000));
           return newPoints;
         });
       }, interval);
 
-      // Start tracking practice time
+      // Start tracking practice time independently
       practiceIntervalRef.current = setInterval(() => {
-        const currentPracticeTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
-        onPracticeTimeUpdate(currentPracticeTime);
-        updateProfileStats(points, currentPracticeTime);
+        const elapsedTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
+        totalPracticeTimeRef.current = elapsedTime;
+        onPracticeTimeUpdate(elapsedTime);
+        updateProfileStats(points, elapsedTime);
       }, 1000);
     }
   };
@@ -116,9 +116,10 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
         clearInterval(practiceIntervalRef.current);
       }
       const finalPracticeTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
+      totalPracticeTimeRef.current = finalPracticeTime;
       onPracticeTimeUpdate(finalPracticeTime);
       updateProfileStats(points, finalPracticeTime);
-      setIndicator(false); // Ensure indicator is off when stopping
+      setIndicator(false);
     }
   };
 
