@@ -21,6 +21,7 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
   const startTimeRef = useRef<number>(0);
   const practiceIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const practiceTimeRef = useRef<number>(0);
+  const pointsIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!audioContext.current) {
@@ -28,12 +29,9 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
     }
 
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      if (practiceIntervalRef.current) {
-        clearInterval(practiceIntervalRef.current);
-      }
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (practiceIntervalRef.current) clearInterval(practiceIntervalRef.current);
+      if (pointsIntervalRef.current) clearInterval(pointsIntervalRef.current);
     };
   }, []);
 
@@ -86,22 +84,24 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
       startTimeRef.current = Date.now();
       const interval = (60 / bpm) * 1000;
       
+      // Start metronome ticks
       playTick();
       intervalRef.current = setInterval(playTick, interval);
 
       // Start tracking practice time
       practiceIntervalRef.current = setInterval(() => {
-        const currentTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
-        practiceTimeRef.current = currentTime;
-        onPracticeTimeUpdate(currentTime);
+        const elapsedTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
+        practiceTimeRef.current = elapsedTime;
+        onPracticeTimeUpdate(elapsedTime);
       }, 1000);
 
       // Start tracking points
-      setInterval(() => {
+      pointsIntervalRef.current = setInterval(() => {
         setPoints(prev => {
           const newPoints = prev + 1;
+          const currentPracticeTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
           onPointsUpdate(newPoints);
-          updateProfileStats(newPoints, practiceTimeRef.current);
+          updateProfileStats(newPoints, currentPracticeTime);
           return newPoints;
         });
       }, interval);
@@ -111,12 +111,13 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
   const stopMetronome = () => {
     if (isPlaying) {
       setIsPlaying(false);
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      if (practiceIntervalRef.current) {
-        clearInterval(practiceIntervalRef.current);
-      }
+      
+      // Clear all intervals
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (practiceIntervalRef.current) clearInterval(practiceIntervalRef.current);
+      if (pointsIntervalRef.current) clearInterval(pointsIntervalRef.current);
+      
+      // Calculate final practice time
       const finalPracticeTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
       practiceTimeRef.current = finalPracticeTime;
       onPracticeTimeUpdate(finalPracticeTime);
@@ -129,15 +130,19 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
     const newBpm = parseInt(value);
     setBpm(newBpm);
     if (isPlaying) {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
+      // Clear existing intervals
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (pointsIntervalRef.current) clearInterval(pointsIntervalRef.current);
+      
+      // Restart with new BPM
       const interval = (60 / newBpm) * 1000;
-      intervalRef.current = setInterval(() => {
-        playTick();
+      intervalRef.current = setInterval(playTick, interval);
+      pointsIntervalRef.current = setInterval(() => {
         setPoints(prev => {
           const newPoints = prev + 1;
+          const currentPracticeTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
           onPointsUpdate(newPoints);
+          updateProfileStats(newPoints, currentPracticeTime);
           return newPoints;
         });
       }, interval);
