@@ -82,26 +82,23 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
     if (!isPlaying) {
       setIsPlaying(true);
       startTimeRef.current = Date.now();
+      practiceTimeRef.current = 0;
       const interval = (60 / bpm) * 1000;
       
-      // Start metronome ticks
       playTick();
       intervalRef.current = setInterval(playTick, interval);
 
-      // Start tracking practice time independently
       practiceIntervalRef.current = setInterval(() => {
-        const elapsedTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
-        practiceTimeRef.current = elapsedTime;
-        onPracticeTimeUpdate(elapsedTime);
+        const newPracticeTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
+        practiceTimeRef.current = newPracticeTime;
+        onPracticeTimeUpdate(newPracticeTime);
       }, 1000);
 
-      // Start tracking points separately
       pointsIntervalRef.current = setInterval(() => {
         setPoints(prev => {
           const newPoints = prev + 1;
-          const currentPracticeTime = practiceTimeRef.current;
           onPointsUpdate(newPoints);
-          updateProfileStats(newPoints, currentPracticeTime);
+          updateProfileStats(newPoints, practiceTimeRef.current);
           return newPoints;
         });
       }, interval);
@@ -112,12 +109,10 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
     if (isPlaying) {
       setIsPlaying(false);
       
-      // Clear all intervals
       if (intervalRef.current) clearInterval(intervalRef.current);
       if (practiceIntervalRef.current) clearInterval(practiceIntervalRef.current);
       if (pointsIntervalRef.current) clearInterval(pointsIntervalRef.current);
       
-      // Calculate final practice time
       const finalPracticeTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
       practiceTimeRef.current = finalPracticeTime;
       onPracticeTimeUpdate(finalPracticeTime);
@@ -130,19 +125,16 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
     const newBpm = parseInt(value);
     setBpm(newBpm);
     if (isPlaying) {
-      // Clear existing intervals
       if (intervalRef.current) clearInterval(intervalRef.current);
       if (pointsIntervalRef.current) clearInterval(pointsIntervalRef.current);
       
-      // Restart with new BPM
       const interval = (60 / newBpm) * 1000;
       intervalRef.current = setInterval(playTick, interval);
       pointsIntervalRef.current = setInterval(() => {
         setPoints(prev => {
           const newPoints = prev + 1;
-          const currentPracticeTime = practiceTimeRef.current;
           onPointsUpdate(newPoints);
-          updateProfileStats(newPoints, currentPracticeTime);
+          updateProfileStats(newPoints, practiceTimeRef.current);
           return newPoints;
         });
       }, interval);
