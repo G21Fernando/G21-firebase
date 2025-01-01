@@ -88,18 +88,18 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
       playTick();
       intervalRef.current = setInterval(playTick, interval);
 
-      // Start tracking practice time
+      // Start tracking practice time independently
       practiceIntervalRef.current = setInterval(() => {
         const elapsedTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
         practiceTimeRef.current = elapsedTime;
         onPracticeTimeUpdate(elapsedTime);
       }, 1000);
 
-      // Start tracking points
+      // Start tracking points separately
       pointsIntervalRef.current = setInterval(() => {
         setPoints(prev => {
           const newPoints = prev + 1;
-          const currentPracticeTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
+          const currentPracticeTime = practiceTimeRef.current;
           onPointsUpdate(newPoints);
           updateProfileStats(newPoints, currentPracticeTime);
           return newPoints;
@@ -140,7 +140,7 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
       pointsIntervalRef.current = setInterval(() => {
         setPoints(prev => {
           const newPoints = prev + 1;
-          const currentPracticeTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
+          const currentPracticeTime = practiceTimeRef.current;
           onPointsUpdate(newPoints);
           updateProfileStats(newPoints, currentPracticeTime);
           return newPoints;
