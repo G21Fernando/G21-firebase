@@ -3,8 +3,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
-import { supabase } from "@/integrations/supabase/client";
-import { useSession } from '@supabase/auth-helpers-react';
 
 interface MetronomeControlProps {
   onPointsUpdate: (points: number) => void;
@@ -12,31 +10,15 @@ interface MetronomeControlProps {
 }
 
 const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onPracticeTimeUpdate }) => {
-  const session = useSession();
   const [isPlaying, setIsPlaying] = useState(false);
   const [bpm, setBpm] = useState(100);
   const [points, setPoints] = useState(0);
   const [indicator, setIndicator] = useState(false);
+  const [totalPracticeTime, setTotalPracticeTime] = useState(0);
   const [volume, setVolume] = useState(0.5);
   const audioContext = useRef<AudioContext | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
-  const practiceTimeRef = useRef<number>(0);
-  const pointsIntervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Load guest stats from localStorage on component mount
-  useEffect(() => {
-    if (!session) {
-      const savedStats = localStorage.getItem('guestStats');
-      if (savedStats) {
-        const { points: savedPoints, practiceTime } = JSON.parse(savedStats);
-        setPoints(savedPoints);
-        practiceTimeRef.current = practiceTime;
-        onPointsUpdate(savedPoints);
-        onPracticeTimeUpdate(practiceTime);
-      }
-    }
-  }, [session]);
 
   useEffect(() => {
     if (!audioContext.current) {
@@ -44,35 +26,11 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
     }
 
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      if (pointsIntervalRef.current) clearInterval(pointsIntervalRef.current);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
     };
   }, []);
-
-  const updateProfileStats = async (newPoints: number, newPracticeTime: number) => {
-    if (!session) {
-      // Update local storage for guest users
-      localStorage.setItem('guestStats', JSON.stringify({
-        points: newPoints,
-        practiceTime: newPracticeTime
-      }));
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          points: newPoints,
-          practice_time: newPracticeTime
-        })
-        .eq('id', session.user.id);
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error updating profile stats:', error);
-    }
-  };
 
   const playTick = () => {
     if (audioContext.current) {
@@ -89,12 +47,7 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
       gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.current.currentTime + 0.05);
       oscillator.stop(audioContext.current.currentTime + 0.05);
       
-      requestAnimationFrame(() => {
-        setIndicator(true);
-        setTimeout(() => {
-          setIndicator(false);
-        }, 100);
-      });
+      setIndicator(prev => !prev);
     }
   };
 
@@ -105,21 +58,15 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
       const interval = (60 / bpm) * 1000;
       
       playTick();
-      intervalRef.current = setInterval(playTick, interval);
-
-      // Update practice time every second
-      const practiceInterval = setInterval(() => {
-        const newPracticeTime = Math.floor((Date.now() - startTimeRef.current) / 1000) + practiceTimeRef.current;
-        onPracticeTimeUpdate(newPracticeTime);
-      }, 1000);
-
-      pointsIntervalRef.current = setInterval(() => {
+      intervalRef.current = setInterval(() => {
+        playTick();
         setPoints(prev => {
           const newPoints = prev + 1;
           onPointsUpdate(newPoints);
-          updateProfileStats(newPoints, practiceTimeRef.current);
           return newPoints;
         });
+        const currentPracticeTime = totalPracticeTime + Math.floor((Date.now() - startTimeRef.current) / 1000);
+        onPracticeTimeUpdate(currentPracticeTime);
       }, interval);
     }
   };
@@ -127,15 +74,12 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
   const stopMetronome = () => {
     if (isPlaying) {
       setIsPlaying(false);
-      
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      if (pointsIntervalRef.current) clearInterval(pointsIntervalRef.current);
-      
-      const elapsedTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
-      const totalPracticeTime = practiceTimeRef.current + elapsedTime;
-      practiceTimeRef.current = totalPracticeTime;
-      onPracticeTimeUpdate(totalPracticeTime);
-      updateProfileStats(points, totalPracticeTime);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      const newTotalPracticeTime = totalPracticeTime + Math.floor((Date.now() - startTimeRef.current) / 1000);
+      setTotalPracticeTime(newTotalPracticeTime);
+      onPracticeTimeUpdate(newTotalPracticeTime);
     }
   };
 
@@ -143,16 +87,15 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
     const newBpm = parseInt(value);
     setBpm(newBpm);
     if (isPlaying) {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      if (pointsIntervalRef.current) clearInterval(pointsIntervalRef.current);
-      
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
       const interval = (60 / newBpm) * 1000;
-      intervalRef.current = setInterval(playTick, interval);
-      pointsIntervalRef.current = setInterval(() => {
+      intervalRef.current = setInterval(() => {
+        playTick();
         setPoints(prev => {
           const newPoints = prev + 1;
           onPointsUpdate(newPoints);
-          updateProfileStats(newPoints, practiceTimeRef.current);
           return newPoints;
         });
       }, interval);
@@ -183,8 +126,8 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
         </Select>
         
         <div 
-          className={`w-4 h-4 rounded-full transition-colors duration-50 ${
-            indicator ? 'bg-green-500' : 'bg-[#1A1F2C]'
+          className={`w-4 h-4 rounded-full bg-[#1A1F2C] metronome-indicator ${
+            indicator ? 'active' : ''
           }`}
         />
       </div>

@@ -6,7 +6,6 @@ import { supabase } from "@/integrations/supabase/client";
 interface Profile {
   username: string;
   points: number;
-  practice_time: number;
 }
 
 const LeaderboardCard: React.FC = () => {
@@ -16,7 +15,7 @@ const LeaderboardCard: React.FC = () => {
     const fetchLeaderboard = async () => {
       const { data } = await supabase
         .from('profiles')
-        .select('username, points, practice_time')
+        .select('username, points')
         .order('points', { ascending: false })
         .limit(5);
       
@@ -43,12 +42,6 @@ const LeaderboardCard: React.FC = () => {
     };
   }, []);
 
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}m ${remainingSeconds}s`;
-  };
-
   return (
     <Card className="bg-[#f3f3f3]">
       <div className="p-6">
@@ -67,12 +60,7 @@ const LeaderboardCard: React.FC = () => {
                 <span className="font-bold text-gray-500">#{index + 1}</span>
                 <span>{player.username}</span>
               </span>
-              <div className="text-right">
-                <div className="font-semibold">{player.points} pts</div>
-                <div className="text-sm text-gray-500">
-                  {formatTime(player.practice_time || 0)}
-                </div>
-              </div>
+              <span className="font-semibold">{player.points} pts</span>
             </li>
           ))}
         </ul>
