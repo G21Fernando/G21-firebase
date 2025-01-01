@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { supabase } from "@/integrations/supabase/client";
+import { useSession } from '@supabase/auth-helpers-react';
 
 interface MetronomeControlProps {
   onPointsUpdate: (points: number) => void;
@@ -11,6 +12,7 @@ interface MetronomeControlProps {
 }
 
 const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onPracticeTimeUpdate }) => {
+  const session = useSession();
   const [isPlaying, setIsPlaying] = useState(false);
   const [bpm, setBpm] = useState(100);
   const [points, setPoints] = useState(0);
@@ -19,9 +21,22 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
   const audioContext = useRef<AudioContext | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
-  const practiceIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const practiceTimeRef = useRef<number>(0);
   const pointsIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Load guest stats from localStorage on component mount
+  useEffect(() => {
+    if (!session) {
+      const savedStats = localStorage.getItem('guestStats');
+      if (savedStats) {
+        const { points: savedPoints, practiceTime } = JSON.parse(savedStats);
+        setPoints(savedPoints);
+        practiceTimeRef.current = practiceTime;
+        onPointsUpdate(savedPoints);
+        onPracticeTimeUpdate(practiceTime);
+      }
+    }
+  }, [session]);
 
   useEffect(() => {
     if (!audioContext.current) {
@@ -30,23 +45,28 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
-      if (practiceIntervalRef.current) clearInterval(practiceIntervalRef.current);
       if (pointsIntervalRef.current) clearInterval(pointsIntervalRef.current);
     };
   }, []);
 
   const updateProfileStats = async (newPoints: number, newPracticeTime: number) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+    if (!session) {
+      // Update local storage for guest users
+      localStorage.setItem('guestStats', JSON.stringify({
+        points: newPoints,
+        practiceTime: newPracticeTime
+      }));
+      return;
+    }
 
+    try {
       const { error } = await supabase
         .from('profiles')
         .update({
           points: newPoints,
           practice_time: newPracticeTime
         })
-        .eq('id', user.id);
+        .eq('id', session.user.id);
 
       if (error) throw error;
     } catch (error) {
@@ -82,15 +102,14 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
     if (!isPlaying) {
       setIsPlaying(true);
       startTimeRef.current = Date.now();
-      practiceTimeRef.current = 0;
       const interval = (60 / bpm) * 1000;
       
       playTick();
       intervalRef.current = setInterval(playTick, interval);
 
-      practiceIntervalRef.current = setInterval(() => {
-        const newPracticeTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
-        practiceTimeRef.current = newPracticeTime;
+      // Update practice time every second
+      const practiceInterval = setInterval(() => {
+        const newPracticeTime = Math.floor((Date.now() - startTimeRef.current) / 1000) + practiceTimeRef.current;
         onPracticeTimeUpdate(newPracticeTime);
       }, 1000);
 
@@ -110,14 +129,13 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
       setIsPlaying(false);
       
       if (intervalRef.current) clearInterval(intervalRef.current);
-      if (practiceIntervalRef.current) clearInterval(practiceIntervalRef.current);
       if (pointsIntervalRef.current) clearInterval(pointsIntervalRef.current);
       
-      const finalPracticeTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
-      practiceTimeRef.current = finalPracticeTime;
-      onPracticeTimeUpdate(finalPracticeTime);
-      updateProfileStats(points, finalPracticeTime);
-      setIndicator(false);
+      const elapsedTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
+      const totalPracticeTime = practiceTimeRef.current + elapsedTime;
+      practiceTimeRef.current = totalPracticeTime;
+      onPracticeTimeUpdate(totalPracticeTime);
+      updateProfileStats(points, totalPracticeTime);
     }
   };
 
