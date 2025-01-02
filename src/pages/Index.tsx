@@ -1,17 +1,46 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import MetronomeControl from '@/components/MetronomeControl';
 import StatsCard from '@/components/StatsCard';
 import LeaderboardCard from '@/components/LeaderboardCard';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { UserRound } from 'lucide-react';
 
 const Index = () => {
   const [points, setPoints] = useState(0);
   const [practiceTime, setPracticeTime] = useState(0);
+  const [profile, setProfile] = useState<any>(null);
   const session = useSession();
   const supabase = useSupabaseClient();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (session?.user) {
+      fetchProfile();
+    }
+  }, [session]);
+
+  const fetchProfile = async () => {
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', session?.user?.id)
+      .single();
+    
+    if (data) {
+      setProfile(data);
+      setPoints(data.points || 0);
+      setPracticeTime(data.practice_time || 0);
+    }
+  };
 
   const handlePracticeTimeUpdate = async (time: number) => {
     setPracticeTime(time);
@@ -49,13 +78,26 @@ const Index = () => {
           </div>
           <div className="flex-shrink-0">
             {session ? (
-              <Button 
-                onClick={handleSignOut}
-                variant="outline"
-                className="bg-[#1A1F2C] text-white hover:bg-[#2A2F3C]"
-              >
-                Sign Out
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-10 w-10 md:h-auto md:w-auto md:px-4 rounded-full">
+                    <div className="flex items-center gap-2">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={profile?.avatar_url} />
+                        <AvatarFallback>
+                          <UserRound className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="hidden md:inline-block">{profile?.username}</span>
+                    </div>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <Button 
                 onClick={() => navigate('/auth')}
