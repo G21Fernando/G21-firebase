@@ -102,11 +102,13 @@ const Index = () => {
   return (
     <div className="min-h-screen p-4 md:p-6" style={{ backgroundColor: '#F5E6DB' }}>
       <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-6 md:mb-8">
-          <div className="flex-grow text-center">
-            <h1 className="text-2xl md:text-4xl font-bold text-[#1A1F2C]">
-              Stop scrolling Start strumming
-            </h1>
+        <header className="flex justify-between items-center mb-6 md:mb-8 bg-white rounded-lg shadow-sm p-4">
+          <div className="flex items-center">
+            <img 
+              src="/lovable-uploads/db1da699-f510-4050-a97c-be00ae57a666.png" 
+              alt="G21 Logo" 
+              className="h-8 md:h-10"
+            />
           </div>
           <div className="flex-shrink-0">
             {session ? (
@@ -149,7 +151,7 @@ const Index = () => {
               </Button>
             )}
           </div>
-        </div>
+        </header>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           <div className="bg-[#E2D1C3] p-4 md:p-6 rounded-lg shadow-md">
