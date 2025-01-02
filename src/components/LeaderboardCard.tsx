@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Trophy } from 'lucide-react';
+import { Trophy, Shield } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Profile {
   username: string;
@@ -57,6 +58,18 @@ const LeaderboardCard: React.FC = () => {
             <span className="flex items-center gap-2">
               <span className="font-bold text-gray-500">#{index + 1}</span>
               <span>{player.username}</span>
+              {player.points >= 1000 && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Shield className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Level 1 Completed</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
             </span>
             <span className="font-semibold">{player.points} pts</span>
           </li>
