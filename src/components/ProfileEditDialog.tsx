@@ -27,6 +27,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
 }) => {
   const [username, setUsername] = useState(currentUsername);
   const [avatarUrl, setAvatarUrl] = useState(currentAvatarUrl || '');
+  const [open, setOpen] = useState(false);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,6 +50,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
       });
       
       onProfileUpdate();
+      setOpen(false); // Close the dialog after successful update
     } catch (error) {
       toast({
         title: "Error updating profile",
@@ -60,7 +62,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="ghost" className="w-full justify-start">
           Edit Profile
