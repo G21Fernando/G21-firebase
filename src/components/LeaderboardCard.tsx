@@ -47,7 +47,7 @@ const LeaderboardCard: React.FC = () => {
       <div className="p-6">
         <div className="flex items-center gap-2 mb-4">
           <Trophy className="w-6 h-6 text-yellow-500" />
-          <h2 className="text-2xl font-bold">Leaderboard</h2>
+          <h2 className="text-2xl font-bold">G21 Leaderboard</h2>
         </div>
         
         <ul className="space-y-4">

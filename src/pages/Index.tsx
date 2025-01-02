@@ -4,6 +4,7 @@ import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import MetronomeControl from '@/components/MetronomeControl';
 import StatsCard from '@/components/StatsCard';
 import LeaderboardCard from '@/components/LeaderboardCard';
+import ProfileEditDialog from '@/components/ProfileEditDialog';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -40,7 +41,6 @@ const Index = () => {
       
       if (data) {
         setProfile(data);
-        // Set the daily stats from the database
         setDailyPoints(data.daily_points || 0);
         setDailyPracticeTime(data.daily_practice_time || 0);
       }
@@ -124,6 +124,14 @@ const Index = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  {profile && (
+                    <ProfileEditDialog
+                      currentUsername={profile.username}
+                      currentAvatarUrl={profile.avatar_url}
+                      userId={session.user.id}
+                      onProfileUpdate={fetchProfile}
+                    />
+                  )}
                   <DropdownMenuItem onClick={handleSignOut}>
                     Sign Out
                   </DropdownMenuItem>
