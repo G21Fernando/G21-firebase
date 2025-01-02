@@ -18,7 +18,7 @@ const MainContent = ({
   return (
     <div className="max-w-6xl mx-auto p-2 md:p-6 mt-12 md:mt-16">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-6">
-        <div className="bg-[#E2D1C3] p-3 md:p-6 rounded-lg transform scale-80 md:scale-100">
+        <div className="bg-[#E2D1C3] p-3 md:p-6 rounded-lg transform scale-[0.64] md:scale-100 h-[80%] md:h-auto">
           <StatsCard 
             points={dailyPoints}
             practiceTime={dailyPracticeTime}
