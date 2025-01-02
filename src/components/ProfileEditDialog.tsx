@@ -17,6 +17,7 @@ interface ProfileEditDialogProps {
   currentAvatarUrl: string | null;
   userId: string;
   onProfileUpdate: () => void;
+  onClose: () => void;  // New prop to handle dropdown menu close
 }
 
 const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
@@ -24,6 +25,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
   currentAvatarUrl,
   userId,
   onProfileUpdate,
+  onClose,
 }) => {
   const [username, setUsername] = useState(currentUsername);
   const [avatarUrl, setAvatarUrl] = useState(currentAvatarUrl || '');
@@ -50,7 +52,8 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
       });
       
       onProfileUpdate();
-      setOpen(false); // Close the dialog after successful update
+      setOpen(false); // Close the dialog
+      onClose(); // Close the dropdown menu
     } catch (error) {
       toast({
         title: "Error updating profile",

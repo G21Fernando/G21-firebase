@@ -19,6 +19,7 @@ const Index = () => {
   const [dailyPoints, setDailyPoints] = useState(0);
   const [dailyPracticeTime, setDailyPracticeTime] = useState(0);
   const [profile, setProfile] = useState<any>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const session = useSession();
   const supabase = useSupabaseClient();
   const navigate = useNavigate();
@@ -109,7 +110,7 @@ const Index = () => {
           </div>
           <div className="flex-shrink-0">
             {session ? (
-              <DropdownMenu>
+              <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 md:h-auto md:w-auto md:px-4 rounded-full">
                     <div className="flex items-center gap-2">
@@ -130,6 +131,7 @@ const Index = () => {
                       currentAvatarUrl={profile.avatar_url}
                       userId={session.user.id}
                       onProfileUpdate={fetchProfile}
+                      onClose={() => setDropdownOpen(false)}
                     />
                   )}
                   <DropdownMenuItem onClick={handleSignOut}>
