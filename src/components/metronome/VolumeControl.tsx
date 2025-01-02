@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Slider } from '@/components/ui/slider';
 import { Volume, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,13 @@ const VolumeControl: React.FC<VolumeControlProps> = ({ volume, onVolumeChange })
   const [prevVolume, setPrevVolume] = useState<number>(0.5);
   const [isMuted, setIsMuted] = useState(false);
 
+  useEffect(() => {
+    // Initialize prevVolume with current volume if not muted
+    if (volume > 0) {
+      setPrevVolume(volume);
+    }
+  }, []);
+
   const handleMuteToggle = () => {
     if (isMuted) {
       // Unmute: restore previous volume
@@ -19,7 +26,9 @@ const VolumeControl: React.FC<VolumeControlProps> = ({ volume, onVolumeChange })
       setIsMuted(false);
     } else {
       // Mute: save current volume and set to 0
-      setPrevVolume(volume);
+      if (volume > 0) {
+        setPrevVolume(volume);
+      }
       onVolumeChange([0]);
       setIsMuted(true);
     }
@@ -44,7 +53,7 @@ const VolumeControl: React.FC<VolumeControlProps> = ({ volume, onVolumeChange })
         className="h-8 w-8"
         onClick={handleMuteToggle}
       >
-        {volume === 0 || isMuted ? (
+        {isMuted || volume === 0 ? (
           <VolumeX className="h-5 w-5" />
         ) : (
           <Volume className="h-5 w-5" />
