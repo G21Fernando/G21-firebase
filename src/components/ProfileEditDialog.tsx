@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Spinner } from "@/components/ui/spinner";
 
 interface ProfileEditDialogProps {
   currentUsername: string;
@@ -30,10 +31,12 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
   const [username, setUsername] = useState(currentUsername);
   const [avatarUrl, setAvatarUrl] = useState(currentAvatarUrl || '');
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     
     try {
       const { error } = await supabase
@@ -66,6 +69,8 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
         variant: "destructive",
         duration: 3000,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -88,6 +93,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter your username"
+              disabled={isLoading}
             />
           </div>
           <div className="space-y-2">
@@ -97,10 +103,17 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
               value={avatarUrl}
               onChange={(e) => setAvatarUrl(e.target.value)}
               placeholder="Enter avatar URL"
+              disabled={isLoading}
             />
           </div>
-          <Button type="submit" className="w-full">
-            Save Changes
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? (
+              <div className="flex items-center gap-2">
+                <Spinner size={16} /> Saving...
+              </div>
+            ) : (
+              'Save Changes'
+            )}
           </Button>
         </form>
       </DialogContent>
