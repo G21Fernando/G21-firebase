@@ -33,7 +33,7 @@ const Header = ({ profile, onProfileUpdate }: {
           <img 
             src="/lovable-uploads/5bfe01d1-1192-497c-a049-12e321aea77a.png" 
             alt="G21 Logo" 
-            className="h-10" // Changed from h-8 to h-10 (25% increase)
+            className="h-10"
           />
         </div>
         <div className="flex-shrink-0">
