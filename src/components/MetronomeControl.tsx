@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Slider } from '@/components/ui/slider';
+import BpmSelector from './metronome/BpmSelector';
+import VolumeControl from './metronome/VolumeControl';
+import MetronomeIndicator from './metronome/MetronomeIndicator';
+import { useMetronome } from './metronome/useMetronome';
 
 interface MetronomeControlProps {
   onPointsUpdate: (points: number) => void;
@@ -10,95 +12,16 @@ interface MetronomeControlProps {
 }
 
 const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onPracticeTimeUpdate }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [bpm, setBpm] = useState(100);
-  const [points, setPoints] = useState(0);
-  const [indicator, setIndicator] = useState(false);
-  const [volume, setVolume] = useState(0.5);
-  const audioContext = useRef<AudioContext | null>(null);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const startTimeRef = useRef<number>(0);
-  const sessionPointsRef = useRef<number>(0);
-
-  useEffect(() => {
-    if (!audioContext.current) {
-      audioContext.current = new AudioContext();
-    }
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, []);
-
-  const playTick = () => {
-    if (audioContext.current) {
-      const oscillator = audioContext.current.createOscillator();
-      const gainNode = audioContext.current.createGain();
-      
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.current.destination);
-      
-      oscillator.frequency.value = 800;
-      gainNode.gain.value = volume;
-      
-      oscillator.start();
-      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.current.currentTime + 0.05);
-      oscillator.stop(audioContext.current.currentTime + 0.05);
-      
-      setIndicator(prev => !prev);
-    }
-  };
-
-  const startMetronome = () => {
-    if (!isPlaying) {
-      setIsPlaying(true);
-      startTimeRef.current = Date.now();
-      sessionPointsRef.current = 0;
-      const interval = (60 / bpm) * 1000;
-      
-      playTick();
-      intervalRef.current = setInterval(() => {
-        playTick();
-        sessionPointsRef.current += 1;
-        setPoints(prev => prev + 1);
-      }, interval);
-    }
-  };
-
-  const stopMetronome = () => {
-    if (isPlaying) {
-      setIsPlaying(false);
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      const practiceTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
-      onPracticeTimeUpdate(practiceTime);
-      onPointsUpdate(sessionPointsRef.current);
-    }
-  };
-
-  const handleBpmChange = (value: string) => {
-    const newBpm = parseInt(value);
-    setBpm(newBpm);
-    if (isPlaying) {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      const interval = (60 / newBpm) * 1000;
-      intervalRef.current = setInterval(() => {
-        playTick();
-        sessionPointsRef.current += 1;
-        setPoints(prev => prev + 1);
-      }, interval);
-    }
-  };
-
-  const handleVolumeChange = (value: number[]) => {
-    const newVolume = value[0] / 100;
-    setVolume(newVolume);
-  };
+  const {
+    isPlaying,
+    bpm,
+    indicator,
+    volume,
+    startMetronome,
+    stopMetronome,
+    handleBpmChange,
+    handleVolumeChange,
+  } = useMetronome(onPointsUpdate, onPracticeTimeUpdate);
 
   return (
     <Card className="p-6 shadow-lg max-w-md mx-auto">
@@ -111,42 +34,13 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
 
       <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-4">
         <div className="flex items-center gap-4">
-          <Select value={bpm.toString()} onValueChange={handleBpmChange}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select BPM" />
-            </SelectTrigger>
-            <SelectContent>
-              {[60, 80, 100, 120, 140, 160, 180, 200].map((value) => (
-                <SelectItem key={value} value={value.toString()}>
-                  {value} BPM
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          
-          <div 
-            className={`w-4 h-4 rounded-full bg-[#1A1F2C] metronome-indicator ${
-              indicator ? 'active' : ''
-            }`}
-          />
+          <BpmSelector bpm={bpm} onBpmChange={handleBpmChange} />
+          <MetronomeIndicator isActive={indicator} />
         </div>
 
-        <div className="w-full md:w-40">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Volume</span>
-            <Slider
-              value={[volume * 100]}
-              onValueChange={handleVolumeChange}
-              max={100}
-              step={1}
-              className="flex-grow"
-            />
-          </div>
+        <div className="w-full md:w-auto">
+          <VolumeControl volume={volume} onVolumeChange={handleVolumeChange} />
         </div>
-      </div>
-
-      <div className="text-2xl font-bold text-center">
-        Points: {points}
       </div>
     </Card>
   );
