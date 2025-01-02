@@ -17,7 +17,7 @@ interface ProfileEditDialogProps {
   currentAvatarUrl: string | null;
   userId: string;
   onProfileUpdate: () => void;
-  onClose: () => void;  // New prop to handle dropdown menu close
+  onClose: () => void;
 }
 
 const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
@@ -52,8 +52,13 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
       });
       
       onProfileUpdate();
-      setOpen(false); // Close the dialog
-      onClose(); // Close the dropdown menu
+      setOpen(false);
+      onClose();
+      
+      // Add a small delay before refreshing to ensure the toast is visible
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (error) {
       toast({
         title: "Error updating profile",
