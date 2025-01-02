@@ -29,6 +29,8 @@ const VolumeControl: React.FC<VolumeControlProps> = ({ volume, onVolumeChange })
     onVolumeChange(newValue);
     if (newValue[0] > 0) {
       setIsMuted(false);
+    } else {
+      setIsMuted(true);
     }
   };
 
