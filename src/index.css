@@ -32,7 +32,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-[#F5E6DB] text-foreground;
+    @apply bg-[#F2E6D8] text-foreground;
   }
 }
 

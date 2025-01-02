@@ -32,13 +32,13 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
         {isPlaying ? 'Stop' : 'Start'}
       </Button>
 
-      <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-4">
+      <div className="flex flex-col items-center gap-4 mb-4">
         <div className="flex items-center gap-4">
           <BpmSelector bpm={bpm} onBpmChange={handleBpmChange} />
           <MetronomeIndicator isActive={indicator} />
         </div>
 
-        <div className="w-full md:w-auto">
+        <div className="w-full max-w-[280px]">
           <VolumeControl volume={volume} onVolumeChange={handleVolumeChange} />
         </div>
       </div>
