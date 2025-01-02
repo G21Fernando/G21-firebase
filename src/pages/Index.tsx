@@ -43,13 +43,15 @@ const Index = () => {
   };
 
   const handlePracticeTimeUpdate = async (time: number) => {
-    setPracticeTime(time);
     if (session?.user) {
+      const newPracticeTime = (profile.daily_practice_time || 0) + time;
+      setPracticeTime(newPracticeTime);
+      
       await supabase
         .from('profiles')
         .update({ 
-          practice_time: profile.practice_time + time,
-          daily_practice_time: time,
+          practice_time: (profile.practice_time || 0) + time,
+          daily_practice_time: newPracticeTime,
           last_practice_date: new Date().toISOString()
         })
         .eq('id', session.user.id);
@@ -57,13 +59,15 @@ const Index = () => {
   };
 
   const handlePointsUpdate = async (newPoints: number) => {
-    setPoints(newPoints);
     if (session?.user) {
+      const updatedDailyPoints = (profile.daily_points || 0) + newPoints;
+      setPoints(updatedDailyPoints);
+      
       await supabase
         .from('profiles')
         .update({ 
-          points: profile.points + newPoints,
-          daily_points: newPoints,
+          points: (profile.points || 0) + newPoints,
+          daily_points: updatedDailyPoints,
           last_practice_date: new Date().toISOString()
         })
         .eq('id', session.user.id);

@@ -18,6 +18,7 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
   const audioContext = useRef<AudioContext | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
+  const sessionPointsRef = useRef<number>(0);
 
   useEffect(() => {
     if (!audioContext.current) {
@@ -54,18 +55,14 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
     if (!isPlaying) {
       setIsPlaying(true);
       startTimeRef.current = Date.now();
+      sessionPointsRef.current = 0;
       const interval = (60 / bpm) * 1000;
       
       playTick();
       intervalRef.current = setInterval(() => {
         playTick();
-        setPoints(prev => {
-          const newPoints = prev + 1;
-          onPointsUpdate(newPoints);
-          return newPoints;
-        });
-        const currentPracticeTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
-        onPracticeTimeUpdate(currentPracticeTime);
+        sessionPointsRef.current += 1;
+        setPoints(prev => prev + 1);
       }, interval);
     }
   };
@@ -78,6 +75,7 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
       }
       const practiceTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
       onPracticeTimeUpdate(practiceTime);
+      onPointsUpdate(sessionPointsRef.current);
     }
   };
 
@@ -91,11 +89,8 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
       const interval = (60 / newBpm) * 1000;
       intervalRef.current = setInterval(() => {
         playTick();
-        setPoints(prev => {
-          const newPoints = prev + 1;
-          onPointsUpdate(newPoints);
-          return newPoints;
-        });
+        sessionPointsRef.current += 1;
+        setPoints(prev => prev + 1);
       }, interval);
     }
   };
