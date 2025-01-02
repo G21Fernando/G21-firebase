@@ -14,26 +14,26 @@ const StatsCard: React.FC<StatsCardProps> = ({ practiceTime, points }) => {
   };
 
   return (
-    <div className="p-6 md:p-8">
-      <h2 className="text-2xl md:text-3xl font-bold text-[#1A1F2C] mb-8">
+    <div className="p-8 md:p-10">
+      <h2 className="text-2xl md:text-3xl font-bold text-[#1A1F2C] mb-10">
         Your today stats:
       </h2>
       
-      <div className="space-y-8">
-        <div className="flex items-start gap-3">
-          <Clock className="w-6 h-6 text-[#1A1F2C] mt-1" />
+      <div className="space-y-10">
+        <div className="flex items-start gap-4">
+          <Clock className="w-7 h-7 text-[#1A1F2C] mt-1" />
           <div className="flex flex-col">
-            <span className="text-lg md:text-xl">
+            <span className="text-xl md:text-2xl text-[#1A1F2C]">
               <span className="font-medium">Practice time:</span>{' '}
               {formatTime(practiceTime)}
             </span>
           </div>
         </div>
         
-        <div className="flex items-center gap-3">
-          <GuitarIcon className="w-6 h-6 text-[#1A1F2C]" />
-          <span className="text-lg md:text-xl font-medium">Points: {points}</span>
-          <Link2 className="w-5 h-5 text-[#1A1F2C] opacity-80" />
+        <div className="flex items-center gap-4">
+          <GuitarIcon className="w-7 h-7 text-[#1A1F2C]" />
+          <span className="text-xl md:text-2xl font-medium text-[#1A1F2C]">Points: {points}</span>
+          <Link2 className="w-6 h-6 text-[#1A1F2C] opacity-80" />
         </div>
       </div>
     </div>
