@@ -65,7 +65,7 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
           onPointsUpdate(newPoints);
           return newPoints;
         });
-        const currentPracticeTime = totalPracticeTime + Math.floor((Date.now() - startTimeRef.current) / 1000);
+        const currentPracticeTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
         onPracticeTimeUpdate(currentPracticeTime);
       }, interval);
     }
@@ -77,9 +77,8 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
-      const newTotalPracticeTime = totalPracticeTime + Math.floor((Date.now() - startTimeRef.current) / 1000);
-      setTotalPracticeTime(newTotalPracticeTime);
-      onPracticeTimeUpdate(newTotalPracticeTime);
+      const practiceTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
+      onPracticeTimeUpdate(practiceTime);
     }
   };
 

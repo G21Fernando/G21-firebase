@@ -13,7 +13,10 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          daily_points: number | null
+          daily_practice_time: number | null
           id: string
+          last_practice_date: string | null
           points: number | null
           practice_time: number | null
           username: string
@@ -21,7 +24,10 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          daily_points?: number | null
+          daily_practice_time?: number | null
           id: string
+          last_practice_date?: string | null
           points?: number | null
           practice_time?: number | null
           username: string
@@ -29,7 +35,10 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          daily_points?: number | null
+          daily_practice_time?: number | null
           id?: string
+          last_practice_date?: string | null
           points?: number | null
           practice_time?: number | null
           username?: string
@@ -41,7 +50,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      reset_daily_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

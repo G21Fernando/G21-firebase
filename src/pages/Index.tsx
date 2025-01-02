@@ -37,17 +37,22 @@ const Index = () => {
     
     if (data) {
       setProfile(data);
-      setPoints(data.points || 0);
-      setPracticeTime(data.practice_time || 0);
+      setPoints(data.daily_points || 0);
+      setPracticeTime(data.daily_practice_time || 0);
     }
   };
 
   const handlePracticeTimeUpdate = async (time: number) => {
     setPracticeTime(time);
     if (session?.user) {
+      const totalTime = time;
       await supabase
         .from('profiles')
-        .update({ practice_time: time, points })
+        .update({ 
+          practice_time: profile.practice_time + time,
+          daily_practice_time: totalTime,
+          last_practice_date: new Date().toISOString()
+        })
         .eq('id', session.user.id);
     }
   };
@@ -57,7 +62,11 @@ const Index = () => {
     if (session?.user) {
       await supabase
         .from('profiles')
-        .update({ points: newPoints })
+        .update({ 
+          points: profile.points + newPoints,
+          daily_points: newPoints,
+          last_practice_date: new Date().toISOString()
+        })
         .eq('id', session.user.id);
     }
   };
