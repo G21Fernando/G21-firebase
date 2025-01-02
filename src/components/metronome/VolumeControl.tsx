@@ -27,10 +27,11 @@ const VolumeControl: React.FC<VolumeControlProps> = ({ volume, onVolumeChange })
 
   const handleVolumeChange = (newValue: number[]) => {
     onVolumeChange(newValue);
-    if (newValue[0] > 0) {
-      setIsMuted(false);
-    } else {
+    if (newValue[0] === 0) {
       setIsMuted(true);
+    } else {
+      setIsMuted(false);
+      setPrevVolume(newValue[0] / 100);
     }
   };
 
@@ -42,7 +43,7 @@ const VolumeControl: React.FC<VolumeControlProps> = ({ volume, onVolumeChange })
         className="h-8 w-8"
         onClick={handleMuteToggle}
       >
-        {isMuted || volume === 0 ? (
+        {isMuted ? (
           <VolumeX className="h-5 w-5" />
         ) : (
           <Volume className="h-5 w-5" />
