@@ -5,6 +5,7 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
   const [bpm, setBpm] = useState(100);
   const [indicator, setIndicator] = useState(false);
   const [volume, setVolume] = useState(0.5);
+  const [currentPoints, setCurrentPoints] = useState(0);
   
   const audioContext = useRef<AudioContext | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -46,6 +47,8 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
       oscillator.stop(audioContext.current.currentTime + 0.05);
       
       setIndicator(prev => !prev);
+      sessionPointsRef.current += 1;
+      setCurrentPoints(sessionPointsRef.current);
     }
   };
 
@@ -59,12 +62,12 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
       setIsPlaying(true);
       startTimeRef.current = Date.now();
       sessionPointsRef.current = 0;
+      setCurrentPoints(0);
       const interval = (60 / bpm) * 1000;
       
       playTick();
       intervalRef.current = setInterval(() => {
         playTick();
-        sessionPointsRef.current += 1;
       }, interval);
     }
   };
@@ -78,6 +81,7 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
       const practiceTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
       onPracticeTimeUpdate(practiceTime);
       onPointsUpdate(sessionPointsRef.current);
+      setCurrentPoints(0);
     }
   };
 
@@ -91,7 +95,6 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
       const interval = (60 / newBpm) * 1000;
       intervalRef.current = setInterval(() => {
         playTick();
-        sessionPointsRef.current += 1;
       }, interval);
     }
   };
@@ -106,6 +109,7 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
     bpm,
     indicator,
     volume,
+    currentPoints,
     startMetronome,
     stopMetronome,
     handleBpmChange,

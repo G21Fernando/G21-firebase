@@ -17,6 +17,7 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
     bpm,
     indicator,
     volume,
+    currentPoints,
     startMetronome,
     stopMetronome,
     handleBpmChange,
@@ -42,6 +43,12 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
           <VolumeControl volume={volume} onVolumeChange={handleVolumeChange} />
         </div>
       </div>
+      
+      {isPlaying && (
+        <div className="text-center mt-4 text-lg font-medium text-[#1A1F2C]">
+          Points: {currentPoints}
+        </div>
+      )}
     </Card>
   );
 };
