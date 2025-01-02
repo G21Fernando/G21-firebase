@@ -31,21 +31,24 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
   }, []);
 
   const playTick = () => {
-    initAudioContext();
-    if (audioContext.current && audioContext.current.state === 'running' && volume > 0) {
-      const oscillator = audioContext.current.createOscillator();
-      const gainNode = audioContext.current.createGain();
-      
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.current.destination);
-      
-      oscillator.frequency.value = 800;
-      gainNode.gain.value = volume;
-      
-      oscillator.start();
-      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.current.currentTime + 0.05);
-      oscillator.stop(audioContext.current.currentTime + 0.05);
+    if (!audioContext.current || volume === 0) return;
+    
+    if (audioContext.current.state === 'suspended') {
+      audioContext.current.resume();
     }
+
+    const oscillator = audioContext.current.createOscillator();
+    const gainNode = audioContext.current.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.current.destination);
+    
+    oscillator.frequency.value = 800;
+    gainNode.gain.value = volume;
+    
+    oscillator.start();
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.current.currentTime + 0.05);
+    oscillator.stop(audioContext.current.currentTime + 0.05);
     
     setIndicator(prev => !prev);
     sessionPointsRef.current += 1;

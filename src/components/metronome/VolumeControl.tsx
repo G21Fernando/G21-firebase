@@ -9,7 +9,7 @@ interface VolumeControlProps {
 }
 
 const VolumeControl: React.FC<VolumeControlProps> = ({ volume, onVolumeChange }) => {
-  const [prevVolume, setPrevVolume] = useState<number>(volume);
+  const [prevVolume, setPrevVolume] = useState<number>(0.5);
   const [isMuted, setIsMuted] = useState(false);
 
   const handleMuteToggle = () => {
@@ -26,13 +26,14 @@ const VolumeControl: React.FC<VolumeControlProps> = ({ volume, onVolumeChange })
   };
 
   const handleVolumeChange = (newValue: number[]) => {
-    onVolumeChange(newValue);
-    if (newValue[0] === 0) {
-      setIsMuted(true);
-    } else {
+    const newVolume = newValue[0] / 100;
+    if (newVolume > 0) {
+      setPrevVolume(newVolume);
       setIsMuted(false);
-      setPrevVolume(newValue[0] / 100);
+    } else {
+      setIsMuted(true);
     }
+    onVolumeChange(newValue);
   };
 
   return (
@@ -43,7 +44,7 @@ const VolumeControl: React.FC<VolumeControlProps> = ({ volume, onVolumeChange })
         className="h-8 w-8"
         onClick={handleMuteToggle}
       >
-        {isMuted ? (
+        {volume === 0 || isMuted ? (
           <VolumeX className="h-5 w-5" />
         ) : (
           <Volume className="h-5 w-5" />
