@@ -11,20 +11,27 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
   const startTimeRef = useRef<number>(0);
   const sessionPointsRef = useRef<number>(0);
 
-  useEffect(() => {
-    if (!audioContext.current) {
+  const initAudioContext = () => {
+    if (!audioContext.current || audioContext.current.state === 'closed') {
       audioContext.current = new AudioContext();
     }
+  };
 
+  useEffect(() => {
+    initAudioContext();
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
+      }
+      if (audioContext.current && audioContext.current.state !== 'closed') {
+        audioContext.current.close();
       }
     };
   }, []);
 
   const playTick = () => {
-    if (audioContext.current) {
+    initAudioContext();
+    if (audioContext.current && audioContext.current.state === 'running') {
       const oscillator = audioContext.current.createOscillator();
       const gainNode = audioContext.current.createGain();
       
@@ -42,8 +49,13 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
     }
   };
 
-  const startMetronome = () => {
+  const startMetronome = async () => {
     if (!isPlaying) {
+      initAudioContext();
+      if (audioContext.current && audioContext.current.state === 'suspended') {
+        await audioContext.current.resume();
+      }
+      
       setIsPlaying(true);
       startTimeRef.current = Date.now();
       sessionPointsRef.current = 0;
