@@ -15,8 +15,8 @@ import {
 import { UserRound } from 'lucide-react';
 
 const Index = () => {
-  const [points, setPoints] = useState(0);
-  const [practiceTime, setPracticeTime] = useState(0);
+  const [dailyPoints, setDailyPoints] = useState(0);
+  const [dailyPracticeTime, setDailyPracticeTime] = useState(0);
   const [profile, setProfile] = useState<any>(null);
   const session = useSession();
   const supabase = useSupabaseClient();
@@ -29,48 +29,67 @@ const Index = () => {
   }, [session]);
 
   const fetchProfile = async () => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', session?.user?.id)
-      .single();
-    
-    if (data) {
-      setProfile(data);
-      setPoints(data.daily_points || 0);
-      setPracticeTime(data.daily_practice_time || 0);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session?.user?.id)
+        .single();
+      
+      if (error) throw error;
+      
+      if (data) {
+        setProfile(data);
+        // Set the daily stats from the database
+        setDailyPoints(data.daily_points || 0);
+        setDailyPracticeTime(data.daily_practice_time || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
     }
   };
 
-  const handlePracticeTimeUpdate = async (time: number) => {
-    if (session?.user) {
-      const newPracticeTime = (profile.daily_practice_time || 0) + time;
-      setPracticeTime(newPracticeTime);
+  const handlePracticeTimeUpdate = async (sessionTime: number) => {
+    if (!session?.user) return;
+
+    try {
+      const newPracticeTime = dailyPracticeTime + sessionTime;
+      setDailyPracticeTime(newPracticeTime);
       
-      await supabase
+      const { error } = await supabase
         .from('profiles')
         .update({ 
-          practice_time: (profile.practice_time || 0) + time,
+          practice_time: (profile.practice_time || 0) + sessionTime,
           daily_practice_time: newPracticeTime,
           last_practice_date: new Date().toISOString()
         })
         .eq('id', session.user.id);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating practice time:', error);
     }
   };
 
-  const handlePointsUpdate = async (newPoints: number) => {
-    if (session?.user) {
-      const updatedDailyPoints = (profile.daily_points || 0) + newPoints;
-      setPoints(updatedDailyPoints);
+  const handlePointsUpdate = async (sessionPoints: number) => {
+    if (!session?.user) return;
+
+    try {
+      const newDailyPoints = dailyPoints + sessionPoints;
+      setDailyPoints(newDailyPoints);
       
-      await supabase
+      const { error } = await supabase
         .from('profiles')
         .update({ 
-          points: (profile.points || 0) + newPoints,
-          daily_points: updatedDailyPoints,
+          points: (profile.points || 0) + sessionPoints,
+          daily_points: newDailyPoints,
           last_practice_date: new Date().toISOString()
         })
         .eq('id', session.user.id);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating points:', error);
     }
   };
 
@@ -125,8 +144,8 @@ const Index = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           <div className="bg-[#E2D1C3] p-4 md:p-6 rounded-lg shadow-md">
             <StatsCard 
-              points={points}
-              practiceTime={practiceTime}
+              points={dailyPoints}
+              practiceTime={dailyPracticeTime}
             />
           </div>
 
