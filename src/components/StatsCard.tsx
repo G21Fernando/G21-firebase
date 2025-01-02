@@ -1,5 +1,4 @@
 import React from 'react';
-import { Card } from '@/components/ui/card';
 import { Link2, GuitarIcon, Clock } from 'lucide-react';
 
 interface StatsCardProps {
@@ -15,31 +14,29 @@ const StatsCard: React.FC<StatsCardProps> = ({ practiceTime, points }) => {
   };
 
   return (
-    <Card className="bg-[#E2D1C3] p-4 md:p-6 rounded-xl shadow-lg">
+    <div className="p-6">
+      <h2 className="text-2xl md:text-3xl font-bold text-[#1A1F2C] mb-6">
+        Your today stats:
+      </h2>
+      
       <div className="space-y-6">
-        <h2 className="text-2xl md:text-3xl font-bold text-[#1A1F2C] mb-6">
-          Your today stats:
-        </h2>
-        
-        <div className="space-y-6">
-          <div className="flex items-start gap-3">
-            <Clock className="w-6 h-6 text-[#1A1F2C] mt-1" />
-            <div className="flex flex-col">
-              <span className="text-lg md:text-xl">
-                <span className="font-medium">Practice time:</span>{' '}
-                {formatTime(practiceTime)}
-              </span>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <GuitarIcon className="w-6 h-6 text-[#1A1F2C]" />
-            <span className="text-lg md:text-xl font-medium">Points: {points}</span>
-            <Link2 className="w-5 h-5 text-[#1A1F2C] opacity-80" />
+        <div className="flex items-start gap-3">
+          <Clock className="w-6 h-6 text-[#1A1F2C] mt-1" />
+          <div className="flex flex-col">
+            <span className="text-lg md:text-xl">
+              <span className="font-medium">Practice time:</span>{' '}
+              {formatTime(practiceTime)}
+            </span>
           </div>
         </div>
+        
+        <div className="flex items-center gap-3">
+          <GuitarIcon className="w-6 h-6 text-[#1A1F2C]" />
+          <span className="text-lg md:text-xl font-medium">Points: {points}</span>
+          <Link2 className="w-5 h-5 text-[#1A1F2C] opacity-80" />
+        </div>
       </div>
-    </Card>
+    </div>
   );
 };
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import BpmSelector from './metronome/BpmSelector';
 import VolumeControl from './metronome/VolumeControl';
 import MetronomeIndicator from './metronome/MetronomeIndicator';
@@ -25,7 +24,7 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
   } = useMetronome(onPointsUpdate, onPracticeTimeUpdate);
 
   return (
-    <Card className="p-6 shadow-lg max-w-md mx-auto">
+    <div className="p-6">
       <Button 
         className="w-full mb-4 bg-[#1A1F2C] hover:bg-[#2A2F3C] text-white text-xl py-6"
         onClick={isPlaying ? stopMetronome : startMetronome}
@@ -49,7 +48,7 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
           Points: {currentPoints}
         </div>
       )}
-    </Card>
+    </div>
   );
 };
 
