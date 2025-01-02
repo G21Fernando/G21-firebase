@@ -14,7 +14,6 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
   const [bpm, setBpm] = useState(100);
   const [points, setPoints] = useState(0);
   const [indicator, setIndicator] = useState(false);
-  const [totalPracticeTime, setTotalPracticeTime] = useState(0);
   const [volume, setVolume] = useState(0.5);
   const audioContext = useRef<AudioContext | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -101,6 +100,11 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
     }
   };
 
+  const handleVolumeChange = (value: number[]) => {
+    const newVolume = value[0] / 100;
+    setVolume(newVolume);
+  };
+
   return (
     <Card className="p-6 shadow-lg max-w-md mx-auto">
       <Button 
@@ -110,35 +114,40 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
         {isPlaying ? 'Stop' : 'Start'}
       </Button>
 
-      <div className="flex items-center gap-4 mb-4">
-        <Select value={bpm.toString()} onValueChange={handleBpmChange}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select BPM" />
-          </SelectTrigger>
-          <SelectContent>
-            {[60, 80, 100, 120, 140, 160, 180, 200].map((value) => (
-              <SelectItem key={value} value={value.toString()}>
-                {value} BPM
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        
-        <div 
-          className={`w-4 h-4 rounded-full bg-[#1A1F2C] metronome-indicator ${
-            indicator ? 'active' : ''
-          }`}
-        />
-      </div>
+      <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-4">
+        <div className="flex items-center gap-4">
+          <Select value={bpm.toString()} onValueChange={handleBpmChange}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select BPM" />
+            </SelectTrigger>
+            <SelectContent>
+              {[60, 80, 100, 120, 140, 160, 180, 200].map((value) => (
+                <SelectItem key={value} value={value.toString()}>
+                  {value} BPM
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          <div 
+            className={`w-4 h-4 rounded-full bg-[#1A1F2C] metronome-indicator ${
+              indicator ? 'active' : ''
+            }`}
+          />
+        </div>
 
-      <div className="mb-4">
-        <p className="text-sm text-gray-600 mb-2">Volume</p>
-        <Slider
-          value={[volume * 100]}
-          onValueChange={(value) => setVolume(value[0] / 100)}
-          max={100}
-          step={1}
-        />
+        <div className="w-full md:w-40">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Volume</span>
+            <Slider
+              value={[volume * 100]}
+              onValueChange={handleVolumeChange}
+              max={100}
+              step={1}
+              className="flex-grow"
+            />
+          </div>
+        </div>
       </div>
 
       <div className="text-2xl font-bold text-center">

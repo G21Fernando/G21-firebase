@@ -45,12 +45,11 @@ const Index = () => {
   const handlePracticeTimeUpdate = async (time: number) => {
     setPracticeTime(time);
     if (session?.user) {
-      const totalTime = time;
       await supabase
         .from('profiles')
         .update({ 
           practice_time: profile.practice_time + time,
-          daily_practice_time: totalTime,
+          daily_practice_time: time,
           last_practice_date: new Date().toISOString()
         })
         .eq('id', session.user.id);
