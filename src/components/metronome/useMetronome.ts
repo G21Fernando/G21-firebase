@@ -32,7 +32,7 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
 
   const playTick = () => {
     initAudioContext();
-    if (audioContext.current && audioContext.current.state === 'running') {
+    if (audioContext.current && audioContext.current.state === 'running' && volume > 0) {
       const oscillator = audioContext.current.createOscillator();
       const gainNode = audioContext.current.createGain();
       
@@ -45,11 +45,11 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
       oscillator.start();
       gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.current.currentTime + 0.05);
       oscillator.stop(audioContext.current.currentTime + 0.05);
-      
-      setIndicator(prev => !prev);
-      sessionPointsRef.current += 1;
-      setCurrentPoints(sessionPointsRef.current);
     }
+    
+    setIndicator(prev => !prev);
+    sessionPointsRef.current += 1;
+    setCurrentPoints(sessionPointsRef.current);
   };
 
   const startMetronome = async () => {
