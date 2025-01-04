@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -38,7 +38,7 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
   const { toast } = useToast();
   const session = useSession();
 
-  const { data: posts, isLoading } = useQuery<Post[]>({
+  const { data: posts, isLoading, refetch } = useQuery<Post[]>({
     queryKey: ['posts', onUpdate],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -68,6 +68,23 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
       return data as Post[];
     },
   });
+
+  useEffect(() => {
+    const subscription = supabase
+      .channel('posts_channel')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'posts'
+      }, () => {
+        refetch();
+      })
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [refetch]);
 
   const handleLike = async (postId: string) => {
     if (!session?.user?.id) return;
