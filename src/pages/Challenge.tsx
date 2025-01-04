@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from '@supabase/auth-helpers-react';
+import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,13 +15,17 @@ const Challenge = () => {
   const [timeLeft, setTimeLeft] = useState(60);
   const [chordChanges, setChordChanges] = useState(0);
   const session = useSession();
+  const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (session?.user) {
-      fetchProfile();
+    if (!session) {
+      navigate('/auth');
+      return;
     }
-  }, [session]);
+
+    fetchProfile();
+  }, [session, navigate]);
 
   const fetchProfile = async () => {
     try {
@@ -80,6 +85,10 @@ const Challenge = () => {
     setTimeLeft(60);
     setChordChanges(0);
   };
+
+  if (!session) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F5E6DB' }}>
