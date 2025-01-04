@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from '@supabase/auth-helpers-react';
-import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,6 +7,7 @@ import Timer from '@/components/challenge/Timer';
 import ChallengeControls from '@/components/challenge/ChallengeControls';
 import LeaderboardCard from '@/components/LeaderboardCard';
 import StatsCard from '@/components/StatsCard';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 const Challenge = () => {
   const [profile, setProfile] = useState<any>(null);
@@ -15,17 +15,13 @@ const Challenge = () => {
   const [timeLeft, setTimeLeft] = useState(60);
   const [chordChanges, setChordChanges] = useState(0);
   const session = useSession();
-  const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!session) {
-      navigate('/auth');
-      return;
+    if (session?.user) {
+      fetchProfile();
     }
-
-    fetchProfile();
-  }, [session, navigate]);
+  }, [session]);
 
   const fetchProfile = async () => {
     try {
@@ -86,47 +82,45 @@ const Challenge = () => {
     setChordChanges(0);
   };
 
-  if (!session) {
-    return null;
-  }
-
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#F5E6DB' }}>
-      <Header 
-        profile={profile}
-        onProfileUpdate={fetchProfile}
-      />
-      <div className="container mx-auto pt-24 px-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Left Column - Stats */}
-          <div className="bg-white rounded-lg shadow-lg">
-            <StatsCard 
-              practiceTime={profile?.daily_practice_time || 0}
-              points={profile?.daily_points || 0}
-            />
-          </div>
-          
-          {/* Center Column - Challenge */}
-          <div className="flex flex-col items-center">
-            <Timer 
-              isActive={isActive}
-              timeLeft={timeLeft}
-              chordChanges={chordChanges}
-            />
-            <ChallengeControls 
-              isActive={isActive}
-              timeLeft={timeLeft}
-              onStart={startChallenge}
-            />
-          </div>
-          
-          {/* Right Column - Leaderboard */}
-          <div className="bg-white rounded-lg shadow-lg">
-            <LeaderboardCard />
+    <ProtectedRoute>
+      <div className="min-h-screen" style={{ backgroundColor: '#F5E6DB' }}>
+        <Header 
+          profile={profile}
+          onProfileUpdate={fetchProfile}
+        />
+        <div className="container mx-auto pt-24 px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Left Column - Stats */}
+            <div className="bg-white rounded-lg shadow-lg">
+              <StatsCard 
+                practiceTime={profile?.daily_practice_time || 0}
+                points={profile?.daily_points || 0}
+              />
+            </div>
+            
+            {/* Center Column - Challenge */}
+            <div className="flex flex-col items-center">
+              <Timer 
+                isActive={isActive}
+                timeLeft={timeLeft}
+                chordChanges={chordChanges}
+              />
+              <ChallengeControls 
+                isActive={isActive}
+                timeLeft={timeLeft}
+                onStart={startChallenge}
+              />
+            </div>
+            
+            {/* Right Column - Leaderboard */}
+            <div className="bg-white rounded-lg shadow-lg">
+              <LeaderboardCard />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 };
 

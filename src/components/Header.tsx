@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Button } from '@/components/ui/button';
@@ -21,16 +21,6 @@ const Header = ({ profile, onProfileUpdate }: {
   const supabase = useSupabaseClient();
   const navigate = useNavigate();
   const location = useLocation();
-
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT') {
-        navigate('/auth');
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [supabase, navigate]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
