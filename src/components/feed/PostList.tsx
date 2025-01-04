@@ -41,20 +41,26 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
 
   return (
     <div className="space-y-4">
-      {posts.map((post) => (
-        <Card key={post.id} className="bg-white shadow-sm overflow-hidden">
-          <div className="flex flex-col">
-            <PostHeader
-              avatarUrl={post.profiles?.avatar_url}
-              username={post.profiles?.username}
-              createdAt={post.created_at}
-              isOwner={post.user_id === session?.user?.id}
-              onEdit={() => {
-                setEditingPost(post.id);
-                setEditContent(post.content);
-              }}
-              onDelete={() => handleDeletePost(post.id)}
-            />
+      {posts.map((post) => {
+        // Get the full avatar URL if it exists
+        const avatarUrl = post.profiles?.avatar_url
+          ? supabase.storage.from('avatars').getPublicUrl(post.profiles.avatar_url).data.publicUrl
+          : null;
+
+        return (
+          <Card key={post.id} className="bg-white shadow-sm overflow-hidden">
+            <div className="flex flex-col">
+              <PostHeader
+                avatarUrl={avatarUrl}
+                username={post.profiles?.username}
+                createdAt={post.created_at}
+                isOwner={post.user_id === session?.user?.id}
+                onEdit={() => {
+                  setEditingPost(post.id);
+                  setEditContent(post.content);
+                }}
+                onDelete={() => handleDeletePost(post.id)}
+              />
             <CardContent className="p-3">
               {editingPost === post.id ? (
                 <div className="space-y-2">
@@ -109,9 +115,10 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
                 onSubmitComment={() => handleComment(post.id)}
               />
             </CardFooter>
-          </div>
-        </Card>
-      ))}
+            </div>
+          </Card>
+        );
+      })}
     </div>
   );
 };
