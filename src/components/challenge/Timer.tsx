@@ -3,10 +3,10 @@ import { Zap } from 'lucide-react';
 interface TimerProps {
   isActive: boolean;
   timeLeft: number;
-  reps: number;
+  chordChanges: number;
 }
 
-const Timer = ({ isActive, timeLeft, reps }: TimerProps) => {
+const Timer = ({ isActive, timeLeft, chordChanges }: TimerProps) => {
   return (
     <div className="relative w-64 h-64 mb-8">
       <div className="absolute inset-0 flex items-center justify-center">
@@ -40,7 +40,7 @@ const Timer = ({ isActive, timeLeft, reps }: TimerProps) => {
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         {isActive && (
           <>
-            <span className="text-6xl font-bold mb-2">{reps}</span>
+            <span className="text-6xl font-bold mb-2">{chordChanges}</span>
             <span className="text-sm text-neutral-600">Chord changes done</span>
           </>
         )}
