@@ -17,23 +17,23 @@ const MainContent = ({
   onPracticeTimeUpdate
 }: MainContentProps) => {
   return (
-    <div className="max-w-6xl mx-auto px-4 md:px-8 pt-16 md:pt-28 pb-20 md:pb-12">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-8">
-        <div className="bg-[#E8DFD8] rounded-xl md:rounded-2xl shadow-sm">
+    <div className="max-w-6xl mx-auto px-4 md:px-8 pt-4 md:pt-28 pb-16 md:pb-12">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-8">
+        <div className="bg-[#E8DFD8] rounded-xl md:rounded-2xl shadow-sm h-[28vh] md:h-auto overflow-hidden">
           <StatsCard 
             points={dailyPoints}
             practiceTime={dailyPracticeTime}
           />
         </div>
 
-        <div className="bg-white rounded-xl md:rounded-2xl shadow-sm">
+        <div className="bg-white rounded-xl md:rounded-2xl shadow-sm h-[28vh] md:h-auto overflow-hidden">
           <MetronomeControl 
             onPointsUpdate={onPointsUpdate}
             onPracticeTimeUpdate={onPracticeTimeUpdate}
           />
         </div>
 
-        <div className="bg-[#f8f8f8] rounded-xl md:rounded-2xl shadow-sm">
+        <div className="bg-[#f8f8f8] rounded-xl md:rounded-2xl shadow-sm h-[28vh] md:h-auto overflow-hidden">
           <LeaderboardCard />
         </div>
       </div>
