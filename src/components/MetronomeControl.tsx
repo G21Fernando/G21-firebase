@@ -24,27 +24,27 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
   } = useMetronome(onPointsUpdate, onPracticeTimeUpdate);
 
   return (
-    <div className="p-2 md:p-10 h-full flex flex-col justify-center">
+    <div className="p-6 h-full flex flex-col gap-4">
       <Button 
-        className="w-full mb-2 md:mb-10 bg-[#1A1F2C] hover:bg-[#2A2F3C] text-white text-base md:text-xl py-1.5 md:py-7 rounded-xl"
+        className="w-full bg-[#11245A] hover:bg-[#1a3575] text-white text-lg py-6 rounded-xl"
         onClick={isPlaying ? stopMetronome : startMetronome}
       >
         {isPlaying ? 'Stop' : 'Start'}
       </Button>
 
-      <div className="flex flex-col items-center gap-2 md:gap-8">
-        <div className="flex items-center gap-2 md:gap-6 w-full">
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-4 w-full">
           <BpmSelector bpm={bpm} onBpmChange={handleBpmChange} />
           <MetronomeIndicator isActive={indicator} />
         </div>
 
-        <div className="w-full max-w-[280px]">
+        <div className="w-full">
           <VolumeControl volume={volume} onVolumeChange={handleVolumeChange} />
         </div>
       </div>
       
       {isPlaying && (
-        <div className="text-center mt-1 md:mt-8 text-sm md:text-xl font-medium text-[#1A1F2C]">
+        <div className="text-center text-base font-medium text-[#11245A]">
           Points: {currentPoints}
         </div>
       )}
