@@ -22,7 +22,7 @@ const AuthPage = () => {
         setError(null);
       }
       // Handle authentication errors
-      if (event === "USER_DELETED" || event === "SIGNED_OUT") {
+      if (event === "SIGNED_OUT") {
         toast({
           variant: "destructive",
           title: "Authentication Error",
@@ -67,14 +67,6 @@ const AuthPage = () => {
           providers={[]}
           view="sign_in"
           redirectTo={window.location.origin}
-          onError={(error) => {
-            setError(error.message);
-            toast({
-              variant: "destructive",
-              title: "Authentication Error",
-              description: error.message,
-            });
-          }}
         />
         <div className="mt-6 text-center">
           <Button 
