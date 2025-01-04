@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 interface Comment {
   id: string;
   content: string;
+  created_at: string;
   profiles: {
     username: string;
     avatar_url: string | null;

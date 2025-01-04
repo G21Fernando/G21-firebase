@@ -9,12 +9,34 @@ import PostMedia from './PostMedia';
 import PostActions from './PostActions';
 import CommentList from './CommentList';
 
+interface Post {
+  id: string;
+  content: string;
+  created_at: string;
+  media_url: string | null;
+  media_type: 'image' | 'video' | null;
+  profiles: {
+    username: string;
+    avatar_url: string | null;
+  };
+  likes: { user_id: string }[];
+  comments: {
+    id: string;
+    content: string;
+    created_at: string;
+    profiles: {
+      username: string;
+      avatar_url: string | null;
+    };
+  }[];
+}
+
 const PostList = ({ onUpdate }: { onUpdate: number }) => {
   const [commentContent, setCommentContent] = useState<{ [key: string]: string }>({});
   const { toast } = useToast();
   const session = useSession();
 
-  const { data: posts, isLoading } = useQuery({
+  const { data: posts, isLoading } = useQuery<Post[]>({
     queryKey: ['posts', onUpdate],
     queryFn: async () => {
       const { data, error } = await supabase
