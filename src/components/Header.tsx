@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { UserRound, Zap, Users } from 'lucide-react';
+import { UserRound, Zap, Users, Music2 } from 'lucide-react';
 import ProfileEditDialog from './ProfileEditDialog';
 
 const Header = ({ profile, onProfileUpdate }: { 
@@ -40,6 +40,14 @@ const Header = ({ profile, onProfileUpdate }: {
         <div className="flex items-center gap-2">
           {session && (
             <>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={`rounded-full ${location.pathname === '/' ? 'bg-yellow-100' : ''}`}
+                onClick={() => navigate('/')}
+              >
+                <Music2 className="h-5 w-5 text-yellow-500" />
+              </Button>
               <Button
                 variant="ghost"
                 size="icon"
