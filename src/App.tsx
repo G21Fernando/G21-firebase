@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Challenge from "./pages/Challenge";
+import Feed from "./pages/Feed";
 import { useEffect } from "react";
 import { useToast } from "./components/ui/use-toast";
 
@@ -47,6 +48,11 @@ const App = () => (
             <Route path="/" element={
               <ProtectedRoute>
                 <Index />
+              </ProtectedRoute>
+            } />
+            <Route path="/feed" element={
+              <ProtectedRoute>
+                <Feed />
               </ProtectedRoute>
             } />
             <Route path="/challenge" element={

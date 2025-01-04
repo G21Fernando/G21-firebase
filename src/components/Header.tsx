@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { UserRound, Zap } from 'lucide-react';
+import { UserRound, Zap, Users } from 'lucide-react';
 import ProfileEditDialog from './ProfileEditDialog';
 
 const Header = ({ profile, onProfileUpdate }: { 
@@ -39,14 +39,24 @@ const Header = ({ profile, onProfileUpdate }: {
         </div>
         <div className="flex items-center gap-2">
           {session && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className={`rounded-full ${location.pathname === '/challenge' ? 'bg-yellow-100' : ''}`}
-              onClick={() => navigate('/challenge')}
-            >
-              <Zap className="h-5 w-5 text-yellow-500" />
-            </Button>
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={`rounded-full ${location.pathname === '/feed' ? 'bg-yellow-100' : ''}`}
+                onClick={() => navigate('/feed')}
+              >
+                <Users className="h-5 w-5 text-yellow-500" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={`rounded-full ${location.pathname === '/challenge' ? 'bg-yellow-100' : ''}`}
+                onClick={() => navigate('/challenge')}
+              >
+                <Zap className="h-5 w-5 text-yellow-500" />
+              </Button>
+            </>
           )}
           <div className="flex-shrink-0">
             {session ? (
