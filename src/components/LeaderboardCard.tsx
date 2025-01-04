@@ -43,26 +43,26 @@ const LeaderboardCard: React.FC = () => {
   }, []);
 
   return (
-    <div className="p-6 md:p-8">
-      <div className="flex items-center gap-2 mb-8">
-        <Trophy className="w-6 h-6 text-yellow-500" />
-        <h2 className="text-2xl font-bold">G21 Leaderboard</h2>
+    <div className="p-1.5 md:p-8 h-full flex flex-col justify-center">
+      <div className="flex items-center gap-1.5 mb-1.5 md:mb-8">
+        <Trophy className="w-3.5 md:w-6 h-3.5 md:h-6 text-yellow-500" />
+        <h2 className="text-sm md:text-2xl font-bold">G21 Leaderboard</h2>
       </div>
       
-      <ul className="space-y-4">
+      <ul className="space-y-0.5 md:space-y-4">
         {leaderboardData.map((player, index) => (
           <li 
             key={player.username}
-            className="flex justify-between items-center p-4 bg-white/50 backdrop-blur-sm rounded-lg"
+            className="flex justify-between items-center p-0.5 md:p-4 bg-white/50 backdrop-blur-sm rounded-lg"
           >
-            <span className="flex items-center gap-2">
-              <span className="font-bold text-gray-500">#{index + 1}</span>
-              <span>{player.username}</span>
+            <span className="flex items-center gap-1 md:gap-2">
+              <span className="font-bold text-gray-500 text-[10px] md:text-base">#{index + 1}</span>
+              <span className="text-[10px] md:text-base">{player.username}</span>
               {player.points >= 1000 && (
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger>
-                      <Shield className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                      <Shield className="w-2.5 h-2.5 md:w-4 md:h-4 text-yellow-500 fill-yellow-500" />
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>Level 1 Completed</p>
@@ -71,7 +71,7 @@ const LeaderboardCard: React.FC = () => {
                 </TooltipProvider>
               )}
             </span>
-            <span className="font-semibold">{player.points} pts</span>
+            <span className="font-semibold text-[10px] md:text-base">{player.points} pts</span>
           </li>
         ))}
       </ul>
