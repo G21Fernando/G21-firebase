@@ -36,7 +36,7 @@ export const usePosts = (onUpdate: number) => {
         .from('posts')
         .select(`
           *,
-          profiles!posts_user_id_fkey (
+          profiles (
             username,
             avatar_url
           ),
@@ -47,7 +47,7 @@ export const usePosts = (onUpdate: number) => {
             id,
             content,
             created_at,
-            profiles!comments_user_id_fkey (
+            profiles (
               username,
               avatar_url
             )
