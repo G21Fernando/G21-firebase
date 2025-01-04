@@ -11,18 +11,18 @@ const PostMedia = ({ mediaUrl, mediaType }: PostMediaProps) => {
   const publicUrl = supabase.storage.from('media').getPublicUrl(mediaUrl).data.publicUrl;
 
   return (
-    <div className="mt-4 max-h-[200px] overflow-hidden">
+    <div className="mt-2 max-h-[180px] overflow-hidden rounded-lg">
       {mediaType === 'video' ? (
         <video
           src={publicUrl}
           controls
-          className="w-full h-full object-contain rounded-lg"
+          className="w-full h-[180px] object-cover"
         />
       ) : (
         <img
           src={publicUrl}
           alt="Post media"
-          className="w-full h-full object-contain rounded-lg"
+          className="w-full h-[180px] object-cover"
         />
       )}
     </div>

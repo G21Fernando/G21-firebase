@@ -42,7 +42,7 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
   return (
     <div className="space-y-4">
       {posts.map((post) => (
-        <Card key={post.id} className="max-h-[35vh]">
+        <Card key={post.id} className="max-h-[35vh] bg-white shadow-sm">
           <ScrollArea className="h-full">
             <PostHeader
               avatarUrl={post.profiles?.avatar_url}
@@ -55,7 +55,7 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
               }}
               onDelete={() => handleDeletePost(post.id)}
             />
-            <CardContent>
+            <CardContent className="p-4 pt-0">
               {editingPost === post.id ? (
                 <div className="space-y-2">
                   <Textarea
@@ -82,7 +82,7 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
                 </div>
               ) : (
                 <>
-                  <p className="whitespace-pre-wrap">{post.content}</p>
+                  <p className="text-sm whitespace-pre-wrap">{post.content}</p>
                   {post.media_url && (
                     <PostMedia
                       mediaUrl={post.media_url}
@@ -92,7 +92,7 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
                 </>
               )}
             </CardContent>
-            <CardFooter className="flex flex-col gap-4">
+            <CardFooter className="flex flex-col gap-2 p-4 pt-0">
               <PostActions
                 likesCount={post.likes?.length || 0}
                 commentsCount={post.comments?.length || 0}
