@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Zap } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const Challenge = () => {
   const [profile, setProfile] = useState<any>(null);
@@ -88,7 +89,7 @@ const Challenge = () => {
       <div className="pt-24 px-4 flex flex-col items-center">
         <div className="relative w-64 h-64 mb-8">
           <div className="absolute inset-0 flex items-center justify-center">
-            <Zap className="w-24 h-24 text-yellow-500" />
+            <Zap className="w-24 h-24 text-neutral-600" />
           </div>
           <div className="absolute inset-0">
             <svg className="w-full h-full transform -rotate-90">
@@ -102,7 +103,7 @@ const Challenge = () => {
                 cy="128"
               />
               <circle
-                className="text-yellow-500"
+                className="text-neutral-600"
                 strokeWidth="12"
                 strokeDasharray={2 * Math.PI * 120}
                 strokeDashoffset={2 * Math.PI * 120 * (1 - timeLeft / 60)}
@@ -116,18 +117,25 @@ const Challenge = () => {
             </svg>
           </div>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-4xl font-bold">{reps}</span>
+            {isActive && <span className="text-4xl font-bold">{reps}</span>}
           </div>
         </div>
         <div className="text-center mb-8">
           <div className="text-2xl font-bold mb-2">{timeLeft} seconds</div>
-          <div className="text-sm text-gray-600">Press spacebar to count reps</div>
+          {!isActive ? (
+            <div className="space-y-2">
+              <div className="text-xl font-semibold text-neutral-600">Speed Unlocker</div>
+              <div className="text-sm text-gray-600">Master Chord Changes and Transform Your Playing in 21 minutes</div>
+            </div>
+          ) : (
+            <div className="text-sm text-gray-600">Press spacebar to count reps</div>
+          )}
         </div>
         <Button
           size="lg"
           onClick={startChallenge}
           disabled={isActive}
-          className="bg-yellow-500 hover:bg-yellow-600 text-white"
+          className="bg-neutral-600 hover:bg-neutral-700 text-white"
         >
           {isActive ? 'Challenge in Progress' : 'Start Challenge'}
         </Button>
