@@ -15,6 +15,8 @@ interface Post {
   created_at: string;
   media_url: string | null;
   media_type: 'image' | 'video' | null;
+  video_duration: number | null;
+  user_id: string;
   profiles: {
     username: string;
     avatar_url: string | null;
@@ -63,7 +65,7 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as Post[];
     },
   });
 
