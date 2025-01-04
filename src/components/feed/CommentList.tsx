@@ -34,14 +34,17 @@ const CommentList = ({ comments, commentContent, onCommentChange, onSubmitCommen
           </div>
         </div>
       ))}
-      <div className="flex gap-2">
+      <div className="flex gap-2 items-start">
         <Textarea
           placeholder="Write a comment..."
           value={commentContent}
           onChange={(e) => onCommentChange(e.target.value)}
-          className="flex-1"
+          className="flex-1 min-h-[80px] resize-none"
         />
-        <Button onClick={onSubmitComment}>
+        <Button 
+          onClick={onSubmitComment}
+          className="bg-[#15192C] hover:bg-[#15192C]/90"
+        >
           Comment
         </Button>
       </div>

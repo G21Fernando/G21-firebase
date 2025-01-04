@@ -40,10 +40,10 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
   if (!posts?.length) return <div>No posts found</div>;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {posts.map((post) => (
-        <Card key={post.id} className="max-h-[35vh] bg-white shadow-sm">
-          <ScrollArea className="h-full">
+        <Card key={post.id} className="bg-white shadow-sm overflow-hidden">
+          <div className="flex flex-col">
             <PostHeader
               avatarUrl={post.profiles?.avatar_url}
               username={post.profiles?.username}
@@ -82,7 +82,7 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
                 </div>
               ) : (
                 <>
-                  <p className="text-sm whitespace-pre-wrap">{post.content}</p>
+                  <p className="text-sm whitespace-pre-wrap mb-3">{post.content}</p>
                   {post.media_url && (
                     <PostMedia
                       mediaUrl={post.media_url}
@@ -92,7 +92,7 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
                 </>
               )}
             </CardContent>
-            <CardFooter className="flex flex-col gap-2 p-4 pt-0">
+            <CardFooter className="flex flex-col p-4 pt-0 gap-4">
               <PostActions
                 likesCount={post.likes?.length || 0}
                 commentsCount={post.comments?.length || 0}
@@ -109,7 +109,7 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
                 onSubmitComment={() => handleComment(post.id)}
               />
             </CardFooter>
-          </ScrollArea>
+          </div>
         </Card>
       ))}
     </div>
