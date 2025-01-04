@@ -48,27 +48,6 @@ export type Database = {
           },
         ]
       }
-      exercises: {
-        Row: {
-          id: string
-          level: number
-          name: string
-          order_in_level: number
-        }
-        Insert: {
-          id?: string
-          level: number
-          name: string
-          order_in_level: number
-        }
-        Update: {
-          id?: string
-          level?: number
-          name?: string
-          order_in_level?: number
-        }
-        Relationships: []
-      }
       likes: {
         Row: {
           created_at: string
@@ -196,47 +175,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_exercises: {
-        Row: {
-          created_at: string | null
-          exercise_id: string | null
-          id: string
-          pr: number | null
-          rpm: number | null
-          status: Database["public"]["Enums"]["exercise_status"] | null
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          exercise_id?: string | null
-          id?: string
-          pr?: number | null
-          rpm?: number | null
-          status?: Database["public"]["Enums"]["exercise_status"] | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          exercise_id?: string | null
-          id?: string
-          pr?: number | null
-          rpm?: number | null
-          status?: Database["public"]["Enums"]["exercise_status"] | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_exercises_exercise_id_fkey"
-            columns: ["exercise_id"]
-            isOneToOne: false
-            referencedRelation: "exercises"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
       [_ in never]: never
@@ -248,7 +186,7 @@ export type Database = {
       }
     }
     Enums: {
-      exercise_status: "not_started" | "in_progress" | "completed"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
