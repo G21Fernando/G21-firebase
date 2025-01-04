@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Challenge from "./pages/Challenge";
 import Feed from "./pages/Feed";
+import MobileFooter from "./components/MobileFooter";
 import { useEffect, useRef } from "react";
 import { useToast } from "./components/ui/use-toast";
 
@@ -48,7 +49,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/auth" replace />;
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <MobileFooter />
+    </>
+  );
 };
 
 const App = () => (

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import Header from '@/components/Header';
 import MainContent from '@/components/MainContent';
-import MobileFooter from '@/components/MobileFooter';
 
 const Index = () => {
   const [dailyPoints, setDailyPoints] = useState(0);
@@ -105,7 +104,6 @@ const Index = () => {
         onPointsUpdate={handlePointsUpdate}
         onPracticeTimeUpdate={handlePracticeTimeUpdate}
       />
-      <MobileFooter />
     </div>
   );
 };
