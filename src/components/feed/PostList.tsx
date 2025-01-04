@@ -38,7 +38,7 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
   const { toast } = useToast();
   const session = useSession();
 
-  const { data: posts, isLoading, refetch } = useQuery<Post[]>({
+  const { data: posts, isLoading, refetch } = useQuery({
     queryKey: ['posts', onUpdate],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -65,7 +65,7 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as Post[];
+      return data as unknown as Post[];
     },
   });
 
@@ -112,6 +112,8 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
           });
       }
 
+      await refetch();
+      
       toast({
         title: "Success",
         description: existingLike ? "Post unliked!" : "Post liked!",
@@ -140,7 +142,9 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
           content 
         });
 
+      await refetch();
       setCommentContent({ ...commentContent, [postId]: '' });
+      
       toast({
         title: "Success",
         description: "Comment added!",
@@ -155,10 +159,11 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
   };
 
   if (isLoading) return <div>Loading...</div>;
+  if (!posts) return <div>No posts found</div>;
 
   return (
     <div className="space-y-4">
-      {posts?.map((post) => (
+      {posts.map((post) => (
         <Card key={post.id}>
           <PostHeader
             avatarUrl={post.profiles?.avatar_url}
