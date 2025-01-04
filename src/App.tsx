@@ -12,7 +12,14 @@ import Feed from "./pages/Feed";
 import { useEffect } from "react";
 import { useToast } from "./components/ui/use-toast";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 // Protected route wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -21,11 +28,18 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (!session) {
-      toast({
-        title: "Session expired",
-        description: "Please sign in again",
-        variant: "destructive",
-      });
+      // Only show the toast if we had a session before (actual logout)
+      const hadPreviousSession = localStorage.getItem('hadSession');
+      if (hadPreviousSession === 'true') {
+        toast({
+          title: "Session expired",
+          description: "Please sign in again",
+          variant: "destructive",
+        });
+      }
+    } else {
+      // Mark that we have an active session
+      localStorage.setItem('hadSession', 'true');
     }
   }, [session]);
 
@@ -38,8 +52,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <SessionContextProvider supabaseClient={supabase} 
-      initialSession={null}>
+    <SessionContextProvider 
+      supabaseClient={supabase}
+      initialSession={null}
+    >
       <TooltipProvider>
         <Toaster />
         <Sonner />
