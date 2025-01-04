@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Music2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -37,6 +37,9 @@ const AuthPage = () => {
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F5E6DB' }}>
       <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
+        <div className="flex flex-col items-center mb-6">
+          <Music2 className="h-16 w-16 text-[#1A1F2C] mb-4" />
+        </div>
         <h1 className="text-3xl font-bold text-center text-[#1A1F2C] mb-8">
           Stop scrolling Start strumming
         </h1>
