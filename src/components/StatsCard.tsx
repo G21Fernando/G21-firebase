@@ -13,7 +13,7 @@ const StatsCard: React.FC<StatsCardProps> = ({ practiceTime, points }) => {
   };
 
   return (
-    <div className="p-3 md:p-10 h-full flex flex-col justify-center">
+    <div className="p-2 md:p-10 h-full flex flex-col justify-center">
       <div className="space-y-2 md:space-y-10">
         <div className="flex items-center gap-2 md:gap-4">
           <Clock className="w-4 md:w-7 h-4 md:h-7 text-[#1A1F2C]" />
