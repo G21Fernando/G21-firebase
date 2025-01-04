@@ -21,13 +21,21 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
         .from('posts')
         .select(`
           *,
-          profiles:user_id (username, avatar_url),
-          likes (user_id),
+          profiles:user_id (
+            username,
+            avatar_url
+          ),
+          likes (
+            user_id
+          ),
           comments (
             id,
             content,
             created_at,
-            profiles:user_id (username, avatar_url)
+            profiles:user_id (
+              username,
+              avatar_url
+            )
           )
         `)
         .order('created_at', { ascending: false });
