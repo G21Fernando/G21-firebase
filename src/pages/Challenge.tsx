@@ -8,6 +8,8 @@ import ChallengeControls from '@/components/challenge/ChallengeControls';
 import LeaderboardCard from '@/components/LeaderboardCard';
 import StatsCard from '@/components/StatsCard';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import { ExerciseSidebar } from '@/components/exercises/ExerciseSidebar';
 
 const Challenge = () => {
   const [profile, setProfile] = useState<any>(null);
@@ -89,36 +91,43 @@ const Challenge = () => {
           profile={profile}
           onProfileUpdate={fetchProfile}
         />
-        <div className="container mx-auto pt-24 px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Left Column - Stats */}
-            <div className="bg-white rounded-lg shadow-lg">
-              <StatsCard 
-                practiceTime={profile?.daily_practice_time || 0}
-                points={profile?.daily_points || 0}
-              />
-            </div>
-            
-            {/* Center Column - Challenge */}
-            <div className="flex flex-col items-center">
-              <Timer 
-                isActive={isActive}
-                timeLeft={timeLeft}
-                chordChanges={chordChanges}
-              />
-              <ChallengeControls 
-                isActive={isActive}
-                timeLeft={timeLeft}
-                onStart={startChallenge}
-              />
-            </div>
-            
-            {/* Right Column - Leaderboard */}
-            <div className="bg-white rounded-lg shadow-lg">
-              <LeaderboardCard />
+        <SidebarProvider>
+          <div className="flex w-full">
+            <ExerciseSidebar />
+            <div className="flex-1">
+              <div className="container mx-auto pt-24 px-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  {/* Left Column - Stats */}
+                  <div className="bg-white rounded-lg shadow-lg">
+                    <StatsCard 
+                      practiceTime={profile?.daily_practice_time || 0}
+                      points={profile?.daily_points || 0}
+                    />
+                  </div>
+                  
+                  {/* Center Column - Challenge */}
+                  <div className="flex flex-col items-center">
+                    <Timer 
+                      isActive={isActive}
+                      timeLeft={timeLeft}
+                      chordChanges={chordChanges}
+                    />
+                    <ChallengeControls 
+                      isActive={isActive}
+                      timeLeft={timeLeft}
+                      onStart={startChallenge}
+                    />
+                  </div>
+                  
+                  {/* Right Column - Leaderboard */}
+                  <div className="bg-white rounded-lg shadow-lg">
+                    <LeaderboardCard />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        </SidebarProvider>
       </div>
     </ProtectedRoute>
   );
