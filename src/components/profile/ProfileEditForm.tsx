@@ -59,19 +59,12 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
         formData.append('file', selectedFile);
         formData.append('userId', userId);
 
-        const response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/optimize-avatar`,
-          {
-            method: 'POST',
-            body: formData,
-            headers: {
-              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-            },
-          }
-        );
+        const { data, error: functionError } = await supabase.functions.invoke('optimize-avatar', {
+          body: formData,
+        });
 
-        if (!response.ok) {
-          throw new Error('Failed to upload avatar');
+        if (functionError) {
+          throw functionError;
         }
       }
 
@@ -90,6 +83,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
       onProfileUpdate();
       onClose();
     } catch (error) {
+      console.error('Profile update error:', error);
       toast({
         title: "Error updating profile",
         description: "Please try again later.",
