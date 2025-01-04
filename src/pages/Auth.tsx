@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Music2 } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -36,11 +36,15 @@ const AuthPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F5E6DB' }}>
-      <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
-        <div className="flex flex-col items-center mb-6">
-          <Music2 className="h-16 w-16 text-[#1A1F2C] mb-4" />
+      <div className="w-full max-w-sm p-6 bg-white rounded-lg shadow-md">
+        <div className="flex flex-col items-center mb-4">
+          <img 
+            src="/lovable-uploads/5bfe01d1-1192-497c-a049-12e321aea77a.png" 
+            alt="G21 Logo" 
+            className="h-12 mb-2"
+          />
         </div>
-        <h1 className="text-3xl font-bold text-center text-[#1A1F2C] mb-8">
+        <h1 className="text-2xl font-bold text-center text-[#1A1F2C] mb-6">
           Stop scrolling Start strumming
         </h1>
         {error && (
