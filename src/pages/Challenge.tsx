@@ -5,12 +5,14 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import Timer from '@/components/challenge/Timer';
 import ChallengeControls from '@/components/challenge/ChallengeControls';
+import LeaderboardCard from '@/components/LeaderboardCard';
+import StatsCard from '@/components/StatsCard';
 
 const Challenge = () => {
   const [profile, setProfile] = useState<any>(null);
   const [isActive, setIsActive] = useState(false);
   const [timeLeft, setTimeLeft] = useState(60);
-  const [reps, setReps] = useState(0);
+  const [chordChanges, setChordChanges] = useState(0);
   const session = useSession();
   const { toast } = useToast();
 
@@ -49,7 +51,7 @@ const Challenge = () => {
       setIsActive(false);
       toast({
         title: "Challenge completed!",
-        description: `You completed ${reps} chord changes in 60 seconds!`,
+        description: `You completed ${chordChanges} chord changes in 60 seconds!`,
       });
     }
 
@@ -58,11 +60,11 @@ const Challenge = () => {
         clearInterval(interval);
       }
     };
-  }, [isActive, timeLeft, reps]);
+  }, [isActive, timeLeft, chordChanges]);
 
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
     if (event.code === 'Space' && isActive) {
-      setReps((prev) => prev + 1);
+      setChordChanges((prev) => prev + 1);
     }
   }, [isActive]);
 
@@ -76,7 +78,7 @@ const Challenge = () => {
   const startChallenge = () => {
     setIsActive(true);
     setTimeLeft(60);
-    setReps(0);
+    setChordChanges(0);
   };
 
   return (
@@ -85,17 +87,35 @@ const Challenge = () => {
         profile={profile}
         onProfileUpdate={fetchProfile}
       />
-      <div className="pt-24 px-4 flex flex-col items-center">
-        <Timer 
-          isActive={isActive}
-          timeLeft={timeLeft}
-          reps={reps}
-        />
-        <ChallengeControls 
-          isActive={isActive}
-          timeLeft={timeLeft}
-          onStart={startChallenge}
-        />
+      <div className="container mx-auto pt-24 px-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Left Column - Stats */}
+          <div className="bg-white rounded-lg shadow-lg">
+            <StatsCard 
+              practiceTime={profile?.daily_practice_time || 0}
+              points={profile?.daily_points || 0}
+            />
+          </div>
+          
+          {/* Center Column - Challenge */}
+          <div className="flex flex-col items-center">
+            <Timer 
+              isActive={isActive}
+              timeLeft={timeLeft}
+              chordChanges={chordChanges}
+            />
+            <ChallengeControls 
+              isActive={isActive}
+              timeLeft={timeLeft}
+              onStart={startChallenge}
+            />
+          </div>
+          
+          {/* Right Column - Leaderboard */}
+          <div className="bg-white rounded-lg shadow-lg">
+            <LeaderboardCard />
+          </div>
+        </div>
       </div>
     </div>
   );
