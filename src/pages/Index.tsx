@@ -28,8 +28,20 @@ const Index = () => {
       
       if (data) {
         setProfile(data);
-        setDailyPoints(data.daily_points || 0);
-        setDailyPracticeTime(data.daily_practice_time || 0);
+        
+        // Check if last practice date is from a previous day
+        const lastPracticeDate = new Date(data.last_practice_date);
+        const today = new Date();
+        
+        if (lastPracticeDate.toDateString() !== today.toDateString()) {
+          // If it's a new day, start with fresh daily stats
+          setDailyPoints(0);
+          setDailyPracticeTime(0);
+        } else {
+          // If it's the same day, use the stored daily stats
+          setDailyPoints(data.daily_points || 0);
+          setDailyPracticeTime(data.daily_practice_time || 0);
+        }
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
