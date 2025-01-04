@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Community } from "lucide-react";
+import { Users } from "lucide-react";
 import StatsCard from './StatsCard';
 import MetronomeControl from './MetronomeControl';
 import LeaderboardCard from './LeaderboardCard';
@@ -24,7 +24,7 @@ const MainContent = ({
         <TabsList className="grid w-full grid-cols-2 max-w-[400px] mx-auto">
           <TabsTrigger value="practice">Practice</TabsTrigger>
           <TabsTrigger value="chat" className="flex items-center gap-2">
-            <Community className="w-4 h-4" />
+            <Users className="w-4 h-4" />
             Chat
           </TabsTrigger>
         </TabsList>
