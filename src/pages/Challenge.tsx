@@ -89,7 +89,7 @@ const Challenge = () => {
       <div className="pt-24 px-4 flex flex-col items-center">
         <div className="relative w-64 h-64 mb-8">
           <div className="absolute inset-0 flex items-center justify-center">
-            <Zap className="w-24 h-24 text-neutral-600" />
+            {!isActive && <Zap className="w-24 h-24 text-neutral-600" />}
           </div>
           <div className="absolute inset-0">
             <svg className="w-full h-full transform -rotate-90">
@@ -116,8 +116,13 @@ const Challenge = () => {
               />
             </svg>
           </div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            {isActive && <span className="text-4xl font-bold">{reps}</span>}
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            {isActive && (
+              <>
+                <span className="text-6xl font-bold mb-2">{reps}</span>
+                <span className="text-sm text-neutral-600">Reps done</span>
+              </>
+            )}
           </div>
         </div>
         <div className="text-center mb-8">
