@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, GuitarIcon, Link2 } from 'lucide-react';
+import { Link2, GuitarIcon, Clock } from 'lucide-react';
 
 interface StatsCardProps {
   practiceTime: number;
@@ -10,7 +10,7 @@ const StatsCard: React.FC<StatsCardProps> = ({ practiceTime, points }) => {
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    return `${minutes}m ${remainingSeconds}s`;
+    return `${minutes} minutes and ${remainingSeconds} seconds`;
   };
 
   return (
@@ -19,19 +19,21 @@ const StatsCard: React.FC<StatsCardProps> = ({ practiceTime, points }) => {
         Your today stats:
       </h2>
       
-      <div className="space-y-3 md:space-y-10">
-        <div className="flex items-center gap-2 md:gap-4">
-          <Clock className="w-5 md:w-7 h-5 md:h-7 text-[#1A1F2C]" />
-          <span className="text-base md:text-2xl text-[#1A1F2C]">
-            <span className="font-medium">Practice:</span>{' '}
-            {formatTime(practiceTime)}
-          </span>
+      <div className="space-y-4 md:space-y-10">
+        <div className="flex items-start gap-4">
+          <Clock className="w-6 md:w-7 h-6 md:h-7 text-[#1A1F2C] mt-1" />
+          <div className="flex flex-col">
+            <span className="text-lg md:text-2xl text-[#1A1F2C]">
+              <span className="font-medium">Practice time:</span>{' '}
+              {formatTime(practiceTime)}
+            </span>
+          </div>
         </div>
         
-        <div className="flex items-center gap-2 md:gap-4">
-          <GuitarIcon className="w-5 md:w-7 h-5 md:h-7 text-[#1A1F2C]" />
-          <span className="text-base md:text-2xl font-medium text-[#1A1F2C]">Points: {points}</span>
-          <Link2 className="w-4 md:w-6 h-4 md:h-6 text-[#1A1F2C] opacity-80" />
+        <div className="flex items-center gap-4">
+          <GuitarIcon className="w-6 md:w-7 h-6 md:h-7 text-[#1A1F2C]" />
+          <span className="text-lg md:text-2xl font-medium text-[#1A1F2C]">Points: {points}</span>
+          <Link2 className="w-5 md:w-6 h-5 md:h-6 text-[#1A1F2C] opacity-80" />
         </div>
       </div>
     </div>
