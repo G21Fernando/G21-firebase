@@ -9,7 +9,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Challenge from "./pages/Challenge";
 import Feed from "./pages/Feed";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useToast } from "./components/ui/use-toast";
 
 const queryClient = new QueryClient({
@@ -25,23 +25,24 @@ const queryClient = new QueryClient({
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const session = useSession();
   const { toast } = useToast();
+  const hadInitialSession = useRef(false);
 
   useEffect(() => {
-    if (!session) {
-      // Only show the toast if we had a session before (actual logout)
-      const hadPreviousSession = localStorage.getItem('hadSession');
-      if (hadPreviousSession === 'true') {
-        toast({
-          title: "Session expired",
-          description: "Please sign in again",
-          variant: "destructive",
-        });
-      }
-    } else {
-      // Mark that we have an active session
-      localStorage.setItem('hadSession', 'true');
+    // Only set initial session state once
+    if (session && !hadInitialSession.current) {
+      hadInitialSession.current = true;
     }
-  }, [session]);
+    
+    // Only show expired message if we previously had a session
+    if (!session && hadInitialSession.current) {
+      toast({
+        title: "Session expired",
+        description: "Please sign in again",
+        variant: "destructive",
+      });
+      hadInitialSession.current = false; // Reset the flag
+    }
+  }, [session, toast]);
 
   if (!session) {
     return <Navigate to="/auth" replace />;
