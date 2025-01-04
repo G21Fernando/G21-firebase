@@ -39,7 +39,7 @@ const Header = ({ profile, onProfileUpdate }: {
         </div>
         <div className="flex items-center gap-2">
           {session && (
-            <>
+            <div className="hidden md:flex items-center gap-2">
               <Button
                 variant="ghost"
                 size="icon"
@@ -64,7 +64,7 @@ const Header = ({ profile, onProfileUpdate }: {
               >
                 <Zap className="h-5 w-5 text-yellow-500" />
               </Button>
-            </>
+            </div>
           )}
           <div className="flex-shrink-0">
             {session ? (

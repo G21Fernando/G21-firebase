@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import Header from '@/components/Header';
 import MainContent from '@/components/MainContent';
+import MobileFooter from '@/components/MobileFooter';
 
 const Index = () => {
   const [dailyPoints, setDailyPoints] = useState(0);
@@ -93,7 +94,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#F5E6DB' }}>
+    <div className="min-h-screen pb-16 md:pb-0" style={{ backgroundColor: '#F5E6DB' }}>
       <Header 
         profile={profile}
         onProfileUpdate={fetchProfile}
@@ -104,6 +105,7 @@ const Index = () => {
         onPointsUpdate={handlePointsUpdate}
         onPracticeTimeUpdate={handlePracticeTimeUpdate}
       />
+      <MobileFooter />
     </div>
   );
 };
