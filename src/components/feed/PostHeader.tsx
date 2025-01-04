@@ -13,12 +13,12 @@ interface PostHeaderProps {
 
 const PostHeader = ({ avatarUrl, username, createdAt, isOwner, onEdit, onDelete }: PostHeaderProps) => {
   return (
-    <CardHeader className="flex flex-row items-center justify-between p-4 pb-3">
-      <div className="flex items-center gap-3">
+    <CardHeader className="flex flex-row items-center justify-between p-3">
+      <div className="flex items-center gap-2">
         <img
           src={avatarUrl || '/placeholder.svg'}
           alt={username}
-          className="w-10 h-10 rounded-full object-cover"
+          className="w-8 h-8 rounded-full object-cover"
         />
         <div className="flex flex-col">
           <h3 className="font-semibold text-sm">{username}</h3>

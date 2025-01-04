@@ -40,7 +40,7 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
   if (!posts?.length) return <div>No posts found</div>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {posts.map((post) => (
         <Card key={post.id} className="bg-white shadow-sm overflow-hidden">
           <div className="flex flex-col">
@@ -55,7 +55,7 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
               }}
               onDelete={() => handleDeletePost(post.id)}
             />
-            <CardContent className="p-4 pt-0">
+            <CardContent className="p-3">
               {editingPost === post.id ? (
                 <div className="space-y-2">
                   <Textarea
@@ -82,7 +82,7 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
                 </div>
               ) : (
                 <>
-                  <p className="text-sm whitespace-pre-wrap mb-3">{post.content}</p>
+                  <p className="text-sm whitespace-pre-wrap mb-2">{post.content}</p>
                   {post.media_url && (
                     <PostMedia
                       mediaUrl={post.media_url}
@@ -92,7 +92,7 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
                 </>
               )}
             </CardContent>
-            <CardFooter className="flex flex-col p-4 pt-0 gap-4">
+            <CardFooter className="flex flex-col p-3 gap-3">
               <PostActions
                 likesCount={post.likes?.length || 0}
                 commentsCount={post.comments?.length || 0}

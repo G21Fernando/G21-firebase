@@ -20,13 +20,13 @@ interface CommentListProps {
 
 const CommentList = ({ comments, commentContent, onCommentChange, onSubmitComment }: CommentListProps) => {
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-3">
       {comments?.map((comment) => (
         <div key={comment.id} className="flex items-start gap-2">
           <img
             src={comment.profiles?.avatar_url || '/placeholder.svg'}
             alt={comment.profiles?.username}
-            className="w-8 h-8 rounded-full"
+            className="w-6 h-6 rounded-full"
           />
           <div className="flex-1 bg-gray-50 rounded-lg p-2">
             <p className="font-semibold text-sm">{comment.profiles?.username}</p>
@@ -39,7 +39,7 @@ const CommentList = ({ comments, commentContent, onCommentChange, onSubmitCommen
           placeholder="Write a comment..."
           value={commentContent}
           onChange={(e) => onCommentChange(e.target.value)}
-          className="flex-1 min-h-[80px] resize-none"
+          className="flex-1 min-h-[60px] resize-none text-sm"
         />
         <Button 
           onClick={onSubmitComment}
