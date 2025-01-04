@@ -80,10 +80,64 @@ export const usePostActions = (refetch: () => void) => {
     }
   };
 
+  const handleDeletePost = async (postId: string) => {
+    if (!session?.user?.id) return;
+    
+    try {
+      const { error } = await supabase
+        .from('posts')
+        .delete()
+        .eq('id', postId);
+
+      if (error) throw error;
+
+      await refetch();
+      
+      toast({
+        title: "Success",
+        description: "Post deleted successfully!",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleUpdatePost = async (postId: string, content: string) => {
+    if (!session?.user?.id) return;
+    
+    try {
+      const { error } = await supabase
+        .from('posts')
+        .update({ content })
+        .eq('id', postId);
+
+      if (error) throw error;
+
+      await refetch();
+      
+      toast({
+        title: "Success",
+        description: "Post updated successfully!",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
   return {
     commentContent,
     setCommentContent,
     handleLike,
-    handleComment
+    handleComment,
+    handleDeletePost,
+    handleUpdatePost
   };
 };
