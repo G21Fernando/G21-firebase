@@ -12,26 +12,26 @@ const MobileFooter = () => {
         <Button
           variant="ghost"
           size="icon"
-          className={`rounded-full ${location.pathname === '/' ? 'bg-yellow-100' : ''}`}
+          className={`rounded-full ${location.pathname === '/' ? 'bg-[#11245a]/10' : ''}`}
           onClick={() => navigate('/')}
         >
-          <Timer className="h-5 w-5 text-yellow-500" />
+          <Timer className="h-5 w-5 text-[#11245a]" />
         </Button>
         <Button
           variant="ghost"
           size="icon"
-          className={`rounded-full ${location.pathname === '/feed' ? 'bg-yellow-100' : ''}`}
+          className={`rounded-full ${location.pathname === '/feed' ? 'bg-[#11245a]/10' : ''}`}
           onClick={() => navigate('/feed')}
         >
-          <Users className="h-5 w-5 text-yellow-500" />
+          <Users className="h-5 w-5 text-[#11245a]" />
         </Button>
         <Button
           variant="ghost"
           size="icon"
-          className={`rounded-full ${location.pathname === '/challenge' ? 'bg-yellow-100' : ''}`}
+          className={`rounded-full ${location.pathname === '/challenge' ? 'bg-[#11245a]/10' : ''}`}
           onClick={() => navigate('/challenge')}
         >
-          <Zap className="h-5 w-5 text-yellow-500" />
+          <Zap className="h-5 w-5 text-[#11245a]" />
         </Button>
       </div>
     </div>
