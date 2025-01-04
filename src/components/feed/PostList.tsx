@@ -1,73 +1,18 @@
-import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
 import { useSession } from '@supabase/auth-helpers-react';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import PostHeader from './PostHeader';
 import PostMedia from './PostMedia';
 import PostActions from './PostActions';
 import CommentList from './CommentList';
-
-interface Post {
-  id: string;
-  content: string;
-  created_at: string;
-  media_url: string | null;
-  media_type: 'image' | 'video' | null;
-  video_duration: number | null;
-  user_id: string;
-  profiles: {
-    username: string;
-    avatar_url: string | null;
-  };
-  likes: { user_id: string }[];
-  comments: {
-    id: string;
-    content: string;
-    created_at: string;
-    profiles: {
-      username: string;
-      avatar_url: string | null;
-    };
-  }[];
-}
+import { usePosts } from '@/hooks/usePosts';
+import { usePostActions } from '@/hooks/usePostActions';
 
 const PostList = ({ onUpdate }: { onUpdate: number }) => {
-  const [commentContent, setCommentContent] = useState<{ [key: string]: string }>({});
-  const { toast } = useToast();
   const session = useSession();
-
-  const { data: posts, isLoading, refetch } = useQuery({
-    queryKey: ['posts', onUpdate],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('posts')
-        .select(`
-          *,
-          profiles:user_id (
-            username,
-            avatar_url
-          ),
-          likes (
-            user_id
-          ),
-          comments (
-            id,
-            content,
-            created_at,
-            profiles:user_id (
-              username,
-              avatar_url
-            )
-          )
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data as unknown as Post[];
-    },
-  });
+  const { data: posts, isLoading, refetch } = usePosts(onUpdate);
+  const { commentContent, setCommentContent, handleLike, handleComment } = usePostActions(refetch);
 
   useEffect(() => {
     const subscription = supabase
@@ -86,80 +31,8 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
     };
   }, [refetch]);
 
-  const handleLike = async (postId: string) => {
-    if (!session?.user?.id) return;
-    
-    try {
-      const { data: existingLike } = await supabase
-        .from('likes')
-        .select()
-        .eq('post_id', postId)
-        .eq('user_id', session.user.id)
-        .single();
-
-      if (existingLike) {
-        await supabase
-          .from('likes')
-          .delete()
-          .eq('post_id', postId)
-          .eq('user_id', session.user.id);
-      } else {
-        await supabase
-          .from('likes')
-          .insert({ 
-            post_id: postId,
-            user_id: session.user.id
-          });
-      }
-
-      await refetch();
-      
-      toast({
-        title: "Success",
-        description: existingLike ? "Post unliked!" : "Post liked!",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleComment = async (postId: string) => {
-    if (!session?.user?.id) return;
-    
-    try {
-      const content = commentContent[postId];
-      if (!content?.trim()) return;
-
-      await supabase
-        .from('comments')
-        .insert({ 
-          post_id: postId,
-          user_id: session.user.id,
-          content 
-        });
-
-      await refetch();
-      setCommentContent({ ...commentContent, [postId]: '' });
-      
-      toast({
-        title: "Success",
-        description: "Comment added!",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive"
-      });
-    }
-  };
-
   if (isLoading) return <div>Loading...</div>;
-  if (!posts) return <div>No posts found</div>;
+  if (!posts?.length) return <div>No posts found</div>;
 
   return (
     <div className="space-y-4">
