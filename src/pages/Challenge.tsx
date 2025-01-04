@@ -50,7 +50,7 @@ const Challenge = () => {
       setIsActive(false);
       toast({
         title: "Challenge completed!",
-        description: `You completed ${reps} reps in 60 seconds!`,
+        description: `You completed ${reps} chord changes in 60 seconds!`,
       });
     }
 
@@ -120,7 +120,7 @@ const Challenge = () => {
             {isActive && (
               <>
                 <span className="text-6xl font-bold mb-2">{reps}</span>
-                <span className="text-sm text-neutral-600">Reps done</span>
+                <span className="text-sm text-neutral-600">Chord changes done</span>
               </>
             )}
           </div>
@@ -133,7 +133,7 @@ const Challenge = () => {
               <div className="text-sm text-gray-600">Master Chord Changes and Transform Your Playing in 21 minutes</div>
             </div>
           ) : (
-            <div className="text-sm text-gray-600">Press spacebar to count reps</div>
+            <div className="text-sm text-gray-600">Press spacebar to count chord changes</div>
           )}
         </div>
         <Button
