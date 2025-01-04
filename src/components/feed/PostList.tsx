@@ -1,17 +1,13 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
-import { Heart, MessageSquare } from 'lucide-react';
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { Textarea } from "@/components/ui/textarea";
 import { useSession } from '@supabase/auth-helpers-react';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import PostHeader from './PostHeader';
+import PostMedia from './PostMedia';
+import PostActions from './PostActions';
+import CommentList from './CommentList';
 
 const PostList = ({ onUpdate }: { onUpdate: number }) => {
   const [commentContent, setCommentContent] = useState<{ [key: string]: string }>({});
@@ -115,88 +111,36 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
     <div className="space-y-4">
       {posts?.map((post) => (
         <Card key={post.id}>
-          <CardHeader className="flex flex-row items-center gap-4">
-            <img
-              src={post.profiles?.avatar_url || '/placeholder.svg'}
-              alt={post.profiles?.username}
-              className="w-10 h-10 rounded-full"
-            />
-            <div>
-              <h3 className="font-semibold">{post.profiles?.username}</h3>
-              <p className="text-sm text-gray-500">
-                {new Date(post.created_at).toLocaleDateString()}
-              </p>
-            </div>
-          </CardHeader>
+          <PostHeader
+            avatarUrl={post.profiles?.avatar_url}
+            username={post.profiles?.username}
+            createdAt={post.created_at}
+          />
           <CardContent>
             <p className="whitespace-pre-wrap">{post.content}</p>
             {post.media_url && (
-              <div className="mt-4">
-                {post.media_type === 'video' ? (
-                  <video
-                    src={`${supabase.storage.from('media').getPublicUrl(post.media_url).data.publicUrl}`}
-                    controls
-                    className="w-full rounded-lg"
-                  />
-                ) : (
-                  <img
-                    src={`${supabase.storage.from('media').getPublicUrl(post.media_url).data.publicUrl}`}
-                    alt="Post media"
-                    className="w-full rounded-lg"
-                  />
-                )}
-              </div>
+              <PostMedia
+                mediaUrl={post.media_url}
+                mediaType={post.media_type}
+              />
             )}
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
-            <div className="flex gap-4 w-full">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="flex gap-2"
-                onClick={() => handleLike(post.id)}
-              >
-                <Heart className={`h-4 w-4 ${post.likes?.some(like => like.user_id === session?.user?.id) ? 'fill-red-500 text-red-500' : ''}`} />
-                {post.likes?.length || 0}
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="flex gap-2"
-              >
-                <MessageSquare className="h-4 w-4" />
-                {post.comments?.length || 0}
-              </Button>
-            </div>
-            <div className="w-full space-y-4">
-              {post.comments?.map((comment: any) => (
-                <div key={comment.id} className="flex items-start gap-2">
-                  <img
-                    src={comment.profiles?.avatar_url || '/placeholder.svg'}
-                    alt={comment.profiles?.username}
-                    className="w-8 h-8 rounded-full"
-                  />
-                  <div className="flex-1 bg-gray-50 rounded-lg p-2">
-                    <p className="font-semibold text-sm">{comment.profiles?.username}</p>
-                    <p className="text-sm">{comment.content}</p>
-                  </div>
-                </div>
-              ))}
-              <div className="flex gap-2">
-                <Textarea
-                  placeholder="Write a comment..."
-                  value={commentContent[post.id] || ''}
-                  onChange={(e) => setCommentContent({
-                    ...commentContent,
-                    [post.id]: e.target.value
-                  })}
-                  className="flex-1"
-                />
-                <Button onClick={() => handleComment(post.id)}>
-                  Comment
-                </Button>
-              </div>
-            </div>
+            <PostActions
+              likesCount={post.likes?.length || 0}
+              commentsCount={post.comments?.length || 0}
+              isLiked={post.likes?.some(like => like.user_id === session?.user?.id)}
+              onLike={() => handleLike(post.id)}
+            />
+            <CommentList
+              comments={post.comments}
+              commentContent={commentContent[post.id] || ''}
+              onCommentChange={(content) => setCommentContent({
+                ...commentContent,
+                [post.id]: content
+              })}
+              onSubmitComment={() => handleComment(post.id)}
+            />
           </CardFooter>
         </Card>
       ))}
