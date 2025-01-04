@@ -7,6 +7,7 @@ import { SessionContextProvider, useSession } from '@supabase/auth-helpers-react
 import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import Challenge from "./pages/Challenge";
 import { useEffect } from "react";
 import { useToast } from "./components/ui/use-toast";
 
@@ -46,6 +47,11 @@ const App = () => (
             <Route path="/" element={
               <ProtectedRoute>
                 <Index />
+              </ProtectedRoute>
+            } />
+            <Route path="/challenge" element={
+              <ProtectedRoute>
+                <Challenge />
               </ProtectedRoute>
             } />
             <Route path="/auth" element={<Auth />} />
