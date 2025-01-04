@@ -106,7 +106,7 @@ const Challenge = () => {
                 className="text-neutral-600"
                 strokeWidth="12"
                 strokeDasharray={2 * Math.PI * 120}
-                strokeDashoffset={2 * Math.PI * 120 * (1 - timeLeft / 60)}
+                strokeDashoffset={2 * Math.PI * 120 * (timeLeft / 60)}
                 strokeLinecap="round"
                 stroke="currentColor"
                 fill="transparent"
@@ -126,7 +126,7 @@ const Challenge = () => {
           </div>
         </div>
         <div className="text-center mb-8">
-          <div className="text-2xl font-bold mb-2">{timeLeft} seconds</div>
+          <div className="text-2xl font-bold mb-2">{timeLeft} time left</div>
           {!isActive ? (
             <div className="space-y-2">
               <div className="text-xl font-semibold text-neutral-600">Speed Unlocker</div>
