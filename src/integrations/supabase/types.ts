@@ -44,6 +44,7 @@ export type Database = {
           points: number | null
           practice_time: number | null
           username: string
+          level: 'basic' | 'advanced'
         }
         Insert: {
           avatar_url?: string | null
@@ -55,6 +56,7 @@ export type Database = {
           points?: number | null
           practice_time?: number | null
           username: string
+          level?: 'basic' | 'advanced'
         }
         Update: {
           avatar_url?: string | null
@@ -66,8 +68,117 @@ export type Database = {
           points?: number | null
           practice_time?: number | null
           username?: string
+          level?: 'basic' | 'advanced'
         }
         Relationships: []
+      }
+      posts: {
+        Row: {
+          id: string
+          user_id: string
+          content: string | null
+          media_url: string | null
+          media_type: 'image' | 'video' | null
+          created_at: string
+          video_duration: number | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          content?: string | null
+          media_url?: string | null
+          media_type?: 'image' | 'video' | null
+          created_at?: string
+          video_duration?: number | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          content?: string | null
+          media_url?: string | null
+          media_type?: 'image' | 'video' | null
+          created_at?: string
+          video_duration?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      likes: {
+        Row: {
+          id: string
+          post_id: string
+          user_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          post_id: string
+          user_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          post_id?: string
+          user_id?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "likes_post_id_fkey"
+            columns: ["post_id"]
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "likes_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      comments: {
+        Row: {
+          id: string
+          post_id: string
+          user_id: string
+          content: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          post_id: string
+          user_id: string
+          content: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          post_id?: string
+          user_id?: string
+          content?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
     }
     Views: {
@@ -80,7 +191,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      user_level: 'basic' | 'advanced'
     }
     CompositeTypes: {
       [_ in never]: never

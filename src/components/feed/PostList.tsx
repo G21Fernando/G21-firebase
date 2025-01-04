@@ -5,6 +5,7 @@ import { Heart, MessageSquare } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Textarea } from "@/components/ui/textarea";
+import { useSession } from '@supabase/auth-helpers-react';
 import {
   Card,
   CardContent,
@@ -15,6 +16,7 @@ import {
 const PostList = ({ onUpdate }: { onUpdate: number }) => {
   const [commentContent, setCommentContent] = useState<{ [key: string]: string }>({});
   const { toast } = useToast();
+  const session = useSession();
 
   const { data: posts, isLoading } = useQuery({
     queryKey: ['posts', onUpdate],
@@ -23,13 +25,13 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
         .from('posts')
         .select(`
           *,
-          profiles:user_id (username, avatar_url),
+          profiles!posts_user_id_fkey (username, avatar_url),
           likes (user_id),
           comments (
             id,
             content,
             created_at,
-            profiles:user_id (username, avatar_url)
+            profiles!comments_user_id_fkey (username, avatar_url)
           )
         `)
         .order('created_at', { ascending: false });
@@ -40,22 +42,29 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
   });
 
   const handleLike = async (postId: string) => {
+    if (!session?.user?.id) return;
+    
     try {
       const { data: existingLike } = await supabase
         .from('likes')
         .select()
         .eq('post_id', postId)
+        .eq('user_id', session.user.id)
         .single();
 
       if (existingLike) {
         await supabase
           .from('likes')
           .delete()
-          .eq('post_id', postId);
+          .eq('post_id', postId)
+          .eq('user_id', session.user.id);
       } else {
         await supabase
           .from('likes')
-          .insert({ post_id: postId });
+          .insert({ 
+            post_id: postId,
+            user_id: session.user.id
+          });
       }
 
       toast({
@@ -72,13 +81,19 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
   };
 
   const handleComment = async (postId: string) => {
+    if (!session?.user?.id) return;
+    
     try {
       const content = commentContent[postId];
       if (!content?.trim()) return;
 
       await supabase
         .from('comments')
-        .insert({ post_id: postId, content });
+        .insert({ 
+          post_id: postId,
+          user_id: session.user.id,
+          content 
+        });
 
       setCommentContent({ ...commentContent, [postId]: '' });
       toast({
@@ -102,12 +117,12 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
         <Card key={post.id}>
           <CardHeader className="flex flex-row items-center gap-4">
             <img
-              src={post.profiles.avatar_url || '/placeholder.svg'}
-              alt={post.profiles.username}
+              src={post.profiles?.avatar_url || '/placeholder.svg'}
+              alt={post.profiles?.username}
               className="w-10 h-10 rounded-full"
             />
             <div>
-              <h3 className="font-semibold">{post.profiles.username}</h3>
+              <h3 className="font-semibold">{post.profiles?.username}</h3>
               <p className="text-sm text-gray-500">
                 {new Date(post.created_at).toLocaleDateString()}
               </p>
@@ -141,8 +156,8 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
                 className="flex gap-2"
                 onClick={() => handleLike(post.id)}
               >
-                <Heart className={`h-4 w-4 ${post.likes.length ? 'fill-red-500 text-red-500' : ''}`} />
-                {post.likes.length}
+                <Heart className={`h-4 w-4 ${post.likes?.some(like => like.user_id === session?.user?.id) ? 'fill-red-500 text-red-500' : ''}`} />
+                {post.likes?.length || 0}
               </Button>
               <Button
                 variant="ghost"
@@ -150,19 +165,19 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
                 className="flex gap-2"
               >
                 <MessageSquare className="h-4 w-4" />
-                {post.comments.length}
+                {post.comments?.length || 0}
               </Button>
             </div>
             <div className="w-full space-y-4">
-              {post.comments.map((comment: any) => (
+              {post.comments?.map((comment: any) => (
                 <div key={comment.id} className="flex items-start gap-2">
                   <img
-                    src={comment.profiles.avatar_url || '/placeholder.svg'}
-                    alt={comment.profiles.username}
+                    src={comment.profiles?.avatar_url || '/placeholder.svg'}
+                    alt={comment.profiles?.username}
                     className="w-8 h-8 rounded-full"
                   />
                   <div className="flex-1 bg-gray-50 rounded-lg p-2">
-                    <p className="font-semibold text-sm">{comment.profiles.username}</p>
+                    <p className="font-semibold text-sm">{comment.profiles?.username}</p>
                     <p className="text-sm">{comment.content}</p>
                   </div>
                 </div>

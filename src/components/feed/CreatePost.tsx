@@ -4,12 +4,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Upload } from 'lucide-react';
+import { useSession } from '@supabase/auth-helpers-react';
 
 const CreatePost = ({ onPostCreated }: { onPostCreated: () => void }) => {
   const [content, setContent] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const { toast } = useToast();
+  const session = useSession();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -49,6 +51,7 @@ const CreatePost = ({ onPostCreated }: { onPostCreated: () => void }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim() && !mediaFile) return;
+    if (!session?.user?.id) return;
 
     setIsUploading(true);
     try {
@@ -76,7 +79,8 @@ const CreatePost = ({ onPostCreated }: { onPostCreated: () => void }) => {
           content,
           media_url: mediaUrl,
           media_type: mediaType,
-          video_duration: mediaType === 'video' ? 20 : null
+          video_duration: mediaType === 'video' ? 20 : null,
+          user_id: session.user.id
         });
 
       if (error) throw error;
