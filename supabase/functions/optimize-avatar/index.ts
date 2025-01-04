@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
-import Sharp from 'https://esm.sh/sharp@0.32.6'
+import { decode, encode } from "https://deno.land/x/imagescript@1.2.15/mod.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -8,6 +8,7 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
@@ -34,14 +35,10 @@ serve(async (req) => {
     const arrayBuffer = await file.arrayBuffer()
     const buffer = new Uint8Array(arrayBuffer)
 
-    // Process image with Sharp
-    const optimizedImage = await Sharp(buffer)
-      .resize(150, 150, { // Small size, good for avatars
-        fit: 'cover',
-        position: 'center'
-      })
-      .webp({ quality: 80 }) // Convert to WebP for better compression
-      .toBuffer()
+    // Process image
+    const image = await decode(buffer)
+    const resized = image.resize(150, 150)
+    const optimizedImage = await resized.encode()
 
     const filePath = `${userId}/avatar.webp`
 
@@ -54,8 +51,23 @@ serve(async (req) => {
       })
 
     if (uploadError) {
+      console.error('Upload error:', uploadError)
       return new Response(
         JSON.stringify({ error: 'Failed to upload file', details: uploadError }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      )
+    }
+
+    // Update user profile
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ avatar_url: filePath })
+      .eq('id', userId)
+
+    if (updateError) {
+      console.error('Profile update error:', updateError)
+      return new Response(
+        JSON.stringify({ error: 'Failed to update profile', details: updateError }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
       )
     }
@@ -65,19 +77,6 @@ serve(async (req) => {
       .from('avatars')
       .getPublicUrl(filePath)
 
-    // Update user profile
-    const { error: updateError } = await supabase
-      .from('profiles')
-      .update({ avatar_url: filePath })
-      .eq('id', userId)
-
-    if (updateError) {
-      return new Response(
-        JSON.stringify({ error: 'Failed to update profile', details: updateError }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-      )
-    }
-
     return new Response(
       JSON.stringify({ 
         message: 'Avatar uploaded successfully',
@@ -86,6 +85,7 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     )
   } catch (error) {
+    console.error('Unexpected error:', error)
     return new Response(
       JSON.stringify({ error: 'An unexpected error occurred', details: error.message }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
