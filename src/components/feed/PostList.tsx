@@ -10,7 +10,7 @@ import { usePosts } from '@/hooks/usePosts';
 import { usePostActions } from '@/hooks/usePostActions';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Pencil, Trash2 } from 'lucide-react';
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const PostList = ({ onUpdate }: { onUpdate: number }) => {
   const session = useSession();
@@ -42,72 +42,74 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
   return (
     <div className="space-y-4">
       {posts.map((post) => (
-        <Card key={post.id} className="max-h-[50vh] overflow-y-auto">
-          <PostHeader
-            avatarUrl={post.profiles?.avatar_url}
-            username={post.profiles?.username}
-            createdAt={post.created_at}
-            isOwner={post.user_id === session?.user?.id}
-            onEdit={() => {
-              setEditingPost(post.id);
-              setEditContent(post.content);
-            }}
-            onDelete={() => handleDeletePost(post.id)}
-          />
-          <CardContent>
-            {editingPost === post.id ? (
-              <div className="space-y-2">
-                <Textarea
-                  value={editContent}
-                  onChange={(e) => setEditContent(e.target.value)}
-                  className="min-h-[100px]"
-                />
-                <div className="flex gap-2">
-                  <Button
-                    onClick={() => {
-                      handleUpdatePost(post.id, editContent);
-                      setEditingPost(null);
-                    }}
-                  >
-                    Save
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setEditingPost(null)}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <>
-                <p className="whitespace-pre-wrap">{post.content}</p>
-                {post.media_url && (
-                  <PostMedia
-                    mediaUrl={post.media_url}
-                    mediaType={post.media_type}
+        <Card key={post.id} className="max-h-[35vh]">
+          <ScrollArea className="h-full">
+            <PostHeader
+              avatarUrl={post.profiles?.avatar_url}
+              username={post.profiles?.username}
+              createdAt={post.created_at}
+              isOwner={post.user_id === session?.user?.id}
+              onEdit={() => {
+                setEditingPost(post.id);
+                setEditContent(post.content);
+              }}
+              onDelete={() => handleDeletePost(post.id)}
+            />
+            <CardContent>
+              {editingPost === post.id ? (
+                <div className="space-y-2">
+                  <Textarea
+                    value={editContent}
+                    onChange={(e) => setEditContent(e.target.value)}
+                    className="min-h-[100px]"
                   />
-                )}
-              </>
-            )}
-          </CardContent>
-          <CardFooter className="flex flex-col gap-4">
-            <PostActions
-              likesCount={post.likes?.length || 0}
-              commentsCount={post.comments?.length || 0}
-              isLiked={post.likes?.some(like => like.user_id === session?.user?.id)}
-              onLike={() => handleLike(post.id)}
-            />
-            <CommentList
-              comments={post.comments}
-              commentContent={commentContent[post.id] || ''}
-              onCommentChange={(content) => setCommentContent({
-                ...commentContent,
-                [post.id]: content
-              })}
-              onSubmitComment={() => handleComment(post.id)}
-            />
-          </CardFooter>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => {
+                        handleUpdatePost(post.id, editContent);
+                        setEditingPost(null);
+                      }}
+                    >
+                      Save
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setEditingPost(null)}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <p className="whitespace-pre-wrap">{post.content}</p>
+                  {post.media_url && (
+                    <PostMedia
+                      mediaUrl={post.media_url}
+                      mediaType={post.media_type}
+                    />
+                  )}
+                </>
+              )}
+            </CardContent>
+            <CardFooter className="flex flex-col gap-4">
+              <PostActions
+                likesCount={post.likes?.length || 0}
+                commentsCount={post.comments?.length || 0}
+                isLiked={post.likes?.some(like => like.user_id === session?.user?.id)}
+                onLike={() => handleLike(post.id)}
+              />
+              <CommentList
+                comments={post.comments}
+                commentContent={commentContent[post.id] || ''}
+                onCommentChange={(content) => setCommentContent({
+                  ...commentContent,
+                  [post.id]: content
+                })}
+                onSubmitComment={() => handleComment(post.id)}
+              />
+            </CardFooter>
+          </ScrollArea>
         </Card>
       ))}
     </div>
