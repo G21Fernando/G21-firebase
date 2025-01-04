@@ -6,10 +6,12 @@ import { useEffect, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 
 const AuthPage = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -19,10 +21,18 @@ const AuthPage = () => {
       if (event === "SIGNED_OUT") {
         setError(null);
       }
+      // Handle authentication errors
+      if (event === "USER_DELETED" || event === "SIGNED_OUT") {
+        toast({
+          variant: "destructive",
+          title: "Authentication Error",
+          description: "Please check your credentials and try again.",
+        });
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, toast]);
 
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F5E6DB' }}>
@@ -34,7 +44,7 @@ const AuthPage = () => {
           <Alert variant="destructive" className="mb-4">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Oops! Something went wrong. Please try again or check your internet connection.
+              {error}
             </AlertDescription>
           </Alert>
         )}
@@ -57,6 +67,14 @@ const AuthPage = () => {
           providers={[]}
           view="sign_in"
           redirectTo={window.location.origin}
+          onError={(error) => {
+            setError(error.message);
+            toast({
+              variant: "destructive",
+              title: "Authentication Error",
+              description: error.message,
+            });
+          }}
         />
         <div className="mt-6 text-center">
           <Button 
