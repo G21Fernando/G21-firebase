@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { UserRound, Zap, Users, Music2 } from 'lucide-react';
+import { UserRound, Zap, Users } from 'lucide-react';
 import ProfileEditDialog from './ProfileEditDialog';
 
 const Header = ({ profile, onProfileUpdate }: { 
@@ -46,7 +46,11 @@ const Header = ({ profile, onProfileUpdate }: {
                 className={`rounded-full ${location.pathname === '/' ? 'bg-yellow-100' : ''}`}
                 onClick={() => navigate('/')}
               >
-                <Music2 className="h-5 w-5 text-yellow-500" />
+                <img 
+                  src="/lovable-uploads/eac18f93-850f-49af-87b0-d27fdbc14a58.png"
+                  alt="Metronome"
+                  className="h-5 w-5"
+                />
               </Button>
               <Button
                 variant="ghost"
