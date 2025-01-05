@@ -49,13 +49,23 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
 
     const oscillator = audioContext.current.createOscillator();
     oscillator.connect(gainNode.current);
-    
     oscillator.frequency.value = 800;
     
-    oscillator.start();
-    gainNode.current.gain.setValueAtTime(volume, audioContext.current.currentTime);
-    gainNode.current.gain.exponentialRampToValueAtTime(0.001, audioContext.current.currentTime + 0.05);
-    oscillator.stop(audioContext.current.currentTime + 0.05);
+    const now = audioContext.current.currentTime;
+    const attackTime = 0.001;
+    const decayTime = 0.05;
+    
+    // Reset gain to ensure consistent volume
+    gainNode.current.gain.cancelScheduledValues(now);
+    gainNode.current.gain.setValueAtTime(0, now);
+    
+    // Attack
+    gainNode.current.gain.linearRampToValueAtTime(volume, now + attackTime);
+    // Decay
+    gainNode.current.gain.exponentialRampToValueAtTime(0.001, now + attackTime + decayTime);
+    
+    oscillator.start(now);
+    oscillator.stop(now + attackTime + decayTime);
     
     setIndicator(prev => !prev);
     sessionPointsRef.current += 1;
