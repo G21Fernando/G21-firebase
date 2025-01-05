@@ -44,7 +44,7 @@ const Feed = () => {
         profile={profile}
         onProfileUpdate={fetchProfile}
       />
-      <div className="max-w-2xl mx-auto px-4 pt-24 pb-8">
+      <div className="max-w-2xl mx-auto px-4 pt-4 pb-8">
         <CreatePost onPostCreated={handlePostCreated} />
         <div className="mt-8">
           <PostList onUpdate={updateTrigger} />
