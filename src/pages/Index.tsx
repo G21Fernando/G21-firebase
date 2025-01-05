@@ -97,13 +97,16 @@ const Index = () => {
       <Header 
         profile={profile}
         onProfileUpdate={fetchProfile}
-      />
-      <MainContent 
+        />
+      </div>
+      <div className="max-w-6xl mx-auto px-2 pt-4 pb-16 md:px-8 md:pt-4 md:pb-12">
+        <MainContent 
         dailyPoints={dailyPoints}
         dailyPracticeTime={dailyPracticeTime}
         onPointsUpdate={handlePointsUpdate}
         onPracticeTimeUpdate={handlePracticeTimeUpdate}
-      />
+        />
+      </div>
     </div>
   );
 };
