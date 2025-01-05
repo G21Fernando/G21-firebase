@@ -28,7 +28,7 @@ const Header = ({ profile, onProfileUpdate }: {
   };
 
   return (
-    <header className="bg-white shadow-sm fixed w-full top-0 z-50">
+    <header className="bg-white shadow-sm w-full z-50">
       <div className="flex justify-between items-center px-4 h-16">
         <div className="flex items-center">
           <img 
