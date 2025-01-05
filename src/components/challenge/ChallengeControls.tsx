@@ -13,7 +13,7 @@ const ChallengeControls = ({ isActive, timeLeft, onStart }: ChallengeControlsPro
         <div className="text-2xl font-bold mb-2">{timeLeft} time left</div>
         {!isActive ? (
           <div className="space-y-2">
-            <div className="text-xl font-semibold text-neutral-600">Speed Unlocker</div>
+            <div className="text-xl font-semibold text-neutral-600">Chord Sprinter</div>
             <div className="text-sm text-gray-600">Master Chord Changes and Transform Your Playing in 21 minutes</div>
           </div>
         ) : (
