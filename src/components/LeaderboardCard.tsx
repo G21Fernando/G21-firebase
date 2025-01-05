@@ -43,17 +43,17 @@ const LeaderboardCard: React.FC = () => {
   }, []);
 
   return (
-    <div className="p-2 md:p-8 h-full flex flex-col justify-center">
-      <div className="flex items-center gap-2 mb-2 md:mb-8">
+    <div className="p-4 h-full flex flex-col justify-center">
+      <div className="flex items-center gap-2 mb-4">
         <Trophy className="w-4 md:w-6 h-4 md:h-6 text-yellow-500" />
         <h2 className="text-base md:text-2xl font-bold">Practice Leaderboard</h2>
       </div>
       
-      <ul className="space-y-1 md:space-y-4">
+      <ul className="space-y-2 md:space-y-4">
         {leaderboardData.map((player, index) => (
           <li 
             key={player.username}
-            className="flex justify-between items-center p-1 md:p-4 bg-white/50 backdrop-blur-sm rounded-lg"
+            className="flex justify-between items-center p-2 md:p-4 bg-white/50 backdrop-blur-sm rounded-lg"
           >
             <span className="flex items-center gap-1 md:gap-2">
               <span className="font-bold text-gray-500 text-xs md:text-base">#{index + 1}</span>
