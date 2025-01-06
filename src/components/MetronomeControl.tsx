@@ -14,11 +14,11 @@ interface MetronomeControlProps {
 
 const TimekeeperIcon = () => (
   <div className="relative w-8 h-8 mx-auto mb-2">
-    <Timer className="w-full h-full text-[#9b87f5]" />
+    <Timer className="w-full h-full text-[#11245A]" />
     {/* Add decorative stars */}
-    <span className="absolute top-0 left-0 text-[#9b87f5] text-xs">✦</span>
-    <span className="absolute top-1 right-0 text-[#9b87f5] text-xs">✦</span>
-    <span className="absolute bottom-0 left-1/4 text-[#9b87f5] text-xs">✦</span>
+    <span className="absolute top-0 left-0 text-[#11245A] text-xs">✦</span>
+    <span className="absolute top-1 right-0 text-[#11245A] text-xs">✦</span>
+    <span className="absolute bottom-0 left-1/4 text-[#11245A] text-xs">✦</span>
   </div>
 );
 
