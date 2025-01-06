@@ -134,7 +134,11 @@ const CreatePost = ({ onPostCreated }: { onPostCreated: () => void }) => {
             </span>
           )}
         </div>
-        <Button type="submit" disabled={isUploading}>
+        <Button 
+          type="submit" 
+          disabled={isUploading}
+          className="bg-[#11245A] hover:bg-[#11245A]/90 text-white"
+        >
           {isUploading ? 'Posting...' : 'Post'}
         </Button>
       </div>
