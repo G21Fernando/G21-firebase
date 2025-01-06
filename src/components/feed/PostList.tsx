@@ -42,7 +42,6 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
   return (
     <div className="space-y-4">
       {posts.map((post) => {
-        // Get the full avatar URL if it exists
         const avatarUrl = post.profiles?.avatar_url
           ? supabase.storage.from('avatars').getPublicUrl(post.profiles.avatar_url).data.publicUrl
           : null;
@@ -61,60 +60,60 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
                 }}
                 onDelete={() => handleDeletePost(post.id)}
               />
-            <CardContent className="p-3">
-              {editingPost === post.id ? (
-                <div className="space-y-2">
-                  <Textarea
-                    value={editContent}
-                    onChange={(e) => setEditContent(e.target.value)}
-                    className="min-h-[100px]"
-                  />
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => {
-                        handleUpdatePost(post.id, editContent);
-                        setEditingPost(null);
-                      }}
-                    >
-                      Save
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => setEditingPost(null)}
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <p className="text-sm whitespace-pre-wrap mb-2">{post.content}</p>
-                  {post.media_url && (
-                    <PostMedia
-                      mediaUrl={post.media_url}
-                      mediaType={post.media_type}
+              <CardContent className="p-3">
+                {editingPost === post.id ? (
+                  <div className="space-y-2">
+                    <Textarea
+                      value={editContent}
+                      onChange={(e) => setEditContent(e.target.value)}
+                      className="min-h-[100px]"
                     />
-                  )}
-                </>
-              )}
-            </CardContent>
-            <CardFooter className="flex flex-col p-3 gap-3">
-              <PostActions
-                likesCount={post.likes?.length || 0}
-                commentsCount={post.comments?.length || 0}
-                isLiked={post.likes?.some(like => like.user_id === session?.user?.id)}
-                onLike={() => handleLike(post.id)}
-              />
-              <CommentList
-                comments={post.comments}
-                commentContent={commentContent[post.id] || ''}
-                onCommentChange={(content) => setCommentContent({
-                  ...commentContent,
-                  [post.id]: content
-                })}
-                onSubmitComment={() => handleComment(post.id)}
-              />
-            </CardFooter>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => {
+                          handleUpdatePost(post.id, editContent);
+                          setEditingPost(null);
+                        }}
+                      >
+                        Save
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setEditingPost(null)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-sm whitespace-pre-wrap mb-2">{post.content}</p>
+                    {post.media_url && (
+                      <PostMedia
+                        mediaUrl={post.media_url}
+                        mediaType={post.media_type}
+                      />
+                    )}
+                  </>
+                )}
+              </CardContent>
+              <CardFooter className="flex flex-col p-3 gap-3 md:h-auto h-[120px] overflow-y-auto">
+                <PostActions
+                  likesCount={post.likes?.length || 0}
+                  commentsCount={post.comments?.length || 0}
+                  isLiked={post.likes?.some(like => like.user_id === session?.user?.id)}
+                  onLike={() => handleLike(post.id)}
+                />
+                <CommentList
+                  comments={post.comments}
+                  commentContent={commentContent[post.id] || ''}
+                  onCommentChange={(content) => setCommentContent({
+                    ...commentContent,
+                    [post.id]: content
+                  })}
+                  onSubmitComment={() => handleComment(post.id)}
+                />
+              </CardFooter>
             </div>
           </Card>
         );
