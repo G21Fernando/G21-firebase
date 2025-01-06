@@ -46,6 +46,13 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
 
   return (
     <div className="p-6 h-full flex flex-col gap-4">
+      <div className="text-center mb-2">
+        <h2 className="text-2xl font-bold text-[#11245A]">The Timekeeper</h2>
+        <p className="text-sm text-gray-600 mt-1">
+          Master rhythm, track progress, and elevate your skills—one beat at a time.
+        </p>
+      </div>
+
       <Button 
         className="w-full bg-[#11245A] hover:bg-[#1a3575] text-white text-lg py-6 rounded-xl"
         onClick={isPlaying ? stopMetronome : startMetronome}
