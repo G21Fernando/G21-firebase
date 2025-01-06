@@ -61,7 +61,7 @@ const Header = ({ profile, onProfileUpdate }: HeaderProps) => {
         open={showProfileEdit}
         onOpenChange={setShowProfileEdit}
         profile={profile}
-        onUpdate={onProfileUpdate}
+        onUpdate={onProfileUpdate || (() => {})}
       />
     </header>
   );
