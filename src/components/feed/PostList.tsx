@@ -40,7 +40,7 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
   if (!posts?.length) return <div>No posts found</div>;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 md:space-y-4">
       {posts.map((post) => {
         const avatarUrl = post.profiles?.avatar_url
           ? supabase.storage.from('avatars').getPublicUrl(post.profiles.avatar_url).data.publicUrl
@@ -60,7 +60,7 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
                 }}
                 onDelete={() => handleDeletePost(post.id)}
               />
-              <CardContent className="p-3">
+              <CardContent className="p-2 md:p-3">
                 {editingPost === post.id ? (
                   <div className="space-y-2">
                     <Textarea
@@ -97,7 +97,7 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
                   </>
                 )}
               </CardContent>
-              <CardFooter className="flex flex-col p-3 gap-3 md:h-auto h-[120px] overflow-y-auto">
+              <CardFooter className="flex flex-col p-2 md:p-3 gap-2 md:gap-3 md:h-auto h-[120px] overflow-y-auto">
                 <PostActions
                   likesCount={post.likes?.length || 0}
                   commentsCount={post.comments?.length || 0}
