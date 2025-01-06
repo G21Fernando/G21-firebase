@@ -18,6 +18,7 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
       audioContext.current = new AudioContext();
       gainNode.current = audioContext.current.createGain();
       gainNode.current.connect(audioContext.current.destination);
+      // Set initial volume
       gainNode.current.gain.value = volume;
     }
   };
@@ -35,8 +36,9 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
   }, []);
 
   useEffect(() => {
-    if (gainNode.current) {
-      gainNode.current.gain.setValueAtTime(volume, audioContext.current?.currentTime || 0);
+    if (gainNode.current && audioContext.current) {
+      // Immediately set the new volume value
+      gainNode.current.gain.setValueAtTime(volume, audioContext.current.currentTime);
     }
   }, [volume]);
 
@@ -52,17 +54,14 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
     oscillator.frequency.value = 800;
     
     const now = audioContext.current.currentTime;
-    const attackTime = 0.001;
-    const decayTime = 0.05;
     
-    // Reset gain to ensure consistent volume
+    // Set the volume right before playing
     gainNode.current.gain.cancelScheduledValues(now);
     gainNode.current.gain.setValueAtTime(volume, now);
     
-    // Attack
-    gainNode.current.gain.linearRampToValueAtTime(volume, now + attackTime);
-    // Decay
-    gainNode.current.gain.exponentialRampToValueAtTime(0.001, now + attackTime + decayTime);
+    // Attack and decay envelope
+    const attackTime = 0.001;
+    const decayTime = 0.05;
     
     oscillator.start(now);
     oscillator.stop(now + attackTime + decayTime);
@@ -120,6 +119,7 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
   };
 
   const handleVolumeChange = (value: number[]) => {
+    // Convert from 0-100 range to 0-1 range
     const newVolume = value[0] / 100;
     setVolume(newVolume);
   };
