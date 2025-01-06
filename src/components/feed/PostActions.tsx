@@ -1,5 +1,5 @@
-import { Heart, MessageSquare } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { Heart, MessageSquare } from 'lucide-react';
 
 interface PostActionsProps {
   likesCount: number;
@@ -10,29 +10,20 @@ interface PostActionsProps {
 
 const PostActions = ({ likesCount, commentsCount, isLiked, onLike }: PostActionsProps) => {
   return (
-    <div className="flex justify-between items-center w-full">
-      <div className="flex-grow overflow-hidden" />
-      <div className="flex items-center gap-3 ml-4 shrink-0">
-        <div className="flex items-center gap-1.5">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="hover:bg-transparent px-0 h-auto py-0.5"
-          >
-            <MessageSquare className="h-5 w-5" />
-          </Button>
-          <span className="text-gray-600 text-sm">{commentsCount}</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="hover:bg-transparent px-0 h-auto py-0.5"
-            onClick={onLike}
-          >
-            <Heart className={`h-5 w-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
-          </Button>
-          <span className="text-gray-600 text-sm">{likesCount}</span>
+    <div className="flex items-center justify-between w-full">
+      <div className="flex items-center gap-6">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onLike}
+          className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
+        >
+          <Heart className={`h-5 w-5 ${isLiked ? 'fill-current text-red-500' : ''}`} />
+          <span>{likesCount}</span>
+        </Button>
+        <div className="flex items-center gap-1 text-gray-600">
+          <MessageSquare className="h-5 w-5" />
+          <span>{commentsCount}</span>
         </div>
       </div>
     </div>

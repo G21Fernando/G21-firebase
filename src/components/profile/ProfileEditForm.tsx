@@ -35,7 +35,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      if (file.size > 5 * 1024 * 1024) {
         toast({
           title: "File too large",
           description: "Please select an image under 5MB",
@@ -54,7 +54,16 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
     setIsLoading(true);
     
     try {
+      let avatarUrl = currentAvatarUrl;
+
       if (selectedFile) {
+        // Delete the old avatar if it exists
+        if (currentAvatarUrl) {
+          await supabase.storage
+            .from('avatars')
+            .remove([currentAvatarUrl]);
+        }
+
         const formData = new FormData();
         formData.append('file', selectedFile);
         formData.append('userId', userId);
@@ -66,11 +75,16 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
         if (functionError) {
           throw functionError;
         }
+
+        avatarUrl = data?.filePath;
       }
 
       const { error } = await supabase
         .from('profiles')
-        .update({ username })
+        .update({ 
+          username,
+          avatar_url: avatarUrl
+        })
         .eq('id', userId);
 
       if (error) throw error;

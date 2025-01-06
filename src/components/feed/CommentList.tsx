@@ -43,7 +43,7 @@ const CommentList = ({ comments, commentContent, onCommentChange, onSubmitCommen
         />
         <Button 
           onClick={onSubmitComment}
-          className="bg-[#11245A] hover:bg-[#11245A]/90 text-white text-sm py-1.5 px-3 h-auto"
+          className="text-gray-600 hover:text-gray-900 text-sm py-1.5 px-3 h-auto"
         >
           Comment
         </Button>
