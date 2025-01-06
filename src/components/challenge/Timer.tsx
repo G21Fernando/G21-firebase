@@ -10,8 +10,8 @@ const Timer = ({ isActive, timeLeft, chordChanges }: TimerProps) => {
   return (
     <>
       <div className="text-center mb-2">
-        <div className="text-2xl font-bold text-neutral-600">Chord Sprinter</div>
-        <div className="text-base text-gray-600 mt-1">Speed up your chord changes and track results</div>
+        <div className="text-2xl font-bold text-[#11245A]">Chord Sprinter</div>
+        <div className="text-base text-[#11245A]/70 mt-1">Speed up your chord changes and track results</div>
       </div>
       <div className="relative w-36 h-36 mb-4 mx-auto">
         <div className="absolute inset-0 flex items-center justify-center">
