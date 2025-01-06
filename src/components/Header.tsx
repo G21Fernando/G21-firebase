@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { UserRound, Zap, Users, Timer } from 'lucide-react';
 import ProfileEditDialog from './ProfileEditDialog';
+import { supabase } from '@/integrations/supabase/client';
 
 const Header = ({ profile, onProfileUpdate }: { 
   profile: any;
@@ -18,9 +19,13 @@ const Header = ({ profile, onProfileUpdate }: {
 }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const session = useSession();
-  const supabase = useSupabaseClient();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const getAvatarUrl = (avatarPath: string | null) => {
+    if (!avatarPath) return null;
+    return supabase.storage.from('avatars').getPublicUrl(avatarPath).data.publicUrl;
+  };
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -73,7 +78,7 @@ const Header = ({ profile, onProfileUpdate }: {
                   <Button variant="ghost" className="relative h-10 w-10 md:h-auto md:w-auto md:px-4 rounded-full">
                     <div className="flex items-center gap-2">
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={profile?.avatar_url} />
+                        <AvatarImage src={profile?.avatar_url ? getAvatarUrl(profile.avatar_url) : undefined} />
                         <AvatarFallback>
                           <UserRound className="h-4 w-4" />
                         </AvatarFallback>
