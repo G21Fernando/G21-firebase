@@ -23,14 +23,14 @@ const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
         size="icon"
         onClick={() => onNavigate('/challenge')}
       >
-        <UserRound className="h-5 w-5" />
+        <Zap className="h-5 w-5" />
       </Button>
       <Button
         variant={location.pathname === '/feed' ? 'default' : 'ghost'}
         size="icon"
         onClick={() => onNavigate('/feed')}
       >
-        <Zap className="h-5 w-5" />
+        <UserRound className="h-5 w-5" />
       </Button>
     </div>
   );
