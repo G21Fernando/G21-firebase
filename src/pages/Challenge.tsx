@@ -3,10 +3,9 @@ import { useSession } from '@supabase/auth-helpers-react';
 import Header from '@/components/Header';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import Timer from '@/components/challenge/Timer';
-import ChallengeControls from '@/components/challenge/ChallengeControls';
 import LeaderboardCard from '@/components/LeaderboardCard';
-import StatsCard from '@/components/StatsCard';
+import ChallengeStats from '@/components/challenge/ChallengeStats';
+import ChallengeMain from '@/components/challenge/ChallengeMain';
 
 const Challenge = () => {
   const [profile, setProfile] = useState<any>(null);
@@ -60,7 +59,7 @@ const Challenge = () => {
         clearInterval(interval);
       }
     };
-  }, [isActive, timeLeft, chordChanges]);
+  }, [isActive, timeLeft, chordChanges, toast]);
 
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
     if (event.code === 'Space' && isActive) {
@@ -89,29 +88,13 @@ const Challenge = () => {
       />
       <div className="container mx-auto px-4 py-6 md:py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-          {/* Left Column - Stats */}
-          <div className="bg-white rounded-lg shadow-lg">
-            <StatsCard 
-              practiceTime={profile?.daily_practice_time || 0}
-              points={profile?.daily_points || 0}
-            />
-          </div>
-          
-          {/* Center Column - Challenge */}
-          <div className="flex flex-col items-center">
-            <Timer 
-              isActive={isActive}
-              timeLeft={timeLeft}
-              chordChanges={chordChanges}
-            />
-            <ChallengeControls 
-              isActive={isActive}
-              timeLeft={timeLeft}
-              onStart={startChallenge}
-            />
-          </div>
-          
-          {/* Right Column - Leaderboard */}
+          <ChallengeStats profile={profile} />
+          <ChallengeMain 
+            isActive={isActive}
+            timeLeft={timeLeft}
+            chordChanges={chordChanges}
+            onStart={startChallenge}
+          />
           <div className="bg-white rounded-lg shadow-lg">
             <LeaderboardCard />
           </div>
