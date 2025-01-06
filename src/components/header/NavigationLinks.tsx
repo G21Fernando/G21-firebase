@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom';
-import { Timer, UserRound, Zap } from 'lucide-react';
+import { Timer, Users, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface NavigationLinksProps {
@@ -33,7 +33,7 @@ const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
         onClick={() => onNavigate('/feed')}
         className={location.pathname === '/feed' ? 'bg-[#F1F0FB] hover:bg-[#F1F0FB]' : ''}
       >
-        <UserRound className="h-5 w-5" />
+        <Users className="h-5 w-5" />
       </Button>
     </div>
   );

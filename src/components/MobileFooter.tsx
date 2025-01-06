@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Timer, UserRound, Zap } from 'lucide-react';
+import { Timer, Users, Zap } from 'lucide-react';
 
 const MobileFooter = () => {
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ const MobileFooter = () => {
           className={`rounded-full ${location.pathname === '/feed' ? 'bg-[#11245a]/10' : ''}`}
           onClick={() => navigate('/feed')}
         >
-          <UserRound className="h-5 w-5 text-[#11245a]" />
+          <Users className="h-5 w-5 text-[#11245a]" />
         </Button>
         <Button
           variant="ghost"
