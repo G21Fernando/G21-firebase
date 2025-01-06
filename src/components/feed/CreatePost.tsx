@@ -104,12 +104,12 @@ const CreatePost = ({ onPostCreated }: { onPostCreated: () => void }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 bg-white rounded-lg p-4 shadow">
+    <form onSubmit={handleSubmit} className="space-y-2 bg-white rounded-lg p-2 shadow">
       <Textarea
         placeholder="What's on your mind?"
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        className="min-h-[100px]"
+        className="min-h-[50px] resize-none"
       />
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
