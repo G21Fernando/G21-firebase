@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { Timer } from 'lucide-react';
 import BpmSelector from './metronome/BpmSelector';
 import VolumeControl from './metronome/VolumeControl';
 import MetronomeIndicator from './metronome/MetronomeIndicator';
@@ -12,25 +13,13 @@ interface MetronomeControlProps {
 }
 
 const TimekeeperIcon = () => (
-  <svg 
-    width="32" 
-    height="32" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round"
-    className="text-[#9b87f5] mx-auto mb-2"
-  >
-    {/* Main hat outline */}
-    <path d="M4 18C4 18 7 17 12 17C17 17 20 18 20 18" />
-    <path d="M12 17L9 6C9 6 10.5 4 12 4C13.5 4 15 6 15 6L12 17" />
-    {/* Stars */}
-    <path d="M7 8L7.5 8.5L8 8L7.5 7.5L7 8Z" />
-    <path d="M16 10L16.5 10.5L17 10L16.5 9.5L16 10Z" />
-    <path d="M12 6L12.5 6.5L13 6L12.5 5.5L12 6Z" />
-  </svg>
+  <div className="relative w-8 h-8 mx-auto mb-2">
+    <Timer className="w-full h-full text-[#9b87f5]" />
+    {/* Add decorative stars */}
+    <span className="absolute top-0 left-0 text-[#9b87f5] text-xs">✦</span>
+    <span className="absolute top-1 right-0 text-[#9b87f5] text-xs">✦</span>
+    <span className="absolute bottom-0 left-1/4 text-[#9b87f5] text-xs">✦</span>
+  </div>
 );
 
 const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onPracticeTimeUpdate }) => {
