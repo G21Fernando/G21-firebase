@@ -36,7 +36,7 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
 
   useEffect(() => {
     if (gainNode.current) {
-      gainNode.current.gain.value = volume;
+      gainNode.current.gain.setValueAtTime(volume, audioContext.current?.currentTime || 0);
     }
   }, [volume]);
 
@@ -57,7 +57,7 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
     
     // Reset gain to ensure consistent volume
     gainNode.current.gain.cancelScheduledValues(now);
-    gainNode.current.gain.setValueAtTime(0, now);
+    gainNode.current.gain.setValueAtTime(volume, now);
     
     // Attack
     gainNode.current.gain.linearRampToValueAtTime(volume, now + attackTime);
