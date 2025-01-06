@@ -10,7 +10,7 @@ const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
   const location = useLocation();
 
   return (
-    <>
+    <div className="hidden md:flex items-center gap-2">
       <Button
         variant={location.pathname === '/' ? 'default' : 'ghost'}
         size="icon"
@@ -32,7 +32,7 @@ const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
       >
         <Music2 className="h-5 w-5" />
       </Button>
-    </>
+    </div>
   );
 };
 
