@@ -1,26 +1,16 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Timer } from 'lucide-react';
 import BpmSelector from './metronome/BpmSelector';
 import VolumeControl from './metronome/VolumeControl';
 import MetronomeIndicator from './metronome/MetronomeIndicator';
 import { useMetronome } from './metronome/useMetronome';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import TimekeeperIcon from './icons/TimekeeperIcon';
 
 interface MetronomeControlProps {
   onPointsUpdate: (points: number) => void;
   onPracticeTimeUpdate: (seconds: number) => void;
 }
-
-const TimekeeperIcon = () => (
-  <div className="relative w-8 h-8 mx-auto mb-2">
-    <Timer className="w-full h-full text-[#11245A]" />
-    {/* Add decorative stars */}
-    <span className="absolute top-0 left-0 text-[#11245A] text-xs">✦</span>
-    <span className="absolute top-1 right-0 text-[#11245A] text-xs">✦</span>
-    <span className="absolute bottom-0 left-1/4 text-[#11245A] text-xs">✦</span>
-  </div>
-);
 
 const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onPracticeTimeUpdate }) => {
   const {
@@ -58,7 +48,9 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
   return (
     <div className="p-6 h-full flex flex-col gap-4">
       <div className="text-center mb-2">
-        <TimekeeperIcon />
+        <div className="w-8 h-8 mx-auto mb-2">
+          <TimekeeperIcon className="w-full h-full text-[#11245A]" />
+        </div>
         <h2 className="text-2xl font-bold text-[#11245A]">The Timekeeper</h2>
         <p className="text-sm text-gray-600 mt-1">
           Master rhythm, track progress, and elevate your skills—one beat at a time.

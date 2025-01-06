@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Timer, Users, Zap } from 'lucide-react';
+import { Users, Zap } from 'lucide-react';
+import TimekeeperIcon from './icons/TimekeeperIcon';
 
 const MobileFooter = () => {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ const MobileFooter = () => {
           className={`rounded-full ${location.pathname === '/' ? 'bg-[#11245a]/10' : ''}`}
           onClick={() => navigate('/')}
         >
-          <Timer className="h-5 w-5 text-[#11245a]" />
+          <TimekeeperIcon className="h-5 w-5 text-[#11245a]" />
         </Button>
         <Button
           variant="ghost"

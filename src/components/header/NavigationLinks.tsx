@@ -1,6 +1,7 @@
 import { useLocation } from 'react-router-dom';
-import { Timer, Users, Zap } from 'lucide-react';
+import { Users, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import TimekeeperIcon from '../icons/TimekeeperIcon';
 
 interface NavigationLinksProps {
   onNavigate: (path: string) => void;
@@ -17,7 +18,7 @@ const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
         onClick={() => onNavigate('/')}
         className={location.pathname === '/' ? 'bg-[#F1F0FB] hover:bg-[#F1F0FB]' : ''}
       >
-        <Timer className="h-5 w-5" />
+        <TimekeeperIcon className="h-5 w-5" />
       </Button>
       <Button
         variant={location.pathname === '/challenge' ? 'ghost' : 'ghost'}
