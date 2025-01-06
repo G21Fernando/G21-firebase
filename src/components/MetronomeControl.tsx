@@ -11,6 +11,25 @@ interface MetronomeControlProps {
   onPracticeTimeUpdate: (seconds: number) => void;
 }
 
+const TimekeeperIcon = () => (
+  <svg 
+    width="32" 
+    height="32" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round"
+    className="text-[#11245A] mx-auto mb-2"
+  >
+    <path d="M12 2L3 9l9 7 9-7-9-7z" />
+    <path d="M3 9v6l9 7 9-7V9" />
+    <path d="M12 16l-2.5-2 2.5-2 2.5 2-2.5 2z" />
+    <circle cx="12" cy="12" r="1" />
+  </svg>
+);
+
 const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onPracticeTimeUpdate }) => {
   const {
     isPlaying,
@@ -47,6 +66,7 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
   return (
     <div className="p-6 h-full flex flex-col gap-4">
       <div className="text-center mb-2">
+        <TimekeeperIcon />
         <h2 className="text-2xl font-bold text-[#11245A]">The Timekeeper</h2>
         <p className="text-sm text-gray-600 mt-1">
           Master rhythm, track progress, and elevate your skills—one beat at a time.
