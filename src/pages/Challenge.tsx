@@ -86,7 +86,7 @@ const Challenge = () => {
         profile={profile}
         onProfileUpdate={fetchProfile}
       />
-      <div className="container mx-auto px-4 py-6 md:py-8">
+      <div className="container mx-auto px-4 py-6 pb-24 md:py-8 md:pb-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           <ChallengeStats profile={profile} />
           <ChallengeMain 
