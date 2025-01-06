@@ -17,8 +17,8 @@ const MainContent = ({
   onPracticeTimeUpdate
 }: MainContentProps) => {
   return (
-    <div className="max-w-6xl mx-auto px-2 pt-4 pb-16 md:px-8 md:pt-28 md:pb-12">
-      <div className="grid grid-cols-1 gap-2 md:grid-cols-3 md:gap-8">
+    <div className="container mx-auto px-4 py-6 md:py-8">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
         <div className="bg-[#E8DFD8] rounded-2xl shadow-sm">
           <StatsCard 
             points={dailyPoints}
