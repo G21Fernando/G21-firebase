@@ -7,7 +7,6 @@ import Timer from '@/components/challenge/Timer';
 import ChallengeControls from '@/components/challenge/ChallengeControls';
 import LeaderboardCard from '@/components/LeaderboardCard';
 import StatsCard from '@/components/StatsCard';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 const Challenge = () => {
   const [profile, setProfile] = useState<any>(null);
@@ -83,44 +82,42 @@ const Challenge = () => {
   };
 
   return (
-    <ProtectedRoute>
-      <div className="min-h-screen" style={{ backgroundColor: '#F5E6DB' }}>
-        <Header 
-          profile={profile}
-          onProfileUpdate={fetchProfile}
-        />
-        <div className="container mx-auto pt-24 px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Left Column - Stats */}
-            <div className="bg-white rounded-lg shadow-lg">
-              <StatsCard 
-                practiceTime={profile?.daily_practice_time || 0}
-                points={profile?.daily_points || 0}
-              />
-            </div>
-            
-            {/* Center Column - Challenge */}
-            <div className="flex flex-col items-center">
-              <Timer 
-                isActive={isActive}
-                timeLeft={timeLeft}
-                chordChanges={chordChanges}
-              />
-              <ChallengeControls 
-                isActive={isActive}
-                timeLeft={timeLeft}
-                onStart={startChallenge}
-              />
-            </div>
-            
-            {/* Right Column - Leaderboard */}
-            <div className="bg-white rounded-lg shadow-lg">
-              <LeaderboardCard />
-            </div>
+    <div className="min-h-screen" style={{ backgroundColor: '#F5E6DB' }}>
+      <Header 
+        profile={profile}
+        onProfileUpdate={fetchProfile}
+      />
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Left Column - Stats */}
+          <div className="bg-white rounded-lg shadow-lg">
+            <StatsCard 
+              practiceTime={profile?.daily_practice_time || 0}
+              points={profile?.daily_points || 0}
+            />
+          </div>
+          
+          {/* Center Column - Challenge */}
+          <div className="flex flex-col items-center">
+            <Timer 
+              isActive={isActive}
+              timeLeft={timeLeft}
+              chordChanges={chordChanges}
+            />
+            <ChallengeControls 
+              isActive={isActive}
+              timeLeft={timeLeft}
+              onStart={startChallenge}
+            />
+          </div>
+          
+          {/* Right Column - Leaderboard */}
+          <div className="bg-white rounded-lg shadow-lg">
+            <LeaderboardCard />
           </div>
         </div>
       </div>
-    </ProtectedRoute>
+    </div>
   );
 };
 
