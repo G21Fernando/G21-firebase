@@ -20,7 +20,7 @@ const ChallengeControls = ({ isActive, timeLeft, onStart }: ChallengeControlsPro
           size="default"
           onClick={onStart}
           disabled={isActive}
-          className="bg-neutral-600 hover:bg-neutral-700 text-white"
+          className="bg-primary text-primary-foreground hover:bg-primary/90"
         >
           {isActive ? 'Challenge in Progress' : 'Start Challenge'}
         </Button>
