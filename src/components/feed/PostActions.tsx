@@ -10,24 +10,28 @@ interface PostActionsProps {
 
 const PostActions = ({ likesCount, commentsCount, isLiked, onLike }: PostActionsProps) => {
   return (
-    <div className="flex gap-4">
-      <Button
-        variant="ghost"
-        size="sm"
-        className="flex gap-1.5 hover:bg-transparent px-0 h-auto py-0.5"
-      >
-        <MessageSquare className="h-5 w-5" />
-        <span className="text-gray-600 text-sm">{commentsCount}</span>
-      </Button>
-      <Button
-        variant="ghost"
-        size="sm"
-        className="flex gap-1.5 hover:bg-transparent px-0 h-auto py-0.5"
-        onClick={onLike}
-      >
-        <Heart className={`h-5 w-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
-        <span className="text-gray-600 text-sm">{likesCount}</span>
-      </Button>
+    <div className="flex justify-between items-center w-full">
+      <div className="flex gap-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="flex gap-1.5 hover:bg-transparent px-0 h-auto py-0.5"
+        >
+          <MessageSquare className="h-5 w-5" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="flex gap-1.5 hover:bg-transparent px-0 h-auto py-0.5"
+          onClick={onLike}
+        >
+          <Heart className={`h-5 w-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+        </Button>
+      </div>
+      <div className="flex items-center gap-3 text-gray-600 text-sm">
+        <span>{commentsCount}</span>
+        <span>{likesCount}</span>
+      </div>
     </div>
   );
 };
