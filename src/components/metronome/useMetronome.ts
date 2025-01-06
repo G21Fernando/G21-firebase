@@ -18,7 +18,6 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
       audioContext.current = new AudioContext();
       gainNode.current = audioContext.current.createGain();
       gainNode.current.connect(audioContext.current.destination);
-      // Set initial volume
       gainNode.current.gain.value = volume;
     }
   };
@@ -37,8 +36,7 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
 
   useEffect(() => {
     if (gainNode.current && audioContext.current) {
-      // Immediately set the new volume value
-      gainNode.current.gain.setValueAtTime(volume, audioContext.current.currentTime);
+      gainNode.current.gain.value = volume;
     }
   }, [volume]);
 
@@ -50,22 +48,23 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
     }
 
     const oscillator = audioContext.current.createOscillator();
-    oscillator.connect(gainNode.current);
+    oscillator.type = 'sine';
     oscillator.frequency.value = 800;
     
+    // Connect oscillator to gain node
+    oscillator.connect(gainNode.current);
+    
     const now = audioContext.current.currentTime;
-    
-    // Set the volume right before playing
-    gainNode.current.gain.cancelScheduledValues(now);
-    gainNode.current.gain.setValueAtTime(volume, now);
-    
-    // Attack and decay envelope
-    const attackTime = 0.001;
-    const decayTime = 0.05;
+    const duration = 0.1; // Short duration for a crisp tick sound
     
     oscillator.start(now);
-    oscillator.stop(now + attackTime + decayTime);
+    oscillator.stop(now + duration);
     
+    // Cleanup
+    setTimeout(() => {
+      oscillator.disconnect();
+    }, duration * 1000);
+
     setIndicator(prev => !prev);
     sessionPointsRef.current += 1;
     setCurrentPoints(sessionPointsRef.current);
@@ -119,7 +118,6 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
   };
 
   const handleVolumeChange = (value: number[]) => {
-    // Convert from 0-100 range to 0-1 range
     const newVolume = value[0] / 100;
     setVolume(newVolume);
   };
