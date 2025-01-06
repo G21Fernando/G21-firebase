@@ -11,9 +11,7 @@ interface PostActionsProps {
 const PostActions = ({ likesCount, commentsCount, isLiked, onLike }: PostActionsProps) => {
   return (
     <div className="flex justify-between items-center w-full">
-      <div className="flex-grow overflow-hidden">
-        <p className="text-sm text-gray-600 break-words">This is where the text content will go</p>
-      </div>
+      <div className="flex-grow overflow-hidden" />
       <div className="flex items-center gap-3 ml-4 shrink-0">
         <div className="flex items-center gap-1.5">
           <Button
