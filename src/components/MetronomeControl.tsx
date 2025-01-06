@@ -21,7 +21,7 @@ const TimekeeperIcon = () => (
     strokeWidth="2" 
     strokeLinecap="round" 
     strokeLinejoin="round"
-    className="text-[#11245A] mx-auto mb-2"
+    className="text-[#9b87f5] mx-auto mb-2"
   >
     {/* Base of the hat */}
     <path d="M4 19h16" />
