@@ -22,7 +22,6 @@ const Header = ({ profile, onProfileUpdate }: {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Memoize the avatar URL to prevent recalculation on every render
   const avatarUrl = useMemo(() => {
     if (!profile?.avatar_url) return undefined;
     return supabase.storage.from('avatars').getPublicUrl(profile.avatar_url).data.publicUrl;
@@ -35,12 +34,12 @@ const Header = ({ profile, onProfileUpdate }: {
 
   return (
     <header className="bg-white shadow-sm w-full z-50">
-      <div className="flex justify-between items-center px-4 h-16">
+      <div className="flex justify-between items-center px-4 h-12 md:h-16">
         <div className="flex items-center">
           <img 
             src="/lovable-uploads/5bfe01d1-1192-497c-a049-12e321aea77a.png" 
             alt="G21 Logo" 
-            className="h-10"
+            className="h-8 md:h-10"
           />
         </div>
         <div className="flex items-center gap-2">
@@ -76,9 +75,9 @@ const Header = ({ profile, onProfileUpdate }: {
             {session ? (
               <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 md:h-auto md:w-auto md:px-4 rounded-full">
+                  <Button variant="ghost" className="relative h-8 w-8 md:h-10 md:w-10 md:px-4 rounded-full">
                     <div className="flex items-center gap-2">
-                      <Avatar className="h-8 w-8">
+                      <Avatar className="h-6 w-6 md:h-8 md:w-8">
                         <AvatarImage src={avatarUrl} />
                         <AvatarFallback>
                           <UserRound className="h-4 w-4" />
