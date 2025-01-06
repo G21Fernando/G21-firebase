@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, ArrowUp } from 'lucide-react';
+import { Timer, UserRound, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface NavigationLinksProps {
@@ -16,21 +16,21 @@ const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
         size="icon"
         onClick={() => onNavigate('/')}
       >
-        <ArrowLeft className="h-5 w-5" />
+        <Timer className="h-5 w-5" />
       </Button>
       <Button
         variant={location.pathname === '/challenge' ? 'default' : 'ghost'}
         size="icon"
         onClick={() => onNavigate('/challenge')}
       >
-        <ArrowUp className="h-5 w-5" />
+        <UserRound className="h-5 w-5" />
       </Button>
       <Button
         variant={location.pathname === '/feed' ? 'default' : 'ghost'}
         size="icon"
         onClick={() => onNavigate('/feed')}
       >
-        <ArrowRight className="h-5 w-5" />
+        <Zap className="h-5 w-5" />
       </Button>
     </div>
   );
