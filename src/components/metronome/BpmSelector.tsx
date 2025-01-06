@@ -13,7 +13,7 @@ const BpmSelector: React.FC<BpmSelectorProps> = ({ bpm, onBpmChange }) => {
         <SelectValue placeholder="Select BPM" />
       </SelectTrigger>
       <SelectContent>
-        {[60, 80, 100, 120, 140, 160, 180, 200].map((value) => (
+        {[70, 80, 90, 100, 110, 120].map((value) => (
           <SelectItem key={value} value={value.toString()}>
             {value} BPM
           </SelectItem>
