@@ -1,5 +1,4 @@
-import Timer from './Timer';
-import ChallengeControls from './ChallengeControls';
+import ChallengeGroup from './ChallengeGroup';
 
 interface ChallengeMainProps {
   isActive: boolean;
@@ -11,14 +10,10 @@ interface ChallengeMainProps {
 const ChallengeMain = ({ isActive, timeLeft, chordChanges, onStart }: ChallengeMainProps) => {
   return (
     <div className="flex flex-col items-center">
-      <Timer 
+      <ChallengeGroup 
         isActive={isActive}
         timeLeft={timeLeft}
         chordChanges={chordChanges}
-      />
-      <ChallengeControls 
-        isActive={isActive}
-        timeLeft={timeLeft}
         onStart={onStart}
       />
     </div>
