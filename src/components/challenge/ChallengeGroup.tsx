@@ -10,7 +10,7 @@ interface ChallengeGroupProps {
 
 const ChallengeGroup = ({ isActive, timeLeft, chordChanges, onStart }: ChallengeGroupProps) => {
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
+    <div className="bg-white rounded-lg shadow-lg p-4">
       <Timer 
         isActive={isActive}
         timeLeft={timeLeft}

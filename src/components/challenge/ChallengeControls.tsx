@@ -9,8 +9,8 @@ interface ChallengeControlsProps {
 const ChallengeControls = ({ isActive, timeLeft, onStart }: ChallengeControlsProps) => {
   return (
     <>
-      <div className="text-center mb-8">
-        <div className="text-xl font-semibold mb-4">{timeLeft} time left</div>
+      <div className="text-center mb-4">
+        <div className="text-xl font-semibold mb-2">{timeLeft} time left</div>
         {isActive && (
           <div className="text-sm text-gray-600">Press spacebar to count chord changes</div>
         )}
