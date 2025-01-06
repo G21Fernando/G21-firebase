@@ -11,6 +11,7 @@ const Timer = ({ isActive, timeLeft, chordChanges }: TimerProps) => {
     <>
       <div className="text-center mb-4">
         <div className="text-4xl font-bold text-neutral-600">Chord Sprinter</div>
+        <div className="text-lg text-gray-600 mt-2">Master Chord Changes and Transform Your Playing in 21 minutes</div>
       </div>
       <div className="relative w-64 h-64 mb-8">
         <div className="absolute inset-0 flex items-center justify-center">

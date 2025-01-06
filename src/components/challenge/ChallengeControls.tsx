@@ -11,11 +11,7 @@ const ChallengeControls = ({ isActive, timeLeft, onStart }: ChallengeControlsPro
     <>
       <div className="text-center mb-8">
         <div className="text-xl font-semibold mb-4">{timeLeft} time left</div>
-        {!isActive ? (
-          <div className="space-y-2">
-            <div className="text-lg text-gray-600">Master Chord Changes and Transform Your Playing in 21 minutes</div>
-          </div>
-        ) : (
+        {isActive && (
           <div className="text-sm text-gray-600">Press spacebar to count chord changes</div>
         )}
       </div>
