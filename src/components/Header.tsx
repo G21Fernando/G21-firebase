@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useSession } from '@supabase/auth-helpers-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -22,10 +22,11 @@ const Header = ({ profile, onProfileUpdate }: {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const getAvatarUrl = (avatarPath: string | null) => {
-    if (!avatarPath) return null;
-    return supabase.storage.from('avatars').getPublicUrl(avatarPath).data.publicUrl;
-  };
+  // Memoize the avatar URL to prevent recalculation on every render
+  const avatarUrl = useMemo(() => {
+    if (!profile?.avatar_url) return undefined;
+    return supabase.storage.from('avatars').getPublicUrl(profile.avatar_url).data.publicUrl;
+  }, [profile?.avatar_url]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -78,7 +79,7 @@ const Header = ({ profile, onProfileUpdate }: {
                   <Button variant="ghost" className="relative h-10 w-10 md:h-auto md:w-auto md:px-4 rounded-full">
                     <div className="flex items-center gap-2">
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={profile?.avatar_url ? getAvatarUrl(profile.avatar_url) : undefined} />
+                        <AvatarImage src={avatarUrl} />
                         <AvatarFallback>
                           <UserRound className="h-4 w-4" />
                         </AvatarFallback>
