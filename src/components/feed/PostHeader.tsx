@@ -14,17 +14,17 @@ interface PostHeaderProps {
 
 const PostHeader = ({ avatarUrl, username, createdAt, isOwner, onEdit, onDelete }: PostHeaderProps) => {
   return (
-    <CardHeader className="flex flex-row items-center justify-between p-2 md:p-3">
+    <CardHeader className="flex flex-row items-center justify-between p-2">
       <div className="flex items-center gap-2">
-        <Avatar className="h-7 w-7 md:h-8 md:w-8">
+        <Avatar className="h-8 w-8">
           <AvatarImage src={avatarUrl || ''} alt={username} />
           <AvatarFallback>
             <UserRound className="h-4 w-4" />
           </AvatarFallback>
         </Avatar>
         <div className="flex flex-col">
-          <h3 className="font-semibold text-xs md:text-sm">{username}</h3>
-          <p className="text-[10px] md:text-xs text-gray-500">
+          <h3 className="font-semibold text-sm">{username}</h3>
+          <p className="text-xs text-gray-500">
             {new Date(createdAt).toLocaleDateString()}
           </p>
         </div>
@@ -34,18 +34,18 @@ const PostHeader = ({ avatarUrl, username, createdAt, isOwner, onEdit, onDelete 
           <Button
             variant="ghost"
             size="sm"
-            className="h-6 w-6 md:h-8 md:w-8 p-0"
+            className="h-8 w-8 p-0"
             onClick={onEdit}
           >
-            <Pencil className="h-3 w-3 md:h-4 md:w-4" />
+            <Pencil className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            className="h-6 w-6 md:h-8 md:w-8 p-0"
+            className="h-8 w-8 p-0"
             onClick={onDelete}
           >
-            <Trash2 className="h-3 w-3 md:h-4 md:w-4" />
+            <Trash2 className="h-4 w-4" />
           </Button>
         </div>
       )}
