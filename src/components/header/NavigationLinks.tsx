@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom';
-import { Home, Music2, Timer } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ArrowUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface NavigationLinksProps {
@@ -16,21 +16,21 @@ const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
         size="icon"
         onClick={() => onNavigate('/')}
       >
-        <Home className="h-5 w-5" />
+        <ArrowLeft className="h-5 w-5" />
       </Button>
       <Button
         variant={location.pathname === '/challenge' ? 'default' : 'ghost'}
         size="icon"
         onClick={() => onNavigate('/challenge')}
       >
-        <Timer className="h-5 w-5" />
+        <ArrowUp className="h-5 w-5" />
       </Button>
       <Button
         variant={location.pathname === '/feed' ? 'default' : 'ghost'}
         size="icon"
         onClick={() => onNavigate('/feed')}
       >
-        <Music2 className="h-5 w-5" />
+        <ArrowRight className="h-5 w-5" />
       </Button>
     </div>
   );
