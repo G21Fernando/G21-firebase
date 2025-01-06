@@ -23,15 +23,15 @@ const TimekeeperIcon = () => (
     strokeLinejoin="round"
     className="text-[#11245A] mx-auto mb-2"
   >
-    {/* Base of the hat - slightly curved */}
-    <path d="M4 18c0 0 4 1 8 1s8-1 8-1" />
-    {/* Wizard hat cone shape with curves */}
-    <path d="M12 18c0 0 -4.5-12 -0.5-15.5s5.5 3.5 0.5 15.5" />
-    {/* Hat band/ribbon with slight wave */}
-    <path d="M7.5 10c0 0 2 0.5 4.5 0.5s4.5-0.5 4.5-0.5" />
-    {/* Stars/sparkles with softer edges */}
-    <path d="M9 7c0.5-0.5 1-0.5 1.5 0s0 1-0.5 1.5s-1 0-1.5-0.5s0-0.5 0.5-1" />
-    <path d="M14 6c0.5-0.5 1-0.5 1.5 0s0 1-0.5 1.5s-1 0-1.5-0.5s0-0.5 0.5-1" />
+    {/* Base of the hat */}
+    <path d="M4 19h16" />
+    {/* Main cone of the hat */}
+    <path d="M12 19 L8 4 L12 2 L16 4 L12 19" />
+    {/* Hat band */}
+    <path d="M7 12h10" />
+    {/* Stars */}
+    <circle cx="9" cy="7" r="1" />
+    <circle cx="15" cy="8" r="1" />
   </svg>
 );
 
