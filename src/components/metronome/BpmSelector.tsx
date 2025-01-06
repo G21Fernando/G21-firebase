@@ -7,13 +7,16 @@ interface BpmSelectorProps {
 }
 
 const BpmSelector: React.FC<BpmSelectorProps> = ({ bpm, onBpmChange }) => {
+  // Generate array of BPM values from 70 to 120 in increments of 5
+  const bpmValues = Array.from({ length: 11 }, (_, i) => 70 + (i * 5));
+
   return (
     <Select value={bpm.toString()} onValueChange={onBpmChange}>
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder="Select BPM" />
       </SelectTrigger>
       <SelectContent>
-        {[70, 80, 90, 100, 110, 120].map((value) => (
+        {bpmValues.map((value) => (
           <SelectItem key={value} value={value.toString()}>
             {value} BPM
           </SelectItem>
