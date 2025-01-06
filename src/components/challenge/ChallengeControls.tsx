@@ -9,15 +9,15 @@ interface ChallengeControlsProps {
 const ChallengeControls = ({ isActive, timeLeft, onStart }: ChallengeControlsProps) => {
   return (
     <>
-      <div className="text-center mb-4">
-        <div className="text-xl font-semibold mb-2">{timeLeft} time left</div>
+      <div className="text-center mb-3">
+        <div className="text-lg font-semibold mb-1">{timeLeft} time left</div>
         {isActive && (
-          <div className="text-sm text-gray-600">Press spacebar to count chord changes</div>
+          <div className="text-xs text-gray-600">Press spacebar to count chord changes</div>
         )}
       </div>
       <div className="flex justify-center">
         <Button
-          size="lg"
+          size="default"
           onClick={onStart}
           disabled={isActive}
           className="bg-neutral-600 hover:bg-neutral-700 text-white"
