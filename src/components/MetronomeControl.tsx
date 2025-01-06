@@ -4,6 +4,7 @@ import BpmSelector from './metronome/BpmSelector';
 import VolumeControl from './metronome/VolumeControl';
 import MetronomeIndicator from './metronome/MetronomeIndicator';
 import { useMetronome } from './metronome/useMetronome';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface MetronomeControlProps {
   onPointsUpdate: (points: number) => void;
@@ -17,11 +18,31 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
     indicator,
     volume,
     currentPoints,
+    showContinuePrompt,
     startMetronome,
     stopMetronome,
     handleBpmChange,
     handleVolumeChange,
+    handleContinue,
   } = useMetronome(onPointsUpdate, onPracticeTimeUpdate);
+
+  if (showContinuePrompt) {
+    return (
+      <div className="p-6 h-full flex flex-col gap-4">
+        <Alert>
+          <AlertTitle className="text-lg font-semibold">Are you still here?</AlertTitle>
+          <AlertDescription>
+            <Button 
+              onClick={handleContinue}
+              className="mt-4 w-full bg-[#11245A] hover:bg-[#1a3575] text-white"
+            >
+              Yes, locked in!
+            </Button>
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 h-full flex flex-col gap-4">

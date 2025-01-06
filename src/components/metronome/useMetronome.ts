@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useToast } from "@/hooks/use-toast";
 
 export const useMetronome = (onPointsUpdate: (points: number) => void, onPracticeTimeUpdate: (seconds: number) => void) => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -6,12 +7,15 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
   const [indicator, setIndicator] = useState(false);
   const [volume, setVolume] = useState(0.5);
   const [currentPoints, setCurrentPoints] = useState(0);
+  const [showContinuePrompt, setShowContinuePrompt] = useState(false);
   
+  const { toast } = useToast();
   const audioContext = useRef<AudioContext | null>(null);
   const gainNode = useRef<GainNode | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
   const sessionPointsRef = useRef<number>(0);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const initAudioContext = () => {
     if (!audioContext.current || audioContext.current.state === 'closed') {
@@ -27,6 +31,9 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
       }
       if (audioContext.current && audioContext.current.state !== 'closed') {
         audioContext.current.close();
@@ -51,16 +58,14 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
     oscillator.type = 'sine';
     oscillator.frequency.value = 800;
     
-    // Connect oscillator to gain node
     oscillator.connect(gainNode.current);
     
     const now = audioContext.current.currentTime;
-    const duration = 0.1; // Short duration for a crisp tick sound
+    const duration = 0.1;
     
     oscillator.start(now);
     oscillator.stop(now + duration);
     
-    // Cleanup
     setTimeout(() => {
       oscillator.disconnect();
     }, duration * 1000);
@@ -87,6 +92,12 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
       intervalRef.current = setInterval(() => {
         playTick();
       }, interval);
+
+      // Set timeout for 4 minutes
+      timeoutRef.current = setTimeout(() => {
+        stopMetronome();
+        setShowContinuePrompt(true);
+      }, 4 * 60 * 1000);
     }
   };
 
@@ -95,6 +106,9 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
       setIsPlaying(false);
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
       }
       const practiceTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
       onPracticeTimeUpdate(practiceTime);
@@ -122,15 +136,22 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
     setVolume(newVolume);
   };
 
+  const handleContinue = () => {
+    setShowContinuePrompt(false);
+    startMetronome();
+  };
+
   return {
     isPlaying,
     bpm,
     indicator,
     volume,
     currentPoints,
+    showContinuePrompt,
     startMetronome,
     stopMetronome,
     handleBpmChange,
     handleVolumeChange,
+    handleContinue,
   };
 };
