@@ -61,15 +61,15 @@ Deno.serve(async (req) => {
 })
 
 function generateChordDiagramSVG(positions: ChordPosition[]) {
-  // Adjusted dimensions to fit the container perfectly
-  const width = 76
-  const height = 96
-  const stringSpacing = 11
-  const fretSpacing = 15
-  const leftMargin = 10
-  const topMargin = 18
-  const stringLength = 55 // Adjusted for better fit
-  const fretLength = 60 // Adjusted for better fit
+  // Adjusted dimensions to be 30% larger
+  const width = 100;
+  const height = 125;
+  const stringSpacing = 14;
+  const fretSpacing = 20;
+  const leftMargin = 13;
+  const topMargin = 23;
+  const stringLength = 72; // Adjusted for better fit
+  const fretLength = 78; // Adjusted for better fit
 
   let svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
     <!-- Background -->
@@ -101,22 +101,22 @@ function generateChordDiagramSVG(positions: ChordPosition[]) {
     
     if (pos.string_state === 'muted') {
       // Draw X above nut
-      svg += `<text x="${x}" y="${topMargin - 4}" 
+      svg += `<text x="${x}" y="${topMargin - 5}" 
         font-family="sans-serif"
-        font-size="10px"
+        font-size="13px"
         text-anchor="middle" 
         fill="black">×</text>`
     } else if (pos.string_state === 'open') {
       // Draw O above nut
-      svg += `<text x="${x}" y="${topMargin - 4}" 
+      svg += `<text x="${x}" y="${topMargin - 5}" 
         font-family="sans-serif"
-        font-size="10px"
+        font-size="13px"
         text-anchor="middle" 
         fill="black">○</text>`
     } else if (pos.fret_position && pos.fret_position > 0 && pos.fret_position <= 4) {
       // Draw finger position dot
       const y = topMargin + ((pos.fret_position - 0.5) * fretSpacing)
-      svg += `<circle cx="${x}" cy="${y}" r="3.5" fill="black"/>`
+      svg += `<circle cx="${x}" cy="${y}" r="4.5" fill="black"/>`
     }
   })
 
