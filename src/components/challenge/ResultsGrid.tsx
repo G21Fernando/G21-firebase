@@ -1,5 +1,4 @@
 import { SprintResult } from './types';
-import { CloudLightning } from 'lucide-react';
 
 interface ResultsGridProps {
   previousResults: SprintResult[];
@@ -19,8 +18,11 @@ const ResultsGrid = ({ previousResults, todayResults }: ResultsGridProps) => {
         <thead>
           <tr>
             <th className="text-left py-3 px-4 font-medium text-[#11245A] flex items-center gap-2">
-              <CloudLightning className="w-5 h-5" />
-              Chord Transitions
+              <img 
+                src="/lovable-uploads/cd55a8c4-bddf-4d76-89ea-e87f0bac8a60.png" 
+                alt="Lightning Icon" 
+                className="w-5 h-5"
+              />
             </th>
             <th className="text-center py-3 px-4 font-medium text-[#11245A]">Personal Record</th>
             <th className="text-center py-3 px-4 font-medium text-[#11245A]">Today</th>
