@@ -45,8 +45,8 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Generate SVG
-    const svg = generateChordDiagramSVG(positions)
+    // Generate SVG with new specifications
+    const svg = generateChordDiagramSVG(positions, chord)
 
     return new Response(
       JSON.stringify({ svg }),
@@ -61,39 +61,50 @@ Deno.serve(async (req) => {
   }
 })
 
-function generateChordDiagramSVG(positions: ChordPosition[]) {
-  const width = 200
-  const height = 250
-  const fretHeight = 40
-  const stringSpacing = 20
-  const topMargin = 40
-  const leftMargin = 40
-  
+function generateChordDiagramSVG(positions: ChordPosition[], chordName: string) {
+  const width = 300
+  const height = 400
+  const stringSpacing = 48
+  const fretSpacing = 48
+  const leftMargin = 30
+  const topMargin = 80
+  const stringLength = 240 // 270 - 30 from specs
+  const fretLength = 240 // 320 - 80 from specs
+
   let svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
     <style>
-      .fret-text { font: 12px sans-serif; }
-      .string-marker { font: bold 16px sans-serif; }
+      .chord-name { font: bold 32px sans-serif; }
+      .string-marker { font: bold 28px sans-serif; }
     </style>
-    <rect x="${leftMargin-5}" y="${topMargin-5}" width="105" height="165" fill="white"/>
+    
+    <!-- Chord Name -->
+    <text x="${width/2}" y="40" 
+      class="chord-name" 
+      text-anchor="middle" 
+      fill="#000000">${chordName}</text>
+
+    <!-- Background for better visibility -->
+    <rect x="${leftMargin-10}" y="${topMargin-30}" 
+      width="${stringLength+20}" height="${fretLength+40}" 
+      fill="white"/>
   `
 
-  // Draw frets
+  // Draw fret lines (horizontal)
   for (let i = 0; i <= 4; i++) {
-    const y = topMargin + i * fretHeight
-    svg += `<line x1="${leftMargin}" y1="${y}" x2="${leftMargin + 100}" y2="${y}" 
-      stroke="black" stroke-width="${i === 0 ? 3 : 1}"/>`
-    
-    if (i > 0) {
-      svg += `<text x="${leftMargin - 20}" y="${y + fretHeight/2}" 
-        class="fret-text" text-anchor="middle" dominant-baseline="middle">${i}</text>`
-    }
+    const y = topMargin + i * fretSpacing
+    svg += `<line x1="${leftMargin}" y1="${y}" 
+      x2="${leftMargin + stringLength}" y2="${y}" 
+      stroke="#000000" 
+      stroke-width="${i === 0 ? 5 : 3}"/>`
   }
 
-  // Draw strings
+  // Draw strings (vertical)
   for (let i = 0; i < 6; i++) {
     const x = leftMargin + i * stringSpacing
-    svg += `<line x1="${x}" y1="${topMargin}" x2="${x}" y2="${topMargin + 160}" 
-      stroke="black" stroke-width="1"/>`
+    svg += `<line x1="${x}" y1="${topMargin}" 
+      x2="${x}" y2="${topMargin + fretLength}" 
+      stroke="#000000" 
+      stroke-width="3"/>`
   }
 
   // Draw positions
@@ -102,17 +113,26 @@ function generateChordDiagramSVG(positions: ChordPosition[]) {
     const x = leftMargin + stringIndex * stringSpacing
     
     if (pos.string_state === 'muted') {
-      svg += `<text x="${x}" y="${topMargin - 20}" 
-        class="string-marker" text-anchor="middle">×</text>`
+      // Draw X above nut
+      svg += `<text x="${x}" y="${topMargin - 15}" 
+        class="string-marker" 
+        text-anchor="middle" 
+        fill="#000000">×</text>`
     } else if (pos.string_state === 'open') {
-      svg += `<text x="${x}" y="${topMargin - 20}" 
-        class="string-marker" text-anchor="middle">○</text>`
+      // Draw O above nut
+      svg += `<text x="${x}" y="${topMargin - 15}" 
+        class="string-marker" 
+        text-anchor="middle" 
+        fill="#000000">○</text>`
     } else if (pos.fret_position && pos.fret_position > 0) {
-      const y = topMargin + (pos.fret_position - 0.5) * fretHeight
-      svg += `<circle cx="${x}" cy="${y}" r="8" fill="#11245A"/>
+      // Draw finger position dot
+      const y = topMargin + ((pos.fret_position - 0.5) * fretSpacing)
+      svg += `<circle cx="${x}" cy="${y}" r="12.5" fill="#000000"/>
         <text x="${x}" y="${y}" 
-          fill="white" text-anchor="middle" dominant-baseline="middle"
-          class="fret-text">${pos.fret_position}</text>`
+          fill="white" 
+          text-anchor="middle" 
+          dominant-baseline="middle" 
+          class="string-marker">${pos.fret_position}</text>`
     }
   })
 
