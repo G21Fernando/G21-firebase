@@ -55,24 +55,6 @@ const ChordSprintResults = () => {
         {(todayResults.length > 0 || previousResults.length > 0) ? (
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <h3 className="font-medium text-[#11245A] mb-2">Today</h3>
-              {todayResults.map((result, index) => (
-                <div key={`today-${index}`} className="flex justify-between items-center border-b pb-2 mb-2">
-                  <div>
-                    <span className="font-medium text-[#11245A]">{result.chord_pair}</span>
-                  </div>
-                  <div className="font-semibold text-[#11245A]">
-                    {result.reps} changes
-                  </div>
-                </div>
-              ))}
-              {todayResults.length === 0 && (
-                <div className="text-gray-500 text-sm">
-                  No results today
-                </div>
-              )}
-            </div>
-            <div>
               <h3 className="font-medium text-[#11245A] mb-2">Before</h3>
               {previousResults.map((result, index) => (
                 <div key={`before-${index}`} className="flex justify-between items-center border-b pb-2 mb-2">
@@ -83,13 +65,31 @@ const ChordSprintResults = () => {
                     </span>
                   </div>
                   <div className="font-semibold text-[#11245A]">
-                    {result.reps} changes
+                    {result.reps}
                   </div>
                 </div>
               ))}
               {previousResults.length === 0 && (
                 <div className="text-gray-500 text-sm">
                   No previous results
+                </div>
+              )}
+            </div>
+            <div>
+              <h3 className="font-medium text-[#11245A] mb-2">Today</h3>
+              {todayResults.map((result, index) => (
+                <div key={`today-${index}`} className="flex justify-between items-center border-b pb-2 mb-2">
+                  <div>
+                    <span className="font-medium text-[#11245A]">{result.chord_pair}</span>
+                  </div>
+                  <div className="font-semibold text-[#11245A]">
+                    {result.reps}
+                  </div>
+                </div>
+              ))}
+              {todayResults.length === 0 && (
+                <div className="text-gray-500 text-sm">
+                  No results today
                 </div>
               )}
             </div>
