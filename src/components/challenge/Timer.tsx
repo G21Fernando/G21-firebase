@@ -18,6 +18,7 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
   const [currentPair, setCurrentPair] = useState<ChordPair | null>(null);
   const [leftChordSvg, setLeftChordSvg] = useState<string>('');
   const [rightChordSvg, setRightChordSvg] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (isActive && !isPaused) {
@@ -25,6 +26,8 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
       setCurrentPair(chordPairs[randomIndex]);
     } else if (!isActive) {
       setCurrentPair(null);
+      setLeftChordSvg('');
+      setRightChordSvg('');
     }
   }, [isActive, isPaused]);
 
@@ -32,6 +35,7 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
     const fetchChordDiagrams = async () => {
       if (!currentPair) return;
       
+      setIsLoading(true);
       const [leftChord, rightChord] = currentPair.split('-');
       
       try {
@@ -50,6 +54,8 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
         setRightChordSvg(rightResponse.data.svg);
       } catch (error) {
         console.error('Error fetching chord diagrams:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -63,11 +69,11 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
       <TimerHeader 
         title="Chord Sprinter"
         subtitle="Speed up your chord changes and track results"
-        isActive={isActive}
+        isActive={isActive && !isLoading}
       />
-      <div className="relative flex flex-col items-center">
+      <div className="flex flex-col items-center">
         <TimerCircle 
-          isActive={isActive}
+          isActive={isActive && !isLoading}
           timeLeft={timeLeft}
           chordChanges={chordChanges}
           chordPair={currentPair || ''}
@@ -80,7 +86,7 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
                 <div className="bg-white rounded-lg shadow-lg p-6 w-full aspect-square flex items-center justify-center">
                   {leftChordSvg && (
                     <div 
-                      className="w-full max-w-[300px]"
+                      className="w-full h-full flex items-center justify-center"
                       dangerouslySetInnerHTML={{ __html: leftChordSvg }} 
                     />
                   )}
@@ -91,7 +97,7 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
                 <div className="bg-white rounded-lg shadow-lg p-6 w-full aspect-square flex items-center justify-center">
                   {rightChordSvg && (
                     <div 
-                      className="w-full max-w-[300px]"
+                      className="w-full h-full flex items-center justify-center"
                       dangerouslySetInnerHTML={{ __html: rightChordSvg }} 
                     />
                   )}
