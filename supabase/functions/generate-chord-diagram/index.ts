@@ -76,20 +76,21 @@ serve(async (req) => {
 function generateChordDiagramSVG(positions: ChordPosition[]) {
   const width = 100;
   const height = 105;
-  const leftMargin = 30;
-  const rightMargin = 30;
-  const topMargin = 23;
+  const leftMargin = 20;
+  const rightMargin = 20;
+  const topMargin = 20;
   const fretSpacing = 20;
   const availableWidth = width - leftMargin - rightMargin;
   const stringSpacing = availableWidth / 5;
   const fretboardHeight = fretSpacing * 3;
+  const dotRadius = 4;
 
   let svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">`
 
   // Draw fret lines (horizontal)
   for (let i = 0; i <= 3; i++) {
     const y = topMargin + (i * fretSpacing);
-    const lineWidth = i === 0 ? 3 : 1.5;
+    const lineWidth = i === 0 ? 2 : 1;
     
     svg += `<line 
       x1="${leftMargin}" 
@@ -109,7 +110,7 @@ function generateChordDiagramSVG(positions: ChordPosition[]) {
       x2="${x}" 
       y2="${topMargin + fretboardHeight}" 
       stroke="black" 
-      stroke-width="1.5"/>`
+      stroke-width="1"/>`
   }
 
   // Draw finger positions, open strings, and muted strings
@@ -118,27 +119,30 @@ function generateChordDiagramSVG(positions: ChordPosition[]) {
     const x = leftMargin + (stringIndex * stringSpacing);
     
     if (pos.string_state === 'muted') {
+      // Draw X above the nut for muted strings
       svg += `<text 
         x="${x}" 
-        y="${topMargin - 5}" 
+        y="${topMargin - 8}" 
         font-family="Arial" 
         font-size="12" 
         text-anchor="middle" 
         fill="black">×</text>`
     } else if (pos.string_state === 'open') {
+      // Draw O above the nut for open strings
       svg += `<text 
         x="${x}" 
-        y="${topMargin - 5}" 
+        y="${topMargin - 8}" 
         font-family="Arial" 
         font-size="12" 
         text-anchor="middle" 
         fill="black">○</text>`
     } else if (pos.fret_position && pos.fret_position > 0 && pos.fret_position <= 3) {
+      // Draw filled circle for fretted positions
       const y = topMargin + ((pos.fret_position - 0.5) * fretSpacing);
       svg += `<circle 
         cx="${x}"
         cy="${y}"
-        r="6"
+        r="${dotRadius}"
         fill="black"/>`
     }
   });
