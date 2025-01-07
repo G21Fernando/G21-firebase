@@ -65,33 +65,43 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
         subtitle="Speed up your chord changes and track results"
         isActive={isActive}
       />
-      <div className="relative">
+      <div className="relative flex flex-col items-center">
         {isActive && (
-          <div className="absolute w-full flex justify-between items-start px-4 top-1/2 -translate-y-1/2 z-10">
-            <div className="flex flex-col items-center">
-              <div className="text-3xl font-bold text-[#11245A] mb-2">{leftChord}</div>
-              <div className="w-52 h-64 bg-white rounded-lg shadow-md p-4 flex items-center justify-center">
-                {leftChordSvg && (
-                  <div dangerouslySetInnerHTML={{ __html: leftChordSvg }} />
-                )}
+          <div className="w-full max-w-4xl mx-auto">
+            <div className="flex justify-between items-start gap-8 px-4">
+              <div className="flex-1 flex flex-col items-center">
+                <div className="text-3xl font-bold text-[#11245A] mb-4">{leftChord}</div>
+                <div className="bg-white rounded-lg shadow-lg p-6 w-full">
+                  {leftChordSvg && (
+                    <div 
+                      className="flex justify-center items-center"
+                      dangerouslySetInnerHTML={{ __html: leftChordSvg }} 
+                    />
+                  )}
+                </div>
               </div>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="text-3xl font-bold text-[#11245A] mb-2">{rightChord}</div>
-              <div className="w-52 h-64 bg-white rounded-lg shadow-md p-4 flex items-center justify-center">
-                {rightChordSvg && (
-                  <div dangerouslySetInnerHTML={{ __html: rightChordSvg }} />
-                )}
+              <div className="flex-1 flex flex-col items-center">
+                <div className="text-3xl font-bold text-[#11245A] mb-4">{rightChord}</div>
+                <div className="bg-white rounded-lg shadow-lg p-6 w-full">
+                  {rightChordSvg && (
+                    <div 
+                      className="flex justify-center items-center"
+                      dangerouslySetInnerHTML={{ __html: rightChordSvg }} 
+                    />
+                  )}
+                </div>
               </div>
             </div>
           </div>
         )}
-        <TimerCircle 
-          isActive={isActive}
-          timeLeft={timeLeft}
-          chordChanges={chordChanges}
-          chordPair={currentPair || ''}
-        />
+        <div className="mt-8">
+          <TimerCircle 
+            isActive={isActive}
+            timeLeft={timeLeft}
+            chordChanges={chordChanges}
+            chordPair={currentPair || ''}
+          />
+        </div>
       </div>
     </>
   );
