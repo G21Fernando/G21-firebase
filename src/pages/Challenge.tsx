@@ -16,7 +16,7 @@ const Challenge = () => {
   const [isActive, setIsActive] = useState(false);
   const [timeLeft, setTimeLeft] = useState(60);
   const [chordChanges, setChordChanges] = useState(0);
-  const [currentPair, setCurrentPair] = useState<ChordPair | ''>('');
+  const [currentPair, setCurrentPair] = useState<ChordPair | null>(null);
   const session = useSession();
   const { toast } = useToast();
 
@@ -81,12 +81,12 @@ const Challenge = () => {
   }, [handleKeyPress]);
 
   const saveResults = async () => {
-    if (session?.user && currentPair && currentPair !== '') {
+    if (session?.user && currentPair) {
       const { error } = await supabase
         .from('chord_sprinter_results')
         .insert({
           user_id: session.user.id,
-          chord_pair: currentPair as ChordPair,
+          chord_pair: currentPair,
           reps: chordChanges
         });
 

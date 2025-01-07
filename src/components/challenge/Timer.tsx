@@ -13,14 +13,14 @@ interface TimerProps {
 
 const Timer = ({ isActive, timeLeft, chordChanges }: TimerProps) => {
   const chordPairs: ChordPair[] = ['Am-C', 'Em-G', 'Dm-G', 'Am-F', 'C-G', 'Em-Am'];
-  const [currentPair, setCurrentPair] = useState<ChordPair | ''>('');
+  const [currentPair, setCurrentPair] = useState<ChordPair | null>(null);
 
   useEffect(() => {
     if (isActive) {
       const randomIndex = Math.floor(Math.random() * chordPairs.length);
       setCurrentPair(chordPairs[randomIndex]);
     } else {
-      setCurrentPair('');
+      setCurrentPair(null);
     }
   }, [isActive]);
 
@@ -34,7 +34,7 @@ const Timer = ({ isActive, timeLeft, chordChanges }: TimerProps) => {
         isActive={isActive}
         timeLeft={timeLeft}
         chordChanges={chordChanges}
-        chordPair={currentPair}
+        chordPair={currentPair || ''}
       />
     </>
   );
