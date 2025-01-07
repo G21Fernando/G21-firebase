@@ -46,7 +46,7 @@ const ChordSprintResults = () => {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6">
+    <div className="bg-white rounded-2xl shadow-sm p-4 md:p-6 mx-auto max-w-[95%] md:max-w-none">
       <ResultsHeader title="Chord Changes per minute (CPM)" />
       <div className="space-y-4">
         {(todayResults.length > 0 || previousResults.length > 0) ? (
@@ -55,7 +55,7 @@ const ChordSprintResults = () => {
             todayResults={todayResults}
           />
         ) : (
-          <div className="text-center text-gray-500">
+          <div className="text-center text-gray-500 px-4">
             No sprint results yet. Complete a chord sprint to see your results here!
           </div>
         )}
