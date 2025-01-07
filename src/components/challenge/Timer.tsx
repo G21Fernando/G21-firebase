@@ -2,7 +2,6 @@ import TimerCircle from './TimerCircle';
 import TimerHeader from './TimerHeader';
 import { useState, useEffect } from 'react';
 import type { Database } from '@/integrations/supabase/types';
-import Image from '../ui/image';
 
 type ChordPair = Database['public']['Enums']['chord_pair'];
 
@@ -29,7 +28,7 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
   const [leftChord, rightChord] = currentPair?.split('-') || ['', ''];
 
   const getChordImageUrl = (chord: string) => {
-    return '/lovable-uploads/9d1e105c-63c5-463c-84c9-1d2fe0a6848c.png';
+    return '/lovable-uploads/cb1cfaca-4002-439f-8840-8a4f4ef8650c.png';
   };
 
   return (
