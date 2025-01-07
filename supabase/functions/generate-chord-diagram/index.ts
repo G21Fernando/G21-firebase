@@ -1,4 +1,4 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.7'
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -6,56 +6,69 @@ const corsHeaders = {
 }
 
 interface ChordPosition {
-  string_number: string
-  fret_position: number | null
-  string_state: 'muted' | 'open' | 'fretted'
+  chord_name: string;
+  string_number: number;
+  fret_position: number | null;
+  string_state: 'fretted' | 'open' | 'muted';
 }
 
-Deno.serve(async (req) => {
+serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
     const { chord } = await req.json()
-    
-    if (!chord) {
-      return new Response(
-        JSON.stringify({ error: 'Chord parameter is required' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      )
+    console.log('Generating diagram for chord:', chord)
+
+    // Fetch chord positions from the database
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('Missing environment variables')
     }
 
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    const response = await fetch(
+      `${supabaseUrl}/rest/v1/chord_positions?chord_name=eq.${chord}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${supabaseKey}`,
+          'apikey': supabaseKey,
+        },
+      }
     )
 
-    const { data: positions, error } = await supabaseClient
-      .from('chord_positions')
-      .select('string_number, fret_position, string_state')
-      .eq('chord_name', chord)
-      .order('string_number')
-
-    if (error) {
-      console.error('Error fetching chord positions:', error)
-      return new Response(
-        JSON.stringify({ error: 'Failed to fetch chord positions' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-      )
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
     }
 
-    const svg = generateChordDiagramSVG(positions)
+    const positions: ChordPosition[] = await response.json()
+    console.log('Fetched positions:', positions)
 
+    const svg = generateChordDiagramSVG(positions)
+    
     return new Response(
       JSON.stringify({ svg }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { 
+        headers: { 
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        } 
+      }
     )
   } catch (error) {
     console.error('Error:', error)
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      JSON.stringify({ error: error.message }),
+      { 
+        status: 500,
+        headers: { 
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        }
+      }
     )
   }
 })
@@ -87,7 +100,7 @@ function generateChordDiagramSVG(positions: ChordPosition[]) {
       stroke-width="${lineWidth}"/>`
   }
 
-  // Draw strings (vertical)
+  // Draw strings (vertical lines)
   for (let i = 0; i < 6; i++) {
     const x = leftMargin + (i * stringSpacing);
     svg += `<line 
@@ -99,37 +112,37 @@ function generateChordDiagramSVG(positions: ChordPosition[]) {
       stroke-width="1.5"/>`
   }
 
-  // Draw positions
-  positions.forEach((pos) => {
-    const stringIndex = 6 - parseInt(pos.string_number);
+  // Draw finger positions, open strings, and muted strings
+  positions.forEach(pos => {
+    const stringIndex = 6 - pos.string_number;
     const x = leftMargin + (stringIndex * stringSpacing);
     
     if (pos.string_state === 'muted') {
       svg += `<text 
         x="${x}" 
         y="${topMargin - 5}" 
-        font-family="sans-serif" 
-        font-size="13px" 
+        font-family="Arial" 
+        font-size="12" 
         text-anchor="middle" 
         fill="black">×</text>`
     } else if (pos.string_state === 'open') {
       svg += `<text 
         x="${x}" 
         y="${topMargin - 5}" 
-        font-family="sans-serif" 
-        font-size="13px" 
+        font-family="Arial" 
+        font-size="12" 
         text-anchor="middle" 
         fill="black">○</text>`
     } else if (pos.fret_position && pos.fret_position > 0 && pos.fret_position <= 3) {
       const y = topMargin + ((pos.fret_position - 0.5) * fretSpacing);
       svg += `<circle 
-        cx="${x}" 
-        cy="${y}" 
-        r="4.5" 
+        cx="${x}"
+        cy="${y}"
+        r="6"
         fill="black"/>`
     }
-  })
+  });
 
-  svg += '</svg>'
-  return svg
+  svg += '</svg>';
+  return svg;
 }
