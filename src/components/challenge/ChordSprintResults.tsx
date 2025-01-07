@@ -46,9 +46,9 @@ const ChordSprintResults = () => {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-4 md:p-6 mx-auto max-w-[95%] md:max-w-none">
-      <ResultsHeader title="Chord Changes per minute (CPM)" />
-      <div className="space-y-4">
+    <div className="bg-white rounded-2xl shadow-sm p-4 md:p-6 mx-auto max-w-[95%] md:max-w-[800px]">
+      <ResultsHeader title="Level 1" />
+      <div className="mt-6">
         {(todayResults.length > 0 || previousResults.length > 0) ? (
           <ResultsGrid 
             previousResults={previousResults}
