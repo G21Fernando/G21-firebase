@@ -9,6 +9,27 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      chord_diagrams: {
+        Row: {
+          chord: Database["public"]["Enums"]["chord_name"]
+          created_at: string
+          id: string
+          image_url: string
+        }
+        Insert: {
+          chord: Database["public"]["Enums"]["chord_name"]
+          created_at?: string
+          id?: string
+          image_url: string
+        }
+        Update: {
+          chord?: Database["public"]["Enums"]["chord_name"]
+          created_at?: string
+          id?: string
+          image_url?: string
+        }
+        Relationships: []
+      }
       chord_sprinter_results: {
         Row: {
           chord_pair: Database["public"]["Enums"]["chord_pair"]
@@ -275,6 +296,7 @@ export type Database = {
       }
     }
     Enums: {
+      chord_name: "A" | "Am" | "C" | "D" | "Dm" | "E" | "Em" | "F" | "G"
       chord_pair: "Am-C" | "Em-G" | "Dm-G" | "Am-F" | "C-G" | "Em-Am"
       exercise_status: "not_started" | "in_progress" | "completed"
     }

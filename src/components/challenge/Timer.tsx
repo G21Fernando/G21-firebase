@@ -1,6 +1,7 @@
 import TimerCircle from './TimerCircle';
 import TimerHeader from './TimerHeader';
 import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
 
 type ChordPair = Database['public']['Enums']['chord_pair'];
@@ -12,9 +13,37 @@ interface TimerProps {
   isPaused: boolean;
 }
 
+interface ChordDiagram {
+  chord: string;
+  image_url: string;
+}
+
 const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
   const chordPairs: ChordPair[] = ['Am-C', 'Em-G', 'Dm-G', 'Am-F', 'C-G', 'Em-Am'];
   const [currentPair, setCurrentPair] = useState<ChordPair | null>(null);
+  const [chordDiagrams, setChordDiagrams] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const fetchChordDiagrams = async () => {
+      const { data, error } = await supabase
+        .from('chord_diagrams')
+        .select('chord, image_url');
+
+      if (error) {
+        console.error('Error fetching chord diagrams:', error);
+        return;
+      }
+
+      const diagramMap = (data as ChordDiagram[]).reduce((acc, { chord, image_url }) => ({
+        ...acc,
+        [chord]: image_url
+      }), {});
+
+      setChordDiagrams(diagramMap);
+    };
+
+    fetchChordDiagrams();
+  }, []);
 
   useEffect(() => {
     if (isActive && !isPaused) {
@@ -26,10 +55,6 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
   }, [isActive, isPaused]);
 
   const [leftChord, rightChord] = currentPair?.split('-') || ['', ''];
-
-  const getChordImageUrl = (chord: string) => {
-    return '/lovable-uploads/cb1cfaca-4002-439f-8840-8a4f4ef8650c.png';
-  };
 
   return (
     <>
@@ -43,29 +68,27 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
           <div className="absolute w-full flex justify-between items-start px-4 top-1/2 -translate-y-1/2 z-10">
             <div className="flex flex-col items-center">
               <div className="text-3xl font-bold text-[#11245A] mb-2">{leftChord}</div>
-              <div className="w-24 h-24 relative">
-                <img 
-                  src={getChordImageUrl(leftChord)}
-                  alt={`${leftChord} chord diagram`}
-                  className="object-contain"
-                  style={{
-                    clipPath: `polygon(${getChordClipPath(leftChord)})`
-                  }}
-                />
-              </div>
+              {chordDiagrams[leftChord] && (
+                <div className="w-24 h-24 relative">
+                  <img 
+                    src={chordDiagrams[leftChord]}
+                    alt={`${leftChord} chord diagram`}
+                    className="object-contain w-full h-full"
+                  />
+                </div>
+              )}
             </div>
             <div className="flex flex-col items-center">
               <div className="text-3xl font-bold text-[#11245A] mb-2">{rightChord}</div>
-              <div className="w-24 h-24 relative">
-                <img 
-                  src={getChordImageUrl(rightChord)}
-                  alt={`${rightChord} chord diagram`}
-                  className="object-contain"
-                  style={{
-                    clipPath: `polygon(${getChordClipPath(rightChord)})`
-                  }}
-                />
-              </div>
+              {chordDiagrams[rightChord] && (
+                <div className="w-24 h-24 relative">
+                  <img 
+                    src={chordDiagrams[rightChord]}
+                    alt={`${rightChord} chord diagram`}
+                    className="object-contain w-full h-full"
+                  />
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -78,23 +101,6 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
       </div>
     </>
   );
-};
-
-// Helper function to get the clip path coordinates for each chord
-const getChordClipPath = (chord: string) => {
-  const chordPositions: { [key: string]: string } = {
-    'C': '0% 0% 33.33% 33.33%',
-    'A': '33.33% 0% 66.66% 33.33%',
-    'G': '66.66% 0% 100% 33.33%',
-    'E': '0% 33.33% 33.33% 66.66%',
-    'D': '33.33% 33.33% 66.66% 66.66%',
-    'F': '66.66% 33.33% 100% 66.66%',
-    'Am': '0% 66.66% 33.33% 100%',
-    'Dm': '33.33% 66.66% 66.66% 100%',
-    'Em': '66.66% 66.66% 100% 100%'
-  };
-  
-  return chordPositions[chord] || '0% 0% 33.33% 33.33%';
 };
 
 export default Timer;
