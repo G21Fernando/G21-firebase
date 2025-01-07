@@ -110,6 +110,15 @@ const Challenge = () => {
     setChordChanges(0);
   };
 
+  const stopChallenge = () => {
+    setIsActive(false);
+    saveResults();
+    toast({
+      title: "Challenge stopped",
+      description: `You completed ${chordChanges} chord changes.`,
+    });
+  };
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F5E6DB' }}>
       <Header 
@@ -125,6 +134,7 @@ const Challenge = () => {
               timeLeft={timeLeft}
               chordChanges={chordChanges}
               onStart={startChallenge}
+              onStop={stopChallenge}
             />
           </div>
           <div className="bg-white rounded-lg shadow-lg">

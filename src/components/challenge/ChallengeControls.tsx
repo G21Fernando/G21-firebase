@@ -5,9 +5,10 @@ interface ChallengeControlsProps {
   isActive: boolean;
   timeLeft: number;
   onStart: () => void;
+  onStop: () => void;
 }
 
-const ChallengeControls = ({ isActive, timeLeft, onStart }: ChallengeControlsProps) => {
+const ChallengeControls = ({ isActive, timeLeft, onStart, onStop }: ChallengeControlsProps) => {
   return (
     <>
       <ChallengeInstructions 
@@ -17,11 +18,10 @@ const ChallengeControls = ({ isActive, timeLeft, onStart }: ChallengeControlsPro
       <div className="flex justify-center">
         <Button
           size="default"
-          onClick={onStart}
-          disabled={isActive}
+          onClick={isActive ? onStop : onStart}
           className="bg-[#11245A] hover:bg-[#11245A]/90 text-white"
         >
-          {isActive ? 'Challenge in Progress' : 'Start Challenge'}
+          {isActive ? 'Stop Challenge' : 'Start Challenge'}
         </Button>
       </div>
     </>

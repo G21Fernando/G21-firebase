@@ -6,6 +6,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 interface Profile {
   username: string;
   points: number;
+  cpm?: number;
 }
 
 const LeaderboardCard: React.FC = () => {
@@ -13,14 +14,34 @@ const LeaderboardCard: React.FC = () => {
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
-      const { data } = await supabase
+      // First get the latest chord sprinter result for each user
+      const { data: sprintData } = await supabase
+        .from('chord_sprinter_results')
+        .select(`
+          reps,
+          profiles!inner(username)
+        `)
+        .order('reps', { ascending: false })
+        .limit(5);
+      
+      // Then get the regular points leaderboard
+      const { data: pointsData } = await supabase
         .from('profiles')
         .select('username, points')
         .order('points', { ascending: false })
         .limit(5);
       
-      if (data) {
-        setLeaderboardData(data);
+      if (pointsData) {
+        const enhancedData = pointsData.map(profile => {
+          const sprintResult = sprintData?.find(
+            sprint => sprint.profiles.username === profile.username
+          );
+          return {
+            ...profile,
+            cpm: sprintResult ? sprintResult.reps : undefined
+          };
+        });
+        setLeaderboardData(enhancedData);
       }
     };
 
@@ -71,7 +92,12 @@ const LeaderboardCard: React.FC = () => {
                 </TooltipProvider>
               )}
             </span>
-            <span className="font-semibold text-xs md:text-base">{player.points} pts</span>
+            <div className="flex flex-col items-end">
+              <span className="font-semibold text-xs md:text-base">{player.points} pts</span>
+              {player.cpm && (
+                <span className="text-xs text-gray-500">{player.cpm} CPM</span>
+              )}
+            </div>
           </li>
         ))}
       </ul>
