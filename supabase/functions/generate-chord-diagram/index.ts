@@ -61,21 +61,19 @@ Deno.serve(async (req) => {
 })
 
 function generateChordDiagramSVG(positions: ChordPosition[]) {
-  // Simplified dimensions for a cleaner look
-  const width = 80
-  const height = 100
-  const stringSpacing = 12
-  const fretSpacing = 16
+  // Adjusted dimensions to fit the container perfectly
+  const width = 76
+  const height = 96
+  const stringSpacing = 11
+  const fretSpacing = 15
   const leftMargin = 10
-  const topMargin = 20
-  const stringLength = 64 // 4 frets * 16
-  const fretLength = 60 // 5 strings * 12
+  const topMargin = 18
+  const stringLength = 55 // Adjusted for better fit
+  const fretLength = 60 // Adjusted for better fit
 
   let svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
     <!-- Background -->
-    <rect x="${leftMargin-5}" y="${topMargin-5}" 
-      width="${stringLength+10}" height="${fretLength+10}" 
-      fill="white"/>
+    <rect x="0" y="0" width="${width}" height="${height}" fill="white"/>
   `
 
   // Draw fret lines (horizontal) - 5 lines for 4 frets
@@ -103,22 +101,22 @@ function generateChordDiagramSVG(positions: ChordPosition[]) {
     
     if (pos.string_state === 'muted') {
       // Draw X above nut
-      svg += `<text x="${x}" y="${topMargin - 5}" 
+      svg += `<text x="${x}" y="${topMargin - 4}" 
         font-family="sans-serif"
-        font-size="12px"
+        font-size="10px"
         text-anchor="middle" 
         fill="black">×</text>`
     } else if (pos.string_state === 'open') {
       // Draw O above nut
-      svg += `<text x="${x}" y="${topMargin - 5}" 
+      svg += `<text x="${x}" y="${topMargin - 4}" 
         font-family="sans-serif"
-        font-size="12px"
+        font-size="10px"
         text-anchor="middle" 
         fill="black">○</text>`
     } else if (pos.fret_position && pos.fret_position > 0 && pos.fret_position <= 4) {
       // Draw finger position dot
       const y = topMargin + ((pos.fret_position - 0.5) * fretSpacing)
-      svg += `<circle cx="${x}" cy="${y}" r="4" fill="black"/>`
+      svg += `<circle cx="${x}" cy="${y}" r="3.5" fill="black"/>`
     }
   })
 
