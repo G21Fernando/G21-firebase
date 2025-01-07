@@ -1,4 +1,5 @@
 import { SprintResult } from './types';
+import { Sprint } from 'lucide-react';
 
 interface ResultsGridProps {
   previousResults: SprintResult[];
@@ -17,7 +18,10 @@ const ResultsGrid = ({ previousResults, todayResults }: ResultsGridProps) => {
       <table className="w-full border-collapse">
         <thead>
           <tr>
-            <th className="text-left py-3 px-4 font-medium text-[#11245A]">Chord Transitions</th>
+            <th className="text-left py-3 px-4 font-medium text-[#11245A] flex items-center gap-2">
+              <Sprint className="w-5 h-5" />
+              Chord Transitions
+            </th>
             <th className="text-center py-3 px-4 font-medium text-[#11245A]">Personal Record</th>
             <th className="text-center py-3 px-4 font-medium text-[#11245A]">Today</th>
           </tr>
