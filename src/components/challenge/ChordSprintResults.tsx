@@ -47,7 +47,7 @@ const ChordSprintResults = () => {
 
   return (
     <div className="bg-white rounded-2xl shadow-sm p-4 md:p-6 mx-auto max-w-[95%] md:max-w-[800px]">
-      <ResultsHeader title="Level 1" />
+      <ResultsHeader title="Chord transitions per minute (CCPM)" />
       <div className="mt-6">
         {(todayResults.length > 0 || previousResults.length > 0) ? (
           <ResultsGrid 
