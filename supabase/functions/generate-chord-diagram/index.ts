@@ -61,14 +61,20 @@ Deno.serve(async (req) => {
 })
 
 function generateChordDiagramSVG(positions: ChordPosition[]) {
+  // SVG dimensions and spacing
   const width = 100;
   const height = 105;
-  const stringSpacing = 14;
-  const fretSpacing = 20;
-  const leftMargin = 13;
+  const leftMargin = 30;
+  const rightMargin = 30;
   const topMargin = 23;
-  const stringLength = 52;
-  const fretLength = 58;
+  const fretSpacing = 20;
+  
+  // Calculate string spacing based on available width
+  const availableWidth = width - leftMargin - rightMargin;
+  const stringSpacing = availableWidth / 5; // 5 spaces for 6 strings
+  
+  // Calculate total height for 3 frets
+  const fretboardHeight = fretSpacing * 3;
 
   let svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
     <!-- Background -->
@@ -77,45 +83,61 @@ function generateChordDiagramSVG(positions: ChordPosition[]) {
 
   // Draw fret lines (horizontal) - 4 lines for 3 frets
   for (let i = 0; i <= 3; i++) {
-    const y = topMargin + i * fretSpacing
-    svg += `<line x1="${leftMargin}" y1="${y}" 
-      x2="${leftMargin + stringLength}" y2="${y}" 
+    const y = topMargin + (i * fretSpacing);
+    const lineWidth = i === 0 ? 3 : 1.5; // Thicker line for the nut
+    
+    svg += `<line 
+      x1="${leftMargin}" 
+      y1="${y}" 
+      x2="${width - rightMargin}" 
+      y2="${y}" 
       stroke="black" 
-      stroke-width="${i === 0 ? 3 : 1.5}"/>`  // Made lines thicker
+      stroke-width="${lineWidth}"/>`
   }
 
   // Draw strings (vertical)
   for (let i = 0; i < 6; i++) {
-    const x = leftMargin + i * stringSpacing
-    svg += `<line x1="${x}" y1="${topMargin}" 
-      x2="${x}" y2="${topMargin + fretLength}" 
+    const x = leftMargin + (i * stringSpacing);
+    svg += `<line 
+      x1="${x}" 
+      y1="${topMargin}" 
+      x2="${x}" 
+      y2="${topMargin + fretboardHeight}" 
       stroke="black" 
-      stroke-width="1.5"/>`  // Made strings thicker
+      stroke-width="1.5"/>`
   }
 
   // Draw positions
   positions.forEach((pos) => {
-    const stringIndex = 6 - parseInt(pos.string_number)
-    const x = leftMargin + stringIndex * stringSpacing
+    const stringIndex = 6 - parseInt(pos.string_number);
+    const x = leftMargin + (stringIndex * stringSpacing);
     
     if (pos.string_state === 'muted') {
       // Draw X above nut
-      svg += `<text x="${x}" y="${topMargin - 5}" 
-        font-family="sans-serif"
-        font-size="13px"
+      svg += `<text 
+        x="${x}" 
+        y="${topMargin - 5}" 
+        font-family="sans-serif" 
+        font-size="13px" 
         text-anchor="middle" 
         fill="black">×</text>`
     } else if (pos.string_state === 'open') {
       // Draw O above nut
-      svg += `<text x="${x}" y="${topMargin - 5}" 
-        font-family="sans-serif"
-        font-size="13px"
+      svg += `<text 
+        x="${x}" 
+        y="${topMargin - 5}" 
+        font-family="sans-serif" 
+        font-size="13px" 
         text-anchor="middle" 
         fill="black">○</text>`
     } else if (pos.fret_position && pos.fret_position > 0 && pos.fret_position <= 3) {
       // Draw finger position dot
-      const y = topMargin + ((pos.fret_position - 0.5) * fretSpacing)
-      svg += `<circle cx="${x}" cy="${y}" r="4.5" fill="black"/>`
+      const y = topMargin + ((pos.fret_position - 0.5) * fretSpacing);
+      svg += `<circle 
+        cx="${x}" 
+        cy="${y}" 
+        r="4.5" 
+        fill="black"/>`
     }
   })
 
