@@ -63,12 +63,12 @@ const Challenge = () => {
               isPaused={isPaused}
             />
           </div>
-          <div className="bg-white rounded-lg shadow-lg">
-            <LeaderboardCard />
-          </div>
         </div>
         <div className="mt-6">
           <ChordSprintResults />
+        </div>
+        <div className="mt-6">
+          <LeaderboardCard />
         </div>
       </div>
     </div>

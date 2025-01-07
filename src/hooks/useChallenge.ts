@@ -88,10 +88,9 @@ export const useChallenge = () => {
   const stopChallenge = () => {
     setIsActive(false);
     setIsPaused(false);
-    saveResults();
     toast({
       title: "Challenge stopped",
-      description: `You completed ${chordChanges} chord changes.`,
+      description: "Remember, you need to complete the full 60 seconds to track your progress.",
     });
   };
 

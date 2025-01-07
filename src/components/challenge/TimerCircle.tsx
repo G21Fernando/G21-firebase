@@ -9,32 +9,32 @@ interface TimerCircleProps {
 
 const TimerCircle = ({ isActive, timeLeft, chordChanges, chordPair }: TimerCircleProps) => {
   return (
-    <div className="relative w-36 h-36 mb-4 mx-auto">
+    <div className="relative w-44 h-44 mb-4 mx-auto">
       <div className="absolute inset-0 flex items-center justify-center">
         {!isActive && <Zap className="w-16 h-16 text-[#11245A]" />}
       </div>
       <div className="absolute inset-0">
-        <svg className="w-full h-full transform -rotate-90">
+        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 160 160">
           <circle
             className="text-[#D3E4FD]"
             strokeWidth="10"
             stroke="currentColor"
             fill="transparent"
-            r="68"
-            cx="72"
-            cy="72"
+            r="70"
+            cx="80"
+            cy="80"
           />
           <circle
             className="text-[#11245A]"
             strokeWidth="10"
-            strokeDasharray={2 * Math.PI * 68}
-            strokeDashoffset={2 * Math.PI * 68 * (timeLeft / 60)}
+            strokeDasharray={2 * Math.PI * 70}
+            strokeDashoffset={2 * Math.PI * 70 * (timeLeft / 60)}
             strokeLinecap="round"
             stroke="currentColor"
             fill="transparent"
-            r="68"
-            cx="72"
-            cy="72"
+            r="70"
+            cx="80"
+            cy="80"
           />
         </svg>
       </div>
