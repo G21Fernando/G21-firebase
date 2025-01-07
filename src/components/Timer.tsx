@@ -75,10 +75,10 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
         {isActive && (
           <div className="flex flex-col items-center">
             <div className="text-xl font-bold text-[#11245A]">{leftChord}</div>
-            <div className="bg-white rounded-lg shadow-md flex items-center justify-center">
+            <div className="bg-white rounded-lg shadow-md">
               {leftChordSvg && (
                 <div 
-                  className="w-[104px] h-[130px] flex items-center justify-center"
+                  className="w-[100px] h-[105px]"
                   dangerouslySetInnerHTML={{ __html: leftChordSvg }} 
                 />
               )}
@@ -98,10 +98,10 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
         {isActive && (
           <div className="flex flex-col items-center">
             <div className="text-xl font-bold text-[#11245A]">{rightChord}</div>
-            <div className="bg-white rounded-lg shadow-md flex items-center justify-center">
+            <div className="bg-white rounded-lg shadow-md">
               {rightChordSvg && (
                 <div 
-                  className="w-[104px] h-[130px] flex items-center justify-center"
+                  className="w-[100px] h-[105px]"
                   dangerouslySetInnerHTML={{ __html: rightChordSvg }} 
                 />
               )}

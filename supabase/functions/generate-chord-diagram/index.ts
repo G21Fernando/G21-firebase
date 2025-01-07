@@ -61,30 +61,22 @@ Deno.serve(async (req) => {
 })
 
 function generateChordDiagramSVG(positions: ChordPosition[]) {
-  // SVG dimensions and spacing
   const width = 100;
   const height = 105;
   const leftMargin = 30;
   const rightMargin = 30;
   const topMargin = 23;
   const fretSpacing = 20;
-  
-  // Calculate string spacing based on available width
   const availableWidth = width - leftMargin - rightMargin;
-  const stringSpacing = availableWidth / 5; // 5 spaces for 6 strings
-  
-  // Calculate total height for 3 frets
+  const stringSpacing = availableWidth / 5;
   const fretboardHeight = fretSpacing * 3;
 
-  let svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-    <!-- Background -->
-    <rect x="0" y="0" width="${width}" height="${height}" fill="white"/>
-  `
+  let svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">`
 
-  // Draw fret lines (horizontal) - 4 lines for 3 frets
+  // Draw fret lines (horizontal)
   for (let i = 0; i <= 3; i++) {
     const y = topMargin + (i * fretSpacing);
-    const lineWidth = i === 0 ? 3 : 1.5; // Thicker line for the nut
+    const lineWidth = i === 0 ? 3 : 1.5;
     
     svg += `<line 
       x1="${leftMargin}" 
@@ -113,7 +105,6 @@ function generateChordDiagramSVG(positions: ChordPosition[]) {
     const x = leftMargin + (stringIndex * stringSpacing);
     
     if (pos.string_state === 'muted') {
-      // Draw X above nut
       svg += `<text 
         x="${x}" 
         y="${topMargin - 5}" 
@@ -122,7 +113,6 @@ function generateChordDiagramSVG(positions: ChordPosition[]) {
         text-anchor="middle" 
         fill="black">×</text>`
     } else if (pos.string_state === 'open') {
-      // Draw O above nut
       svg += `<text 
         x="${x}" 
         y="${topMargin - 5}" 
@@ -131,7 +121,6 @@ function generateChordDiagramSVG(positions: ChordPosition[]) {
         text-anchor="middle" 
         fill="black">○</text>`
     } else if (pos.fret_position && pos.fret_position > 0 && pos.fret_position <= 3) {
-      // Draw finger position dot
       const y = topMargin + ((pos.fret_position - 0.5) * fretSpacing);
       svg += `<circle 
         cx="${x}" 
