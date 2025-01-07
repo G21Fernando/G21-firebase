@@ -43,7 +43,6 @@ const TimerCircle = ({ isActive, timeLeft, chordChanges, chordPair }: TimerCircl
           <>
             <span className="text-4xl font-bold mb-0.5 text-[#11245A]">{chordChanges}</span>
             <span className="text-xs text-[#11245A]/70">Chord changes done</span>
-            <span className="text-sm font-semibold text-[#11245A] mt-1">{chordPair}</span>
           </>
         )}
       </div>

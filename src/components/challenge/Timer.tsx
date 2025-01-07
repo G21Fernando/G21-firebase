@@ -25,18 +25,29 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
     }
   }, [isActive, isPaused]);
 
+  const [leftChord, rightChord] = currentPair?.split('-') || ['', ''];
+
   return (
     <>
       <TimerHeader 
         title="Chord Sprinter"
         subtitle="Speed up your chord changes and track results"
-      />
-      <TimerCircle 
         isActive={isActive}
-        timeLeft={timeLeft}
-        chordChanges={chordChanges}
-        chordPair={currentPair || ''}
       />
+      <div className="relative">
+        {isActive && (
+          <div className="absolute w-full flex justify-between items-center px-4 top-1/2 -translate-y-1/2 z-10">
+            <div className="text-xl font-bold text-[#11245A]">{leftChord}</div>
+            <div className="text-xl font-bold text-[#11245A]">{rightChord}</div>
+          </div>
+        )}
+        <TimerCircle 
+          isActive={isActive}
+          timeLeft={timeLeft}
+          chordChanges={chordChanges}
+          chordPair={currentPair || ''}
+        />
+      </div>
     </>
   );
 };
