@@ -72,7 +72,6 @@ serve(async (req) => {
 })
 
 function generateChordDiagramSVG(positions: ChordPosition[]) {
-  // Adjusted dimensions to match the reference image
   const width = 100;
   const height = 120;
   const leftMargin = 20;
