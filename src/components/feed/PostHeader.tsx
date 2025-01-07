@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Pencil, Trash2, UserRound } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Shield } from 'lucide-react';
 
 interface PostHeaderProps {
   avatarUrl: string | null;
@@ -26,8 +28,16 @@ const PostHeader = ({ avatarUrl, username, createdAt, isOwner, onEdit, onDelete 
         <div className="flex flex-col">
           <div className="flex items-center gap-2">
             <h3 className="font-semibold text-sm">{username}</h3>
-            <Badge variant="secondary" className="text-xs px-2 py-0">Beginner</Badge>
-            <Badge variant="outline" className="text-xs px-2 py-0">🎸 Level 1</Badge>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Shield className="w-3 h-3 md:w-4 md:h-4 text-yellow-500 fill-yellow-500" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Level 1 Completed</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           <p className="text-xs text-gray-500">
             {new Date(createdAt).toLocaleDateString()}
