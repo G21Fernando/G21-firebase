@@ -71,41 +71,41 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
         subtitle="Speed up your chord changes and track results"
         isActive={isActive && !isLoading}
       />
-      <div className="flex flex-col items-center">
-        <TimerCircle 
-          isActive={isActive && !isLoading}
-          timeLeft={timeLeft}
-          chordChanges={chordChanges}
-          chordPair={currentPair || ''}
-        />
+      <div className="flex flex-row items-start justify-center gap-8 mt-4">
         {isActive && (
-          <div className="w-full max-w-3xl mx-auto mt-8">
-            <div className="grid grid-cols-2 gap-8 px-4">
-              <div className="flex flex-col items-center">
-                <div className="text-3xl font-bold text-[#11245A] mb-4">{leftChord}</div>
-                <div className="bg-white rounded-lg shadow-lg p-6 w-full aspect-square flex items-center justify-center">
-                  {leftChordSvg && (
-                    <div 
-                      className="w-[300px] h-[400px] flex items-center justify-center"
-                      dangerouslySetInnerHTML={{ __html: leftChordSvg }} 
-                    />
-                  )}
-                </div>
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col items-center">
+              <div className="text-2xl font-bold text-[#11245A] mb-2">{leftChord}</div>
+              <div className="bg-white rounded-lg shadow-lg p-4 flex items-center justify-center">
+                {leftChordSvg && (
+                  <div 
+                    className="w-[200px] h-[250px] flex items-center justify-center"
+                    dangerouslySetInnerHTML={{ __html: leftChordSvg }} 
+                  />
+                )}
               </div>
-              <div className="flex flex-col items-center">
-                <div className="text-3xl font-bold text-[#11245A] mb-4">{rightChord}</div>
-                <div className="bg-white rounded-lg shadow-lg p-6 w-full aspect-square flex items-center justify-center">
-                  {rightChordSvg && (
-                    <div 
-                      className="w-[300px] h-[400px] flex items-center justify-center"
-                      dangerouslySetInnerHTML={{ __html: rightChordSvg }} 
-                    />
-                  )}
-                </div>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="text-2xl font-bold text-[#11245A] mb-2">{rightChord}</div>
+              <div className="bg-white rounded-lg shadow-lg p-4 flex items-center justify-center">
+                {rightChordSvg && (
+                  <div 
+                    className="w-[200px] h-[250px] flex items-center justify-center"
+                    dangerouslySetInnerHTML={{ __html: rightChordSvg }} 
+                  />
+                )}
               </div>
             </div>
           </div>
         )}
+        <div className="flex flex-col items-center">
+          <TimerCircle 
+            isActive={isActive && !isLoading}
+            timeLeft={timeLeft}
+            chordChanges={chordChanges}
+            chordPair={currentPair || ''}
+          />
+        </div>
       </div>
     </>
   );
