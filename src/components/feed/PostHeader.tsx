@@ -2,6 +2,7 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2, UserRound } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 interface PostHeaderProps {
   avatarUrl: string | null;
@@ -23,7 +24,11 @@ const PostHeader = ({ avatarUrl, username, createdAt, isOwner, onEdit, onDelete 
           </AvatarFallback>
         </Avatar>
         <div className="flex flex-col">
-          <h3 className="font-semibold text-sm">{username}</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-sm">{username}</h3>
+            <Badge variant="secondary" className="text-xs px-2 py-0">Beginner</Badge>
+            <Badge variant="outline" className="text-xs px-2 py-0">🎸 Level 1</Badge>
+          </div>
           <p className="text-xs text-gray-500">
             {new Date(createdAt).toLocaleDateString()}
           </p>
