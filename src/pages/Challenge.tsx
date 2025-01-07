@@ -7,13 +7,16 @@ import LeaderboardCard from '@/components/LeaderboardCard';
 import ChallengeStats from '@/components/challenge/ChallengeStats';
 import ChallengeMain from '@/components/challenge/ChallengeMain';
 import ChordSprintResults from '@/components/challenge/ChordSprintResults';
+import type { Database } from '@/integrations/supabase/types';
+
+type ChordPair = Database['public']['Enums']['chord_pair'];
 
 const Challenge = () => {
   const [profile, setProfile] = useState<any>(null);
   const [isActive, setIsActive] = useState(false);
   const [timeLeft, setTimeLeft] = useState(60);
   const [chordChanges, setChordChanges] = useState(0);
-  const [currentPair, setCurrentPair] = useState<string>('');
+  const [currentPair, setCurrentPair] = useState<ChordPair | ''>('');
   const session = useSession();
   const { toast } = useToast();
 
@@ -78,12 +81,12 @@ const Challenge = () => {
   }, [handleKeyPress]);
 
   const saveResults = async () => {
-    if (session?.user && currentPair) {
+    if (session?.user && currentPair && currentPair !== '') {
       const { error } = await supabase
         .from('chord_sprinter_results')
         .insert({
           user_id: session.user.id,
-          chord_pair: currentPair,
+          chord_pair: currentPair as ChordPair,
           reps: chordChanges
         });
 
@@ -99,7 +102,7 @@ const Challenge = () => {
   };
 
   const startChallenge = () => {
-    const chordPairs = ['Am-C', 'Em-G', 'Dm-G', 'Am-F', 'C-G', 'Em-Am'];
+    const chordPairs: ChordPair[] = ['Am-C', 'Em-G', 'Dm-G', 'Am-F', 'C-G', 'Em-Am'];
     const randomPair = chordPairs[Math.floor(Math.random() * chordPairs.length)];
     setCurrentPair(randomPair);
     setIsActive(true);
