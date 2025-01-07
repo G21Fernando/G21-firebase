@@ -61,23 +61,23 @@ Deno.serve(async (req) => {
 })
 
 function generateChordDiagramSVG(positions: ChordPosition[]) {
-  // Adjusted dimensions to be 30% larger
+  // Adjusted dimensions for 3 frets instead of 4
   const width = 100;
-  const height = 125;
+  const height = 105; // Reduced height since we have one less fret
   const stringSpacing = 14;
   const fretSpacing = 20;
   const leftMargin = 13;
   const topMargin = 23;
-  const stringLength = 72; // Adjusted for better fit
-  const fretLength = 78; // Adjusted for better fit
+  const stringLength = 52; // Adjusted for 3 frets
+  const fretLength = 58; // Adjusted for 3 frets
 
   let svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
     <!-- Background -->
     <rect x="0" y="0" width="${width}" height="${height}" fill="white"/>
   `
 
-  // Draw fret lines (horizontal) - 5 lines for 4 frets
-  for (let i = 0; i <= 4; i++) {
+  // Draw fret lines (horizontal) - 4 lines for 3 frets
+  for (let i = 0; i <= 3; i++) {
     const y = topMargin + i * fretSpacing
     svg += `<line x1="${leftMargin}" y1="${y}" 
       x2="${leftMargin + stringLength}" y2="${y}" 
@@ -113,7 +113,7 @@ function generateChordDiagramSVG(positions: ChordPosition[]) {
         font-size="13px"
         text-anchor="middle" 
         fill="black">○</text>`
-    } else if (pos.fret_position && pos.fret_position > 0 && pos.fret_position <= 4) {
+    } else if (pos.fret_position && pos.fret_position > 0 && pos.fret_position <= 3) { // Changed from <= 4 to <= 3
       // Draw finger position dot
       const y = topMargin + ((pos.fret_position - 0.5) * fretSpacing)
       svg += `<circle cx="${x}" cy="${y}" r="4.5" fill="black"/>`
