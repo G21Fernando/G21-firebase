@@ -153,6 +153,7 @@ export type Database = {
           id: string
           media_type: string | null
           media_url: string | null
+          themes: string[] | null
           user_id: string
           video_duration: number | null
         }
@@ -162,6 +163,7 @@ export type Database = {
           id?: string
           media_type?: string | null
           media_url?: string | null
+          themes?: string[] | null
           user_id: string
           video_duration?: number | null
         }
@@ -171,6 +173,7 @@ export type Database = {
           id?: string
           media_type?: string | null
           media_url?: string | null
+          themes?: string[] | null
           user_id?: string
           video_duration?: number | null
         }

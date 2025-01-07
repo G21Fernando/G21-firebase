@@ -13,13 +13,17 @@ const CreatePost = ({ onPostCreated }: { onPostCreated: () => void }) => {
   const { toast } = useToast();
   const session = useSession();
 
+  const extractThemes = (content: string): string[] => {
+    const themeRegex = /#(\w+)/g;
+    const matches = content.match(themeRegex);
+    return matches ? matches.map(tag => tag.slice(1)) : [];
+  };
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Check if it's a video
     if (file.type.startsWith('video/')) {
-      // Create a video element to check duration
       const video = document.createElement('video');
       video.preload = 'metadata';
 
@@ -53,6 +57,16 @@ const CreatePost = ({ onPostCreated }: { onPostCreated: () => void }) => {
     if (!content.trim() && !mediaFile) return;
     if (!session?.user?.id) return;
 
+    const themes = extractThemes(content);
+    if (themes.length === 0) {
+      toast({
+        title: "Missing theme",
+        description: "Please add at least one theme using # (e.g., #practice)",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsUploading(true);
     try {
       let mediaUrl = null;
@@ -80,7 +94,8 @@ const CreatePost = ({ onPostCreated }: { onPostCreated: () => void }) => {
           media_url: mediaUrl,
           media_type: mediaType,
           video_duration: mediaType === 'video' ? 20 : null,
-          user_id: session.user.id
+          user_id: session.user.id,
+          themes
         });
 
       if (error) throw error;
@@ -106,7 +121,7 @@ const CreatePost = ({ onPostCreated }: { onPostCreated: () => void }) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-2 bg-white rounded-lg p-2 shadow">
       <Textarea
-        placeholder="What's on your mind?"
+        placeholder="What's on your mind? Add themes with # (e.g., #practice)"
         value={content}
         onChange={(e) => setContent(e.target.value)}
         className="min-h-[50px] resize-none"

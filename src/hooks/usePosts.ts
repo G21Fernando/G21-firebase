@@ -10,6 +10,7 @@ export interface Post {
   media_type: 'image' | 'video' | null;
   video_duration: number | null;
   user_id: string;
+  themes: string[] | null;
   profiles: {
     username: string;
     avatar_url: string | null;
@@ -26,13 +27,13 @@ export interface Post {
   }[];
 }
 
-export const usePosts = (onUpdate: number) => {
+export const usePosts = (onUpdate: number, selectedTheme: string | null) => {
   const { toast } = useToast();
 
   return useQuery({
-    queryKey: ['posts', onUpdate],
+    queryKey: ['posts', onUpdate, selectedTheme],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('posts')
         .select(`
           *,
@@ -54,6 +55,12 @@ export const usePosts = (onUpdate: number) => {
           )
         `)
         .order('created_at', { ascending: false });
+
+      if (selectedTheme) {
+        query = query.contains('themes', [selectedTheme]);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         toast({

@@ -11,10 +11,12 @@ import { usePostActions } from '@/hooks/usePostActions';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import ThemeFilter from './ThemeFilter';
 
 const PostList = ({ onUpdate }: { onUpdate: number }) => {
   const session = useSession();
-  const { data: posts, isLoading, refetch } = usePosts(onUpdate);
+  const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
+  const { data: posts, isLoading, refetch } = usePosts(onUpdate, selectedTheme);
   const { commentContent, setCommentContent, handleLike, handleComment, handleDeletePost, handleUpdatePost } = usePostActions(refetch);
   const [editingPost, setEditingPost] = useState<string | null>(null);
   const [editContent, setEditContent] = useState('');
@@ -41,6 +43,7 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
 
   return (
     <div className="space-y-3">
+      <ThemeFilter onThemeSelect={setSelectedTheme} selectedTheme={selectedTheme} />
       {posts.map((post) => {
         const avatarUrl = post.profiles?.avatar_url
           ? supabase.storage.from('avatars').getPublicUrl(post.profiles.avatar_url).data.publicUrl
@@ -88,6 +91,15 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
                 ) : (
                   <>
                     <p className="text-sm whitespace-pre-wrap mb-2">{post.content}</p>
+                    {post.themes && post.themes.length > 0 && (
+                      <div className="flex gap-1 flex-wrap mb-2">
+                        {post.themes.map((theme) => (
+                          <span key={theme} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                            #{theme}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                     {post.media_url && (
                       <PostMedia
                         mediaUrl={post.media_url}
