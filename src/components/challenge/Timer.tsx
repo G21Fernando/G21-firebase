@@ -69,11 +69,11 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
             <div className="flex flex-col items-center">
               <div className="text-3xl font-bold text-[#11245A] mb-2">{leftChord}</div>
               {chordDiagrams[leftChord] && (
-                <div className="w-24 h-24 relative">
+                <div className="w-32 h-32 bg-white rounded-lg shadow-md p-2">
                   <img 
                     src={chordDiagrams[leftChord]}
                     alt={`${leftChord} chord diagram`}
-                    className="object-contain w-full h-full"
+                    className="w-full h-full object-contain"
                   />
                 </div>
               )}
@@ -81,11 +81,11 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
             <div className="flex flex-col items-center">
               <div className="text-3xl font-bold text-[#11245A] mb-2">{rightChord}</div>
               {chordDiagrams[rightChord] && (
-                <div className="w-24 h-24 relative">
+                <div className="w-32 h-32 bg-white rounded-lg shadow-md p-2">
                   <img 
                     src={chordDiagrams[rightChord]}
                     alt={`${rightChord} chord diagram`}
-                    className="object-contain w-full h-full"
+                    className="w-full h-full object-contain"
                   />
                 </div>
               )}
