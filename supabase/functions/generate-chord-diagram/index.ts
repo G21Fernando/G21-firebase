@@ -13,7 +13,6 @@ interface ChordPosition {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
@@ -22,7 +21,6 @@ serve(async (req) => {
     const { chord } = await req.json()
     console.log('Generating diagram for chord:', chord)
 
-    // Fetch chord positions from the database
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
 
@@ -74,31 +72,35 @@ serve(async (req) => {
 })
 
 function generateChordDiagramSVG(positions: ChordPosition[]) {
+  // Adjusted dimensions to match the reference image
   const width = 100;
-  const height = 105;
+  const height = 120;
   const leftMargin = 20;
   const rightMargin = 20;
-  const topMargin = 20;
-  const fretSpacing = 20;
+  const topMargin = 25;
+  const bottomMargin = 25;
+  const fretSpacing = 18;
   const availableWidth = width - leftMargin - rightMargin;
   const stringSpacing = availableWidth / 5;
-  const fretboardHeight = fretSpacing * 3;
-  const dotRadius = 4;
+  const fretboardHeight = fretSpacing * 4;
+  const dotRadius = 3.5;
+  const lineWidth = 1;
+  const nutWidth = 2;
 
-  let svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">`
+  let svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">`;
 
   // Draw fret lines (horizontal)
-  for (let i = 0; i <= 3; i++) {
+  for (let i = 0; i <= 4; i++) {
     const y = topMargin + (i * fretSpacing);
-    const lineWidth = i === 0 ? 2 : 1;
+    const strokeWidth = i === 0 ? nutWidth : lineWidth;
     
     svg += `<line 
       x1="${leftMargin}" 
       y1="${y}" 
       x2="${width - rightMargin}" 
       y2="${y}" 
-      stroke="black" 
-      stroke-width="${lineWidth}"/>`
+      stroke="#11245A" 
+      stroke-width="${strokeWidth}"/>`;
   }
 
   // Draw strings (vertical lines)
@@ -109,13 +111,13 @@ function generateChordDiagramSVG(positions: ChordPosition[]) {
       y1="${topMargin}" 
       x2="${x}" 
       y2="${topMargin + fretboardHeight}" 
-      stroke="black" 
-      stroke-width="1"/>`
+      stroke="#11245A" 
+      stroke-width="${lineWidth}"/>`;
   }
 
   // Draw finger positions, open strings, and muted strings
   positions.forEach(pos => {
-    const stringIndex = 6 - pos.string_number;
+    const stringIndex = 6 - Number(pos.string_number);
     const x = leftMargin + (stringIndex * stringSpacing);
     
     if (pos.string_state === 'muted') {
@@ -126,24 +128,24 @@ function generateChordDiagramSVG(positions: ChordPosition[]) {
         font-family="Arial" 
         font-size="12" 
         text-anchor="middle" 
-        fill="black">×</text>`
+        fill="#11245A">×</text>`;
     } else if (pos.string_state === 'open') {
       // Draw O above the nut for open strings
       svg += `<text 
         x="${x}" 
         y="${topMargin - 8}" 
         font-family="Arial" 
-        font-size="12" 
+        font-size="10" 
         text-anchor="middle" 
-        fill="black">○</text>`
-    } else if (pos.fret_position && pos.fret_position > 0 && pos.fret_position <= 3) {
+        fill="#11245A">○</text>`;
+    } else if (pos.fret_position && pos.fret_position > 0 && pos.fret_position <= 4) {
       // Draw filled circle for fretted positions
       const y = topMargin + ((pos.fret_position - 0.5) * fretSpacing);
       svg += `<circle 
         cx="${x}"
         cy="${y}"
         r="${dotRadius}"
-        fill="black"/>`
+        fill="#11245A"/>`;
     }
   });
 
