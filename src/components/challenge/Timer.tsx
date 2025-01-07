@@ -72,6 +72,14 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
         isActive={isActive && !isLoading}
       />
       <div className="flex flex-row items-start justify-center gap-8 mt-4">
+        <div className="flex flex-col items-center">
+          <TimerCircle 
+            isActive={isActive && !isLoading}
+            timeLeft={timeLeft}
+            chordChanges={chordChanges}
+            chordPair={currentPair || ''}
+          />
+        </div>
         {isActive && (
           <div className="flex flex-col gap-4">
             <div className="flex flex-col items-center">
@@ -79,7 +87,7 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
               <div className="bg-white rounded-lg shadow-lg p-4 flex items-center justify-center">
                 {leftChordSvg && (
                   <div 
-                    className="w-[200px] h-[250px] flex items-center justify-center"
+                    className="w-[100px] h-[125px] flex items-center justify-center"
                     dangerouslySetInnerHTML={{ __html: leftChordSvg }} 
                   />
                 )}
@@ -90,7 +98,7 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
               <div className="bg-white rounded-lg shadow-lg p-4 flex items-center justify-center">
                 {rightChordSvg && (
                   <div 
-                    className="w-[200px] h-[250px] flex items-center justify-center"
+                    className="w-[100px] h-[125px] flex items-center justify-center"
                     dangerouslySetInnerHTML={{ __html: rightChordSvg }} 
                   />
                 )}
@@ -98,14 +106,6 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
             </div>
           </div>
         )}
-        <div className="flex flex-col items-center">
-          <TimerCircle 
-            isActive={isActive && !isLoading}
-            timeLeft={timeLeft}
-            chordChanges={chordChanges}
-            chordPair={currentPair || ''}
-          />
-        </div>
       </div>
     </>
   );
