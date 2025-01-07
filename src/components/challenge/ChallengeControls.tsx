@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import ChallengeInstructions from './ChallengeInstructions';
 
 interface ChallengeControlsProps {
   isActive: boolean;
@@ -9,12 +10,10 @@ interface ChallengeControlsProps {
 const ChallengeControls = ({ isActive, timeLeft, onStart }: ChallengeControlsProps) => {
   return (
     <>
-      <div className="text-center mb-3">
-        <div className="text-lg font-semibold mb-1">{timeLeft} Seconds Left</div>
-        {isActive && (
-          <div className="text-xs text-gray-600">Press spacebar to count chord changes</div>
-        )}
-      </div>
+      <ChallengeInstructions 
+        isActive={isActive}
+        timeLeft={timeLeft}
+      />
       <div className="flex justify-center">
         <Button
           size="default"
