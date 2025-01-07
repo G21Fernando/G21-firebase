@@ -66,26 +66,32 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
         isActive={isActive}
       />
       <div className="relative flex flex-col items-center">
+        <TimerCircle 
+          isActive={isActive}
+          timeLeft={timeLeft}
+          chordChanges={chordChanges}
+          chordPair={currentPair || ''}
+        />
         {isActive && (
-          <div className="w-full max-w-4xl mx-auto">
-            <div className="flex justify-between items-start gap-8 px-4">
-              <div className="flex-1 flex flex-col items-center">
+          <div className="w-full max-w-3xl mx-auto mt-8">
+            <div className="grid grid-cols-2 gap-8 px-4">
+              <div className="flex flex-col items-center">
                 <div className="text-3xl font-bold text-[#11245A] mb-4">{leftChord}</div>
-                <div className="bg-white rounded-lg shadow-lg p-6 w-full">
+                <div className="bg-white rounded-lg shadow-lg p-6 w-full aspect-square flex items-center justify-center">
                   {leftChordSvg && (
                     <div 
-                      className="flex justify-center items-center"
+                      className="w-full max-w-[300px]"
                       dangerouslySetInnerHTML={{ __html: leftChordSvg }} 
                     />
                   )}
                 </div>
               </div>
-              <div className="flex-1 flex flex-col items-center">
+              <div className="flex flex-col items-center">
                 <div className="text-3xl font-bold text-[#11245A] mb-4">{rightChord}</div>
-                <div className="bg-white rounded-lg shadow-lg p-6 w-full">
+                <div className="bg-white rounded-lg shadow-lg p-6 w-full aspect-square flex items-center justify-center">
                   {rightChordSvg && (
                     <div 
-                      className="flex justify-center items-center"
+                      className="w-full max-w-[300px]"
                       dangerouslySetInnerHTML={{ __html: rightChordSvg }} 
                     />
                   )}
@@ -94,14 +100,6 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
             </div>
           </div>
         )}
-        <div className="mt-8">
-          <TimerCircle 
-            isActive={isActive}
-            timeLeft={timeLeft}
-            chordChanges={chordChanges}
-            chordPair={currentPair || ''}
-          />
-        </div>
       </div>
     </>
   );
