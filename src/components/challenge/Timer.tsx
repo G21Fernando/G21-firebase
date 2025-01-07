@@ -13,37 +13,11 @@ interface TimerProps {
   isPaused: boolean;
 }
 
-interface ChordDiagram {
-  chord: string;
-  image_url: string;
-}
-
 const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
   const chordPairs: ChordPair[] = ['Am-C', 'Em-G', 'Dm-G', 'Am-F', 'C-G', 'Em-Am'];
   const [currentPair, setCurrentPair] = useState<ChordPair | null>(null);
-  const [chordDiagrams, setChordDiagrams] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    const fetchChordDiagrams = async () => {
-      const { data, error } = await supabase
-        .from('chord_diagrams')
-        .select('chord, image_url');
-
-      if (error) {
-        console.error('Error fetching chord diagrams:', error);
-        return;
-      }
-
-      const diagramMap = (data as ChordDiagram[]).reduce((acc, { chord, image_url }) => ({
-        ...acc,
-        [chord]: image_url
-      }), {});
-
-      setChordDiagrams(diagramMap);
-    };
-
-    fetchChordDiagrams();
-  }, []);
+  const [leftChordSvg, setLeftChordSvg] = useState<string>('');
+  const [rightChordSvg, setRightChordSvg] = useState<string>('');
 
   useEffect(() => {
     if (isActive && !isPaused) {
@@ -53,6 +27,34 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
       setCurrentPair(null);
     }
   }, [isActive, isPaused]);
+
+  useEffect(() => {
+    const fetchChordDiagrams = async () => {
+      if (!currentPair) return;
+      
+      const [leftChord, rightChord] = currentPair.split('-');
+      
+      try {
+        // Fetch left chord diagram
+        const leftResponse = await supabase.functions.invoke('generate-chord-diagram', {
+          body: { chord: leftChord }
+        });
+        if (leftResponse.error) throw leftResponse.error;
+        setLeftChordSvg(leftResponse.data.svg);
+
+        // Fetch right chord diagram
+        const rightResponse = await supabase.functions.invoke('generate-chord-diagram', {
+          body: { chord: rightChord }
+        });
+        if (rightResponse.error) throw rightResponse.error;
+        setRightChordSvg(rightResponse.data.svg);
+      } catch (error) {
+        console.error('Error fetching chord diagrams:', error);
+      }
+    };
+
+    fetchChordDiagrams();
+  }, [currentPair]);
 
   const [leftChord, rightChord] = currentPair?.split('-') || ['', ''];
 
@@ -68,35 +70,19 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
           <div className="absolute w-full flex justify-between items-start px-4 top-1/2 -translate-y-1/2 z-10">
             <div className="flex flex-col items-center">
               <div className="text-3xl font-bold text-[#11245A] mb-2">{leftChord}</div>
-              {chordDiagrams[leftChord] && (
-                <div className="w-40 h-40 bg-white rounded-lg shadow-md p-4 flex items-center justify-center">
-                  <img 
-                    src={chordDiagrams[leftChord]}
-                    alt={`${leftChord} chord diagram`}
-                    className="w-full h-full object-contain"
-                    onError={(e) => {
-                      console.error(`Error loading image for ${leftChord}`);
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
-                </div>
-              )}
+              <div className="w-52 h-64 bg-white rounded-lg shadow-md p-4 flex items-center justify-center">
+                {leftChordSvg && (
+                  <div dangerouslySetInnerHTML={{ __html: leftChordSvg }} />
+                )}
+              </div>
             </div>
             <div className="flex flex-col items-center">
               <div className="text-3xl font-bold text-[#11245A] mb-2">{rightChord}</div>
-              {chordDiagrams[rightChord] && (
-                <div className="w-40 h-40 bg-white rounded-lg shadow-md p-4 flex items-center justify-center">
-                  <img 
-                    src={chordDiagrams[rightChord]}
-                    alt={`${rightChord} chord diagram`}
-                    className="w-full h-full object-contain"
-                    onError={(e) => {
-                      console.error(`Error loading image for ${rightChord}`);
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
-                </div>
-              )}
+              <div className="w-52 h-64 bg-white rounded-lg shadow-md p-4 flex items-center justify-center">
+                {rightChordSvg && (
+                  <div dangerouslySetInnerHTML={{ __html: rightChordSvg }} />
+                )}
+              </div>
             </div>
           </div>
         )}

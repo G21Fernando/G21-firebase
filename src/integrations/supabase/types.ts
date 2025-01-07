@@ -30,6 +30,33 @@ export type Database = {
         }
         Relationships: []
       }
+      chord_positions: {
+        Row: {
+          chord_name: Database["public"]["Enums"]["chord_name"]
+          created_at: string
+          fret_position: number | null
+          id: string
+          string_number: Database["public"]["Enums"]["guitar_string"]
+          string_state: Database["public"]["Enums"]["string_state"]
+        }
+        Insert: {
+          chord_name: Database["public"]["Enums"]["chord_name"]
+          created_at?: string
+          fret_position?: number | null
+          id?: string
+          string_number: Database["public"]["Enums"]["guitar_string"]
+          string_state?: Database["public"]["Enums"]["string_state"]
+        }
+        Update: {
+          chord_name?: Database["public"]["Enums"]["chord_name"]
+          created_at?: string
+          fret_position?: number | null
+          id?: string
+          string_number?: Database["public"]["Enums"]["guitar_string"]
+          string_state?: Database["public"]["Enums"]["string_state"]
+        }
+        Relationships: []
+      }
       chord_sprinter_results: {
         Row: {
           chord_pair: Database["public"]["Enums"]["chord_pair"]
@@ -299,6 +326,8 @@ export type Database = {
       chord_name: "A" | "Am" | "C" | "D" | "Dm" | "E" | "Em" | "F" | "G"
       chord_pair: "Am-C" | "Em-G" | "Dm-G" | "Am-F" | "C-G" | "Em-Am"
       exercise_status: "not_started" | "in_progress" | "completed"
+      guitar_string: "1" | "2" | "3" | "4" | "5" | "6"
+      string_state: "muted" | "open" | "fretted"
     }
     CompositeTypes: {
       [_ in never]: never
