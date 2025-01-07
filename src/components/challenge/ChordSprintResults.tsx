@@ -33,7 +33,7 @@ const ChordSprintResults = () => {
 
   return (
     <div className="bg-white rounded-2xl shadow-sm p-6">
-      <h2 className="text-xl font-semibold text-[#11245A] mb-4">Recent Sprint Results</h2>
+      <h2 className="text-xl font-semibold text-[#11245A] mb-4">Chord Changes per minute (CPM)</h2>
       <div className="space-y-4">
         {results.map((result, index) => (
           <div key={index} className="flex justify-between items-center border-b pb-2">
