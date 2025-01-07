@@ -69,14 +69,9 @@ const Challenge = () => {
   }, [isActive, isPaused, timeLeft, chordChanges, toast]);
 
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
-    if (event.code === 'Space') {
+    if (event.code === 'Space' && isActive && !isPaused) {
       event.preventDefault();
-      if (isActive) {
-        if (!isPaused) {
-          setChordChanges((prev) => prev + 1);
-        }
-        setIsPaused((prev) => !prev);
-      }
+      setChordChanges((prev) => prev + 1);
     }
   }, [isActive, isPaused]);
 

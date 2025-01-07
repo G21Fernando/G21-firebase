@@ -29,7 +29,7 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
     <>
       <TimerHeader 
         title="Chord Sprinter"
-        subtitle={isPaused ? "PAUSED - Press spacebar to resume" : "Speed up your chord changes and track results"}
+        subtitle="Speed up your chord changes and track results"
       />
       <TimerCircle 
         isActive={isActive}

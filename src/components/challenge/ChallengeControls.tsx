@@ -22,7 +22,7 @@ const ChallengeControls = ({ isActive, timeLeft, onStart, onStop, isPaused }: Ch
           onClick={isActive ? onStop : onStart}
           className="bg-[#11245A] hover:bg-[#11245A]/90 text-white"
         >
-          {isActive ? (isPaused ? 'Resume Challenge' : 'Stop Challenge') : 'Start Challenge'}
+          {isActive ? 'Stop Challenge' : 'Start Challenge'}
         </Button>
       </div>
     </>
