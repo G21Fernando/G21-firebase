@@ -14,17 +14,7 @@ const LeaderboardCard: React.FC = () => {
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
-      // First get the latest chord sprinter result for each user
-      const { data: sprintData } = await supabase
-        .from('chord_sprinter_results')
-        .select(`
-          reps,
-          profiles!inner(username)
-        `)
-        .order('reps', { ascending: false })
-        .limit(5);
-      
-      // Then get the regular points leaderboard
+      // First get the regular points leaderboard
       const { data: pointsData } = await supabase
         .from('profiles')
         .select('username, points')
@@ -32,6 +22,18 @@ const LeaderboardCard: React.FC = () => {
         .limit(5);
       
       if (pointsData) {
+        // Then get the sprint results for these users
+        const usernames = pointsData.map(profile => profile.username);
+        const { data: sprintData } = await supabase
+          .from('chord_sprinter_results')
+          .select(`
+            reps,
+            user_id,
+            profiles!chord_sprinter_results_user_id_fkey (username)
+          `)
+          .in('user_id', pointsData.map(p => p.id))
+          .order('reps', { ascending: false });
+
         const enhancedData = pointsData.map(profile => {
           const sprintResult = sprintData?.find(
             sprint => sprint.profiles.username === profile.username
