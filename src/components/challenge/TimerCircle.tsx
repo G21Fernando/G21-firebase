@@ -4,9 +4,10 @@ interface TimerCircleProps {
   isActive: boolean;
   timeLeft: number;
   chordChanges: number;
+  chordPair: string;
 }
 
-const TimerCircle = ({ isActive, timeLeft, chordChanges }: TimerCircleProps) => {
+const TimerCircle = ({ isActive, timeLeft, chordChanges, chordPair }: TimerCircleProps) => {
   return (
     <div className="relative w-36 h-36 mb-4 mx-auto">
       <div className="absolute inset-0 flex items-center justify-center">
@@ -42,6 +43,7 @@ const TimerCircle = ({ isActive, timeLeft, chordChanges }: TimerCircleProps) => 
           <>
             <span className="text-4xl font-bold mb-0.5 text-[#11245A]">{chordChanges}</span>
             <span className="text-xs text-[#11245A]/70">Chord changes done</span>
+            <span className="text-sm font-semibold text-[#11245A] mt-1">{chordPair}</span>
           </>
         )}
       </div>

@@ -9,6 +9,30 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      chord_sprinter_results: {
+        Row: {
+          chord_pair: Database["public"]["Enums"]["chord_pair"]
+          created_at: string
+          id: string
+          reps: number
+          user_id: string
+        }
+        Insert: {
+          chord_pair: Database["public"]["Enums"]["chord_pair"]
+          created_at?: string
+          id?: string
+          reps: number
+          user_id: string
+        }
+        Update: {
+          chord_pair?: Database["public"]["Enums"]["chord_pair"]
+          created_at?: string
+          id?: string
+          reps?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       comments: {
         Row: {
           content: string
@@ -248,6 +272,7 @@ export type Database = {
       }
     }
     Enums: {
+      chord_pair: "Am-C" | "Em-G" | "Dm-G" | "Am-F" | "C-G" | "Em-Am"
       exercise_status: "not_started" | "in_progress" | "completed"
     }
     CompositeTypes: {

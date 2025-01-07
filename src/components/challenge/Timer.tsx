@@ -1,5 +1,6 @@
 import TimerCircle from './TimerCircle';
 import TimerHeader from './TimerHeader';
+import { useState, useEffect } from 'react';
 
 interface TimerProps {
   isActive: boolean;
@@ -8,6 +9,18 @@ interface TimerProps {
 }
 
 const Timer = ({ isActive, timeLeft, chordChanges }: TimerProps) => {
+  const chordPairs = ['Am-C', 'Em-G', 'Dm-G', 'Am-F', 'C-G', 'Em-Am'];
+  const [currentPair, setCurrentPair] = useState('');
+
+  useEffect(() => {
+    if (isActive) {
+      const randomIndex = Math.floor(Math.random() * chordPairs.length);
+      setCurrentPair(chordPairs[randomIndex]);
+    } else {
+      setCurrentPair('');
+    }
+  }, [isActive]);
+
   return (
     <>
       <TimerHeader 
@@ -18,6 +31,7 @@ const Timer = ({ isActive, timeLeft, chordChanges }: TimerProps) => {
         isActive={isActive}
         timeLeft={timeLeft}
         chordChanges={chordChanges}
+        chordPair={currentPair}
       />
     </>
   );
