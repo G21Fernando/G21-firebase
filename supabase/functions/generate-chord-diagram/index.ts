@@ -45,8 +45,7 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Generate SVG with exact specifications
-    const svg = generateChordDiagramSVG(positions, chord)
+    const svg = generateChordDiagramSVG(positions)
 
     return new Response(
       JSON.stringify({ svg }),
@@ -61,42 +60,31 @@ Deno.serve(async (req) => {
   }
 })
 
-function generateChordDiagramSVG(positions: ChordPosition[], chordName: string) {
-  // Exact dimensions as specified
-  const width = 300
-  const height = 400
-  const stringSpacing = 48
-  const fretSpacing = 48
-  const leftMargin = 30
-  const topMargin = 80
-  const stringLength = 240 // 270 - 30 from specs
-  const fretLength = 144 // Only 3 frets (48px * 3)
+function generateChordDiagramSVG(positions: ChordPosition[]) {
+  // Simplified dimensions for a cleaner look
+  const width = 80
+  const height = 100
+  const stringSpacing = 12
+  const fretSpacing = 16
+  const leftMargin = 10
+  const topMargin = 20
+  const stringLength = 64 // 4 frets * 16
+  const fretLength = 60 // 5 strings * 12
 
   let svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-    <style>
-      .chord-name { font: bold 32px sans-serif; }
-      .string-marker { font: bold 28px sans-serif; }
-    </style>
-    
-    <!-- Chord Name -->
-    <text x="${width/2}" y="40" 
-      class="chord-name" 
-      text-anchor="middle" 
-      fill="#000000">${chordName}</text>
-
-    <!-- Background for better visibility -->
-    <rect x="${leftMargin-10}" y="${topMargin-30}" 
-      width="${stringLength+20}" height="${fretLength+40}" 
+    <!-- Background -->
+    <rect x="${leftMargin-5}" y="${topMargin-5}" 
+      width="${stringLength+10}" height="${fretLength+10}" 
       fill="white"/>
   `
 
-  // Draw fret lines (horizontal) - only 4 lines for 3 frets
-  for (let i = 0; i <= 3; i++) {
+  // Draw fret lines (horizontal) - 5 lines for 4 frets
+  for (let i = 0; i <= 4; i++) {
     const y = topMargin + i * fretSpacing
     svg += `<line x1="${leftMargin}" y1="${y}" 
       x2="${leftMargin + stringLength}" y2="${y}" 
-      stroke="#000000" 
-      stroke-width="${i === 0 ? 5 : 3}"/>`
+      stroke="black" 
+      stroke-width="${i === 0 ? 2 : 1}"/>`
   }
 
   // Draw strings (vertical)
@@ -104,8 +92,8 @@ function generateChordDiagramSVG(positions: ChordPosition[], chordName: string) 
     const x = leftMargin + i * stringSpacing
     svg += `<line x1="${x}" y1="${topMargin}" 
       x2="${x}" y2="${topMargin + fretLength}" 
-      stroke="#000000" 
-      stroke-width="3"/>`
+      stroke="black" 
+      stroke-width="1"/>`
   }
 
   // Draw positions
@@ -115,25 +103,22 @@ function generateChordDiagramSVG(positions: ChordPosition[], chordName: string) 
     
     if (pos.string_state === 'muted') {
       // Draw X above nut
-      svg += `<text x="${x}" y="${topMargin - 15}" 
-        class="string-marker" 
+      svg += `<text x="${x}" y="${topMargin - 5}" 
+        font-family="sans-serif"
+        font-size="12px"
         text-anchor="middle" 
-        fill="#000000">×</text>`
+        fill="black">×</text>`
     } else if (pos.string_state === 'open') {
       // Draw O above nut
-      svg += `<text x="${x}" y="${topMargin - 15}" 
-        class="string-marker" 
+      svg += `<text x="${x}" y="${topMargin - 5}" 
+        font-family="sans-serif"
+        font-size="12px"
         text-anchor="middle" 
-        fill="#000000">○</text>`
-    } else if (pos.fret_position && pos.fret_position > 0 && pos.fret_position <= 3) {
-      // Draw finger position dot (only if within first 3 frets)
+        fill="black">○</text>`
+    } else if (pos.fret_position && pos.fret_position > 0 && pos.fret_position <= 4) {
+      // Draw finger position dot
       const y = topMargin + ((pos.fret_position - 0.5) * fretSpacing)
-      svg += `<circle cx="${x}" cy="${y}" r="12.5" fill="#000000"/>
-        <text x="${x}" y="${y}" 
-          fill="white" 
-          text-anchor="middle" 
-          dominant-baseline="middle" 
-          class="string-marker">${pos.fret_position}</text>`
+      svg += `<circle cx="${x}" cy="${y}" r="4" fill="black"/>`
     }
   })
 
