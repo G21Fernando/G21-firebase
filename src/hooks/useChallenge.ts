@@ -26,6 +26,7 @@ export const useChallenge = () => {
     } else if (timeLeft === 0) {
       setIsActive(false);
       saveResults();
+      updatePracticeTime();
       playEndSound();
       toast({
         title: "Challenge completed!",
@@ -53,6 +54,40 @@ export const useChallenge = () => {
       document.removeEventListener('keydown', handleKeyPress);
     };
   }, [handleKeyPress]);
+
+  const updatePracticeTime = async () => {
+    if (session?.user) {
+      try {
+        // Get current profile data
+        const { data: profile, error: fetchError } = await supabase
+          .from('profiles')
+          .select('practice_time, daily_practice_time')
+          .eq('id', session.user.id)
+          .single();
+
+        if (fetchError) throw fetchError;
+
+        // Add 60 seconds (1 minute) to both total and daily practice time
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ 
+            practice_time: (profile?.practice_time || 0) + 60,
+            daily_practice_time: (profile?.daily_practice_time || 0) + 60,
+            last_practice_date: new Date().toISOString()
+          })
+          .eq('id', session.user.id);
+
+        if (updateError) throw updateError;
+      } catch (error) {
+        console.error('Error updating practice time:', error);
+        toast({
+          title: "Error updating practice time",
+          description: "Please try again later",
+          variant: "destructive",
+        });
+      }
+    }
+  };
 
   const saveResults = async () => {
     if (session?.user && currentPair) {
