@@ -6,9 +6,10 @@ interface ChallengeControlsProps {
   timeLeft: number;
   onStart: () => void;
   onStop: () => void;
+  isPaused: boolean;
 }
 
-const ChallengeControls = ({ isActive, timeLeft, onStart, onStop }: ChallengeControlsProps) => {
+const ChallengeControls = ({ isActive, timeLeft, onStart, onStop, isPaused }: ChallengeControlsProps) => {
   return (
     <>
       <ChallengeInstructions 
@@ -21,7 +22,7 @@ const ChallengeControls = ({ isActive, timeLeft, onStart, onStop }: ChallengeCon
           onClick={isActive ? onStop : onStart}
           className="bg-[#11245A] hover:bg-[#11245A]/90 text-white"
         >
-          {isActive ? 'Stop Challenge' : 'Start Challenge'}
+          {isActive ? (isPaused ? 'Resume Challenge' : 'Stop Challenge') : 'Start Challenge'}
         </Button>
       </div>
     </>

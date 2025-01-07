@@ -9,26 +9,27 @@ interface TimerProps {
   isActive: boolean;
   timeLeft: number;
   chordChanges: number;
+  isPaused: boolean;
 }
 
-const Timer = ({ isActive, timeLeft, chordChanges }: TimerProps) => {
+const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
   const chordPairs: ChordPair[] = ['Am-C', 'Em-G', 'Dm-G', 'Am-F', 'C-G', 'Em-Am'];
   const [currentPair, setCurrentPair] = useState<ChordPair | null>(null);
 
   useEffect(() => {
-    if (isActive) {
+    if (isActive && !isPaused) {
       const randomIndex = Math.floor(Math.random() * chordPairs.length);
       setCurrentPair(chordPairs[randomIndex]);
-    } else {
+    } else if (!isActive) {
       setCurrentPair(null);
     }
-  }, [isActive]);
+  }, [isActive, isPaused]);
 
   return (
     <>
       <TimerHeader 
         title="Chord Sprinter"
-        subtitle="Speed up your chord changes and track results"
+        subtitle={isPaused ? "PAUSED - Press spacebar to resume" : "Speed up your chord changes and track results"}
       />
       <TimerCircle 
         isActive={isActive}

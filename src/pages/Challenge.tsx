@@ -14,6 +14,7 @@ type ChordPair = Database['public']['Enums']['chord_pair'];
 const Challenge = () => {
   const [profile, setProfile] = useState<any>(null);
   const [isActive, setIsActive] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [timeLeft, setTimeLeft] = useState(60);
   const [chordChanges, setChordChanges] = useState(0);
   const [currentPair, setCurrentPair] = useState<ChordPair | null>(null);
@@ -47,7 +48,7 @@ const Challenge = () => {
   useEffect(() => {
     let interval: number | undefined;
     
-    if (isActive && timeLeft > 0) {
+    if (isActive && !isPaused && timeLeft > 0) {
       interval = window.setInterval(() => {
         setTimeLeft((time) => time - 1);
       }, 1000);
@@ -65,13 +66,19 @@ const Challenge = () => {
         clearInterval(interval);
       }
     };
-  }, [isActive, timeLeft, chordChanges, toast]);
+  }, [isActive, isPaused, timeLeft, chordChanges, toast]);
 
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
-    if (event.code === 'Space' && isActive) {
-      setChordChanges((prev) => prev + 1);
+    if (event.code === 'Space') {
+      event.preventDefault();
+      if (isActive) {
+        if (!isPaused) {
+          setChordChanges((prev) => prev + 1);
+        }
+        setIsPaused((prev) => !prev);
+      }
     }
-  }, [isActive]);
+  }, [isActive, isPaused]);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyPress);
@@ -106,12 +113,14 @@ const Challenge = () => {
     const randomPair = chordPairs[Math.floor(Math.random() * chordPairs.length)];
     setCurrentPair(randomPair);
     setIsActive(true);
+    setIsPaused(false);
     setTimeLeft(60);
     setChordChanges(0);
   };
 
   const stopChallenge = () => {
     setIsActive(false);
+    setIsPaused(false);
     saveResults();
     toast({
       title: "Challenge stopped",
@@ -135,6 +144,7 @@ const Challenge = () => {
               chordChanges={chordChanges}
               onStart={startChallenge}
               onStop={stopChallenge}
+              isPaused={isPaused}
             />
           </div>
           <div className="bg-white rounded-lg shadow-lg">

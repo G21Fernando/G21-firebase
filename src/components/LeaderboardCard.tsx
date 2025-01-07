@@ -7,6 +7,7 @@ interface Profile {
   username: string;
   points: number;
   cpm?: number;
+  id: string;
 }
 
 const LeaderboardCard: React.FC = () => {
@@ -14,29 +15,22 @@ const LeaderboardCard: React.FC = () => {
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
-      // First get the regular points leaderboard
       const { data: pointsData } = await supabase
         .from('profiles')
-        .select('username, points')
+        .select('id, username, points')
         .order('points', { ascending: false })
         .limit(5);
       
       if (pointsData) {
-        // Then get the sprint results for these users
-        const usernames = pointsData.map(profile => profile.username);
         const { data: sprintData } = await supabase
           .from('chord_sprinter_results')
-          .select(`
-            reps,
-            user_id,
-            profiles!chord_sprinter_results_user_id_fkey (username)
-          `)
+          .select('reps, user_id')
           .in('user_id', pointsData.map(p => p.id))
           .order('reps', { ascending: false });
 
         const enhancedData = pointsData.map(profile => {
           const sprintResult = sprintData?.find(
-            sprint => sprint.profiles.username === profile.username
+            sprint => sprint.user_id === profile.id
           );
           return {
             ...profile,
@@ -49,7 +43,6 @@ const LeaderboardCard: React.FC = () => {
 
     fetchLeaderboard();
     
-    // Subscribe to realtime changes
     const channel = supabase
       .channel('leaderboard_changes')
       .on('postgres_changes', 
