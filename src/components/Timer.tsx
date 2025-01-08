@@ -1,6 +1,6 @@
 import TimerCircle from './challenge/TimerCircle';
 import TimerHeader from './challenge/TimerHeader';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -13,12 +13,33 @@ interface TimerProps {
   isPaused: boolean;
 }
 
+// Cache object to store chord diagrams
+const chordDiagramCache: { [key: string]: string } = {};
+
 const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
   const chordPairs: ChordPair[] = ['Am-C', 'Em-G', 'Dm-G', 'Am-F', 'C-G', 'Em-Am'];
   const [currentPair, setCurrentPair] = useState<ChordPair | null>(null);
   const [leftChordSvg, setLeftChordSvg] = useState<string>('');
   const [rightChordSvg, setRightChordSvg] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const fetchChordDiagram = useCallback(async (chord: string) => {
+    // Check if diagram is already in cache
+    if (chordDiagramCache[chord]) {
+      return chordDiagramCache[chord];
+    }
+
+    // If not in cache, fetch from API
+    const response = await supabase.functions.invoke('generate-chord-diagram', {
+      body: { chord }
+    });
+    
+    if (response.error) throw response.error;
+    
+    // Store in cache and return
+    chordDiagramCache[chord] = response.data.svg;
+    return response.data.svg;
+  }, []);
 
   useEffect(() => {
     if (isActive && !isPaused) {
@@ -32,26 +53,21 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
   }, [isActive, isPaused]);
 
   useEffect(() => {
-    const fetchChordDiagrams = async () => {
+    const loadChordDiagrams = async () => {
       if (!currentPair) return;
       
       setIsLoading(true);
       const [leftChord, rightChord] = currentPair.split('-');
       
       try {
-        // Fetch left chord diagram
-        const leftResponse = await supabase.functions.invoke('generate-chord-diagram', {
-          body: { chord: leftChord }
-        });
-        if (leftResponse.error) throw leftResponse.error;
-        setLeftChordSvg(leftResponse.data.svg);
+        // Fetch both diagrams concurrently
+        const [leftSvg, rightSvg] = await Promise.all([
+          fetchChordDiagram(leftChord),
+          fetchChordDiagram(rightChord)
+        ]);
 
-        // Fetch right chord diagram
-        const rightResponse = await supabase.functions.invoke('generate-chord-diagram', {
-          body: { chord: rightChord }
-        });
-        if (rightResponse.error) throw rightResponse.error;
-        setRightChordSvg(rightResponse.data.svg);
+        setLeftChordSvg(leftSvg);
+        setRightChordSvg(rightSvg);
       } catch (error) {
         console.error('Error fetching chord diagrams:', error);
       } finally {
@@ -59,8 +75,8 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
       }
     };
 
-    fetchChordDiagrams();
-  }, [currentPair]);
+    loadChordDiagrams();
+  }, [currentPair, fetchChordDiagram]);
 
   const [leftChord, rightChord] = currentPair?.split('-') || ['', ''];
 
