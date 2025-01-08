@@ -1,5 +1,7 @@
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useMemo } from "react";
 
 interface Comment {
   id: string;
@@ -19,14 +21,19 @@ interface CommentListProps {
 }
 
 const CommentList = ({ comments, commentContent, onCommentChange, onSubmitComment }: CommentListProps) => {
+  const getAvatarUrl = useMemo(() => (avatarPath: string | null) => {
+    if (!avatarPath) return '/placeholder.svg';
+    return supabase.storage.from('avatars').getPublicUrl(avatarPath).data.publicUrl;
+  }, []);
+
   return (
     <div className="w-full space-y-1.5">
       {comments?.map((comment) => (
         <div key={comment.id} className="flex items-start gap-1">
           <img
-            src={comment.profiles?.avatar_url || '/placeholder.svg'}
+            src={getAvatarUrl(comment.profiles?.avatar_url)}
             alt={comment.profiles?.username}
-            className="w-6 h-6 rounded-full"
+            className="w-6 h-6 rounded-full object-cover"
           />
           <div className="flex-1 bg-gray-50 rounded-lg p-1.5">
             <p className="font-semibold text-sm">{comment.profiles?.username}</p>
