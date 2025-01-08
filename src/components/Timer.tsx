@@ -1,5 +1,5 @@
-import TimerCircle from './challenge/TimerCircle';
-import TimerHeader from './challenge/TimerHeader';
+import TimerCircle from './TimerCircle';
+import TimerHeader from './TimerHeader';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
@@ -91,7 +91,7 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
         {isActive && (
           <>
             {/* Left/Top Chord */}
-            <div className="flex flex-col items-center order-1 md:order-none">
+            <div className="flex flex-col items-center order-1 md:order-1">
               <div className="text-xl font-bold text-[#11245A]">{leftChord}</div>
               <div className="bg-white rounded-lg shadow-md">
                 {leftChordSvg && (
@@ -106,7 +106,7 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
         )}
         
         {/* Timer Circle - Always in the middle */}
-        <div className="flex flex-col items-center order-2">
+        <div className="flex flex-col items-center order-3 md:order-2">
           <TimerCircle 
             isActive={isActive && !isLoading}
             timeLeft={timeLeft}
@@ -118,7 +118,7 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
         {isActive && (
           <>
             {/* Right/Bottom Chord */}
-            <div className="flex flex-col items-center order-3">
+            <div className="flex flex-col items-center order-2 md:order-3">
               <div className="text-xl font-bold text-[#11245A]">{rightChord}</div>
               <div className="bg-white rounded-lg shadow-md">
                 {rightChordSvg && (
