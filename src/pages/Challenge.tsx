@@ -54,21 +54,21 @@ const Challenge = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           <ChallengeStats profile={profile} />
           <div className="md:col-span-2">
-            <ChallengeMain 
-              isActive={isActive}
-              timeLeft={timeLeft}
-              chordChanges={chordChanges}
-              onStart={startChallenge}
-              onStop={stopChallenge}
-              isPaused={isPaused}
-            />
+            <ChordSprintResults />
           </div>
         </div>
         <div className="mt-6">
-          <ChordSprintResults />
+          <LeaderboardCard />
         </div>
         <div className="mt-6">
-          <LeaderboardCard />
+          <ChallengeMain 
+            isActive={isActive}
+            timeLeft={timeLeft}
+            chordChanges={chordChanges}
+            onStart={startChallenge}
+            onStop={stopChallenge}
+            isPaused={isPaused}
+          />
         </div>
       </div>
     </div>
