@@ -22,6 +22,7 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
   const [leftChordSvg, setLeftChordSvg] = useState<string>('');
   const [rightChordSvg, setRightChordSvg] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isReady, setIsReady] = useState(false);
 
   const fetchChordDiagram = useCallback(async (chord: string) => {
     // Check if diagram is already in cache
@@ -42,15 +43,17 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
   }, []);
 
   useEffect(() => {
-    if (isActive && !isPaused) {
+    if (isActive && !isPaused && !isLoading) {
       const randomIndex = Math.floor(Math.random() * chordPairs.length);
       setCurrentPair(chordPairs[randomIndex]);
+      setIsReady(false);
     } else if (!isActive) {
       setCurrentPair(null);
       setLeftChordSvg('');
       setRightChordSvg('');
+      setIsReady(false);
     }
-  }, [isActive, isPaused]);
+  }, [isActive, isPaused, isLoading]);
 
   useEffect(() => {
     const loadChordDiagrams = async () => {
@@ -68,6 +71,7 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
 
         setLeftChordSvg(leftSvg);
         setRightChordSvg(rightSvg);
+        setIsReady(true);
       } catch (error) {
         console.error('Error fetching chord diagrams:', error);
       } finally {
@@ -80,15 +84,17 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
 
   const [leftChord, rightChord] = currentPair?.split('-') || ['', ''];
 
+  const showContent = isActive && isReady && !isLoading;
+
   return (
     <>
       <TimerHeader 
         title="Chord Sprinter"
         subtitle="Speed up your chord changes and track results"
-        isActive={isActive && !isLoading}
+        isActive={showContent}
       />
       <div className="flex flex-col md:flex-row items-center justify-center gap-8 mt-6">
-        {isActive && (
+        {showContent && (
           <>
             {/* Left/Top Chord */}
             <div className="flex flex-col items-center order-1 md:order-1">
@@ -108,14 +114,14 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
         {/* Timer Circle - Always in the middle */}
         <div className="flex flex-col items-center order-3 md:order-2">
           <TimerCircle 
-            isActive={isActive && !isLoading}
+            isActive={showContent}
             timeLeft={timeLeft}
             chordChanges={chordChanges}
             chordPair={currentPair || ''}
           />
         </div>
 
-        {isActive && (
+        {showContent && (
           <>
             {/* Right/Bottom Chord */}
             <div className="flex flex-col items-center order-2 md:order-3">
