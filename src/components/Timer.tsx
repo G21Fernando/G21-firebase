@@ -1,5 +1,5 @@
-import TimerCircle from './challenge/TimerCircle';
-import TimerHeader from './challenge/TimerHeader';
+import TimerCircle from './TimerCircle';
+import TimerHeader from './TimerHeader';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
