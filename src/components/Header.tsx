@@ -21,6 +21,10 @@ const Header = ({ profile, onProfileUpdate }: HeaderProps) => {
     navigate(path);
   };
 
+  const handleLogoClick = () => {
+    navigate('/roadmap');
+  };
+
   const handleProfileClick = () => {
     if (session) {
       setShowProfileEdit(true);
@@ -42,7 +46,8 @@ const Header = ({ profile, onProfileUpdate }: HeaderProps) => {
           <img 
             src="/lovable-uploads/5bfe01d1-1192-497c-a049-12e321aea77a.png" 
             alt="G21 Logo" 
-            className="h-8 md:h-10"
+            className="h-8 md:h-10 cursor-pointer"
+            onClick={handleLogoClick}
           />
         </div>
         <div className="flex items-center gap-2">
