@@ -25,8 +25,11 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
   const [isReady, setIsReady] = useState(false);
 
   const fetchChordDiagram = useCallback(async (chord: string) => {
+    console.log('Fetching chord diagram for:', chord);
+    
     // Check if diagram is already in cache
     if (chordDiagramCache[chord]) {
+      console.log('Using cached diagram for:', chord);
       return chordDiagramCache[chord];
     }
 
@@ -35,8 +38,12 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
       body: { chord }
     });
     
-    if (response.error) throw response.error;
+    if (response.error) {
+      console.error('Error fetching chord diagram:', response.error);
+      throw response.error;
+    }
     
+    console.log('Successfully fetched diagram for:', chord);
     // Store in cache and return
     chordDiagramCache[chord] = response.data.svg;
     return response.data.svg;
@@ -44,21 +51,24 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
 
   useEffect(() => {
     if (isActive && !isPaused && !isLoading) {
+      console.log('Setting new chord pair');
       const randomIndex = Math.floor(Math.random() * chordPairs.length);
       setCurrentPair(chordPairs[randomIndex]);
       setIsReady(false);
     } else if (!isActive) {
+      console.log('Resetting chord pair');
       setCurrentPair(null);
       setLeftChordSvg('');
       setRightChordSvg('');
       setIsReady(false);
     }
-  }, [isActive, isPaused, isLoading]);
+  }, [isActive, isPaused, isLoading, chordPairs]);
 
   useEffect(() => {
     const loadChordDiagrams = async () => {
       if (!currentPair) return;
       
+      console.log('Loading chord diagrams for pair:', currentPair);
       setIsLoading(true);
       const [leftChord, rightChord] = currentPair.split('-');
       
@@ -72,8 +82,9 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
         setLeftChordSvg(leftSvg);
         setRightChordSvg(rightSvg);
         setIsReady(true);
+        console.log('Successfully loaded both chord diagrams');
       } catch (error) {
-        console.error('Error fetching chord diagrams:', error);
+        console.error('Error loading chord diagrams:', error);
       } finally {
         setIsLoading(false);
       }
