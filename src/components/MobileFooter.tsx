@@ -1,39 +1,51 @@
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Users, Zap } from 'lucide-react';
-import TimekeeperIcon from './icons/TimekeeperIcon';
+import { Link, useLocation } from "react-router-dom";
+import { Home, Trophy, BarChart2, Users } from "lucide-react";
 
 const MobileFooter = () => {
-  const navigate = useNavigate();
   const location = useLocation();
-
+  
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t md:hidden">
-      <div className="flex justify-around items-center h-16 px-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          className={`rounded-full ${location.pathname === '/' ? 'bg-[#11245a]/10' : ''}`}
-          onClick={() => navigate('/')}
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 px-4 md:hidden">
+      <div className="flex justify-around items-center">
+        <Link
+          to="/"
+          className={`flex flex-col items-center ${
+            location.pathname === "/" ? "text-[#11245A]" : "text-gray-500"
+          }`}
         >
-          <TimekeeperIcon className="h-5 w-5 text-[#11245a]" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className={`rounded-full ${location.pathname === '/challenge' ? 'bg-[#11245a]/10' : ''}`}
-          onClick={() => navigate('/challenge')}
+          <Home className="w-6 h-6" />
+          <span className="text-xs">Home</span>
+        </Link>
+        
+        <Link
+          to="/challenge"
+          className={`flex flex-col items-center ${
+            location.pathname === "/challenge" ? "text-[#11245A]" : "text-gray-500"
+          }`}
         >
-          <Zap className="h-5 w-5 text-[#11245a]" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className={`rounded-full ${location.pathname === '/feed' ? 'bg-[#11245a]/10' : ''}`}
-          onClick={() => navigate('/feed')}
+          <Trophy className="w-6 h-6" />
+          <span className="text-xs">Challenge</span>
+        </Link>
+
+        <Link
+          to="/dashboard"
+          className={`flex flex-col items-center ${
+            location.pathname === "/dashboard" ? "text-[#11245A]" : "text-gray-500"
+          }`}
         >
-          <Users className="h-5 w-5 text-[#11245a]" />
-        </Button>
+          <BarChart2 className="w-6 h-6" />
+          <span className="text-xs">Stats</span>
+        </Link>
+        
+        <Link
+          to="/feed"
+          className={`flex flex-col items-center ${
+            location.pathname === "/feed" ? "text-[#11245A]" : "text-gray-500"
+          }`}
+        >
+          <Users className="w-6 h-6" />
+          <span className="text-xs">Feed</span>
+        </Link>
       </div>
     </div>
   );

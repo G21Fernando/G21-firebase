@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Challenge from "./pages/Challenge";
 import Feed from "./pages/Feed";
+import Dashboard from "./pages/Dashboard";
 import MobileFooter from "./components/MobileFooter";
 import { useEffect, useRef } from "react";
 import { useToast } from "./components/ui/use-toast";
@@ -81,6 +82,11 @@ const App = () => (
             <Route path="/challenge" element={
               <ProtectedRoute>
                 <Challenge />
+              </ProtectedRoute>
+            } />
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Dashboard />
               </ProtectedRoute>
             } />
             <Route path="/auth" element={<Auth />} />
