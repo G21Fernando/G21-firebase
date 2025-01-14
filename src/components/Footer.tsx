@@ -1,8 +1,8 @@
 const Footer = () => {
   return (
-    <footer className="bg-white border-t">
-      <div className="container mx-auto py-4 text-center text-sm text-gray-600">
-        © 2024 Guitar 21. All rights reserved.
+    <footer className="bg-white border-t py-4 mt-auto">
+      <div className="container mx-auto text-center text-sm text-gray-600">
+        © {new Date().getFullYear()} Guitar Journey. All rights reserved.
       </div>
     </footer>
   );
