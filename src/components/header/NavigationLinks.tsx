@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom';
-import { Users, Zap, Settings } from 'lucide-react';
+import { Users, Zap, Settings, Timer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import TimekeeperIcon from '../icons/TimekeeperIcon';
 import { useEffect, useState } from 'react';
@@ -14,6 +14,7 @@ const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
   const location = useLocation();
   const session = useSession();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdminMode, setIsAdminMode] = useState(false);
 
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -24,11 +25,39 @@ const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
           .eq('id', session.user.id)
           .single();
         setIsAdmin(!!adminUser);
+        // If we're on the admin page, set admin mode to true
+        setIsAdminMode(location.pathname === '/admin');
       }
     };
 
     checkAdminStatus();
-  }, [session]);
+  }, [session, location.pathname]);
+
+  const handleModeSwitch = () => {
+    if (isAdminMode) {
+      onNavigate('/');
+      setIsAdminMode(false);
+    } else {
+      onNavigate('/admin');
+      setIsAdminMode(true);
+    }
+  };
+
+  if (isAdminMode) {
+    return (
+      <div className="hidden md:flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleModeSwitch}
+          className="text-blue-600"
+        >
+          <Timer className="h-5 w-5" />
+          <span className="sr-only">Switch to User Mode</span>
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="hidden md:flex items-center gap-2">
@@ -58,12 +87,13 @@ const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
       </Button>
       {isAdmin && (
         <Button
-          variant={location.pathname === '/admin' ? 'ghost' : 'ghost'}
+          variant="ghost"
           size="icon"
-          onClick={() => onNavigate('/admin')}
-          className={location.pathname === '/admin' ? 'bg-[#F1F0FB] hover:bg-[#F1F0FB]' : ''}
+          onClick={handleModeSwitch}
+          className="text-blue-600"
         >
           <Settings className="h-5 w-5" />
+          <span className="sr-only">Switch to Admin Mode</span>
         </Button>
       )}
     </div>
