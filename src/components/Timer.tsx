@@ -3,6 +3,7 @@ import TimerHeader from './challenge/TimerHeader';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
+import { Loader2 } from 'lucide-react';
 
 type ChordPair = Database['public']['Enums']['chord_pair'];
 
@@ -51,6 +52,7 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
 
   useEffect(() => {
     if (isActive && !isPaused && !isLoading) {
+      setIsLoading(true);
       console.log('Setting new chord pair');
       const randomIndex = Math.floor(Math.random() * chordPairs.length);
       setCurrentPair(chordPairs[randomIndex]);
@@ -61,6 +63,7 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
       setLeftChordSvg('');
       setRightChordSvg('');
       setIsReady(false);
+      setIsLoading(false);
     }
   }, [isActive, isPaused, isLoading, chordPairs]);
 
@@ -69,7 +72,6 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
       if (!currentPair) return;
       
       console.log('Loading chord diagrams for pair:', currentPair);
-      setIsLoading(true);
       const [leftChord, rightChord] = currentPair.split('-');
       
       try {
@@ -82,10 +84,10 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
         setLeftChordSvg(leftSvg);
         setRightChordSvg(rightSvg);
         setIsReady(true);
+        setIsLoading(false);
         console.log('Successfully loaded both chord diagrams');
       } catch (error) {
         console.error('Error loading chord diagrams:', error);
-      } finally {
         setIsLoading(false);
       }
     };
@@ -105,6 +107,12 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
         isActive={showContent}
       />
       <div className="flex flex-col md:flex-row items-center justify-center gap-8 mt-6">
+        {isLoading && (
+          <div className="flex items-center justify-center w-full">
+            <Loader2 className="w-8 h-8 animate-spin text-[#11245A]" />
+          </div>
+        )}
+        
         {showContent && (
           <>
             {/* Left/Top Chord */}
@@ -119,21 +127,17 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
                 )}
               </div>
             </div>
-          </>
-        )}
-        
-        {/* Timer Circle - Always in the middle */}
-        <div className="flex flex-col items-center order-3 md:order-2">
-          <TimerCircle 
-            isActive={showContent}
-            timeLeft={timeLeft}
-            chordChanges={chordChanges}
-            chordPair={currentPair || ''}
-          />
-        </div>
+            
+            {/* Timer Circle - Always in the middle */}
+            <div className="flex flex-col items-center order-3 md:order-2">
+              <TimerCircle 
+                isActive={showContent}
+                timeLeft={timeLeft}
+                chordChanges={chordChanges}
+                chordPair={currentPair || ''}
+              />
+            </div>
 
-        {showContent && (
-          <>
             {/* Right/Bottom Chord */}
             <div className="flex flex-col items-center order-2 md:order-3">
               <div className="text-xl font-bold text-[#11245A]">{rightChord}</div>
