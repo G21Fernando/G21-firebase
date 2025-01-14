@@ -9,6 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_users: {
+        Row: {
+          created_at: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      backing_tracks: {
+        Row: {
+          created_at: string
+          description: string | null
+          file_url: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          file_url: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          file_url?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       chord_diagrams: {
         Row: {
           chord: Database["public"]["Enums"]["chord_name"]
@@ -271,6 +310,33 @@ export type Database = {
         }
         Relationships: []
       }
+      strumming_patterns: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          pattern: Database["public"]["Enums"]["strum_direction"][]
+          tempo: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          pattern: Database["public"]["Enums"]["strum_direction"][]
+          tempo: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          pattern?: Database["public"]["Enums"]["strum_direction"][]
+          tempo?: number
+        }
+        Relationships: []
+      }
       user_exercises: {
         Row: {
           created_at: string | null
@@ -328,6 +394,7 @@ export type Database = {
       exercise_status: "not_started" | "in_progress" | "completed"
       guitar_string: "1" | "2" | "3" | "4" | "5" | "6"
       string_state: "muted" | "open" | "fretted"
+      strum_direction: "up" | "down" | "muted"
     }
     CompositeTypes: {
       [_ in never]: never

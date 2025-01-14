@@ -1,106 +1,32 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { SessionContextProvider, useSession } from '@supabase/auth-helpers-react';
-import { supabase } from "@/integrations/supabase/client";
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import Challenge from "./pages/Challenge";
-import Feed from "./pages/Feed";
-import Dashboard from "./pages/Dashboard";
-import Roadmap from "./pages/Roadmap";
-import MobileFooter from "./components/MobileFooter";
-import { useEffect, useRef } from "react";
-import { useToast } from "./components/ui/use-toast";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useSession } from '@supabase/auth-helpers-react';
+import { supabase } from '@/integrations/supabase/client';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import Home from './pages/Home';
+import Auth from './pages/Auth';
+import Admin from './pages/Admin';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
-
-// Protected route wrapper
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const session = useSession();
-  const { toast } = useToast();
-  const hadInitialSession = useRef(false);
-
-  useEffect(() => {
-    // Only set initial session state once
-    if (session && !hadInitialSession.current) {
-      hadInitialSession.current = true;
-    }
-    
-    // Only show expired message if we previously had a session
-    if (!session && hadInitialSession.current) {
-      toast({
-        title: "Session expired",
-        description: "Please sign in again",
-        variant: "destructive",
-      });
-      hadInitialSession.current = false; // Reset the flag
-    }
-  }, [session, toast]);
-
-  if (!session) {
-    return <Navigate to="/auth" replace />;
-  }
-
+function App() {
   return (
-    <>
-      {children}
-      <MobileFooter />
-    </>
+    <Router>
+      <Header />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route 
+          path="/admin" 
+          element={
+            <ProtectedRoute>
+              <Admin />
+            </ProtectedRoute>
+          } 
+        />
+      </Routes>
+      <Footer />
+    </Router>
   );
-};
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <SessionContextProvider 
-      supabaseClient={supabase}
-      initialSession={null}
-    >
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={
-              <ProtectedRoute>
-                <Index />
-              </ProtectedRoute>
-            } />
-            <Route path="/feed" element={
-              <ProtectedRoute>
-                <Feed />
-              </ProtectedRoute>
-            } />
-            <Route path="/challenge" element={
-              <ProtectedRoute>
-                <Challenge />
-              </ProtectedRoute>
-            } />
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/roadmap" element={
-              <ProtectedRoute>
-                <Roadmap />
-              </ProtectedRoute>
-            } />
-            <Route path="/auth" element={<Auth />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </SessionContextProvider>
-  </QueryClientProvider>
-);
+}
 
 export default App;
