@@ -1,5 +1,4 @@
 import { Loader2 } from 'lucide-react';
-import TimerCircle from './TimerCircle';
 
 interface ChordDisplayProps {
   isLoading: boolean;
