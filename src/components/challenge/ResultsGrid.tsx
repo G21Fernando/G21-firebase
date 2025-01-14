@@ -6,9 +6,13 @@ interface ResultsGridProps {
 }
 
 const ResultsGrid = ({ previousResults, todayResults }: ResultsGridProps) => {
+  // Get the most recent chord pair from today's results
+  const latestResult = todayResults[0];
+  
   // Combine and deduplicate chord pairs from both today and previous results
   const allChordPairs = Array.from(new Set([
-    ...todayResults.map(r => r.chord_pair),
+    ...(latestResult ? [latestResult.chord_pair] : []), // Add latest first if it exists
+    ...todayResults.slice(1).map(r => r.chord_pair), // Rest of today's results
     ...previousResults.map(r => r.chord_pair)
   ]));
 
@@ -35,9 +39,22 @@ const ResultsGrid = ({ previousResults, todayResults }: ResultsGridProps) => {
               .reduce((max, current) => current.reps > max.reps ? current : max, { reps: 0 });
             const todayResult = todayResults.find(r => r.chord_pair === chordPair);
             
+            // Add a highlight class for the latest result
+            const isLatestResult = latestResult && chordPair === latestResult.chord_pair;
+            
             return (
-              <tr key={`row-${index}`} className="border-t border-gray-100">
-                <td className="py-3 px-4 font-medium text-[#11245A]">{chordPair}</td>
+              <tr 
+                key={`row-${index}`} 
+                className={`border-t border-gray-100 ${isLatestResult ? 'bg-blue-50' : ''}`}
+              >
+                <td className="py-3 px-4 font-medium text-[#11245A]">
+                  {chordPair}
+                  {isLatestResult && (
+                    <span className="ml-2 text-xs text-blue-600 font-normal">
+                      Latest
+                    </span>
+                  )}
+                </td>
                 <td className="text-center py-3 px-4 font-semibold text-[#11245A]">
                   {bestResult.reps || '-'}
                 </td>
