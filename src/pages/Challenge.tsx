@@ -7,6 +7,7 @@ import ChallengeStats from '@/components/challenge/ChallengeStats';
 import ChallengeMain from '@/components/challenge/ChallengeMain';
 import ChordSprintResults from '@/components/challenge/ChordSprintResults';
 import { useChallenge } from '@/hooks/useChallenge';
+import { Analytics } from '@/utils/analytics';
 
 const Challenge = () => {
   const [profile, setProfile] = useState<any>(null);
@@ -23,6 +24,11 @@ const Challenge = () => {
   useEffect(() => {
     if (session?.user) {
       fetchProfile();
+      // Identify user in Mixpanel
+      Analytics.identify(session.user.id, {
+        email: session.user.email,
+        created_at: session.user.created_at,
+      });
     }
   }, [session]);
 
@@ -44,6 +50,25 @@ const Challenge = () => {
     }
   };
 
+  const handleStartChallenge = () => {
+    if (session?.user) {
+      Analytics.trackChordSprintStart(session.user.id);
+    }
+    startChallenge();
+  };
+
+  const handleStopChallenge = () => {
+    if (session?.user) {
+      Analytics.trackChordSprintComplete(
+        session.user.id,
+        'current-chord-pair',
+        chordChanges
+      );
+      Analytics.trackPracticeTime(session.user.id, 60 - timeLeft);
+    }
+    stopChallenge();
+  };
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F5E6DB' }}>
       <Header 
@@ -56,8 +81,8 @@ const Challenge = () => {
             isActive={isActive}
             timeLeft={timeLeft}
             chordChanges={chordChanges}
-            onStart={startChallenge}
-            onStop={stopChallenge}
+            onStart={handleStartChallenge}
+            onStop={handleStopChallenge}
             isPaused={isPaused}
           />
         </div>
