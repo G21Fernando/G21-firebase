@@ -20,7 +20,6 @@ interface ProfileMenuProps {
   dropdownOpen: boolean;
   setDropdownOpen: (open: boolean) => void;
   onProfileClick: () => void;
-  onLogout: () => void;
 }
 
 const ProfileMenu = ({
