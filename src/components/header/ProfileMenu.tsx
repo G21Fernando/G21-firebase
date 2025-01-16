@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/components/ui/use-toast';
 
 interface ProfileMenuProps {
   session: Session | null;
@@ -31,6 +32,7 @@ const ProfileMenu = ({
 }: ProfileMenuProps) => {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
+  const { toast } = useToast();
   
   const avatarUrl = useMemo(() => {
     if (!profile?.avatar_url) return undefined;
@@ -40,24 +42,39 @@ const ProfileMenu = ({
   useEffect(() => {
     const checkAdminStatus = async () => {
       if (session?.user) {
-        console.log('Checking admin status for user:', session.user.id);
-        const { data, error } = await supabase
-          .from('admin_users')
-          .select('id')
-          .eq('id', session.user.id)
-          .maybeSingle();
-        
-        if (error) {
-          console.error('Error checking admin status:', error);
+        try {
+          console.log('Checking admin status for user:', session.user.id);
+          const { data, error } = await supabase
+            .from('admin_users')
+            .select('id')
+            .eq('id', session.user.id)
+            .maybeSingle();
+          
+          if (error) {
+            console.error('Error checking admin status:', error);
+            toast({
+              title: "Error checking admin status",
+              description: error.message,
+              variant: "destructive",
+            });
+            return;
+          }
+          
+          console.log('Admin check result:', data);
+          setIsAdmin(!!data);
+        } catch (error) {
+          console.error('Unexpected error checking admin status:', error);
+          toast({
+            title: "Error checking admin status",
+            description: "An unexpected error occurred",
+            variant: "destructive",
+          });
         }
-        
-        console.log('Admin check result:', data);
-        setIsAdmin(!!data);
       }
     };
 
     checkAdminStatus();
-  }, [session]);
+  }, [session, toast]);
 
   if (!session) {
     return (
