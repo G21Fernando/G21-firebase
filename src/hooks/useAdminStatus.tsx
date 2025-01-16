@@ -33,6 +33,10 @@ export const useAdminStatus = (session: Session | null) => {
           
           if (!!data) {
             console.log('User is an admin');
+            toast({
+              title: "Admin access granted",
+              description: "You now have access to admin features",
+            });
           } else {
             console.log('User is not an admin');
           }
