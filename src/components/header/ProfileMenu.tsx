@@ -46,9 +46,9 @@ const ProfileMenu = ({
           console.log('Checking admin status for user:', session.user.id);
           const { data, error } = await supabase
             .from('admin_users')
-            .select('*')  // Changed from 'id' to '*' to get full row
+            .select('*')
             .eq('id', session.user.id)
-            .single();
+            .maybeSingle();
           
           if (error) {
             console.error('Error checking admin status:', error);
