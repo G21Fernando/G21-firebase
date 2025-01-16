@@ -10,6 +10,8 @@ import {
 import { useNavigate } from 'react-router-dom';
 import ProfileAvatar from './ProfileAvatar';
 import { useAdminStatus } from '@/hooks/useAdminStatus';
+import { useEffect } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProfileMenuProps {
   session: Session | null;
@@ -30,6 +32,17 @@ const ProfileMenu = ({
 }: ProfileMenuProps) => {
   const navigate = useNavigate();
   const isAdmin = useAdminStatus(session);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (isAdmin) {
+      console.log('User has admin privileges');
+      toast({
+        title: "Admin access granted",
+        description: "You now have access to admin features",
+      });
+    }
+  }, [isAdmin, toast]);
 
   if (!session) {
     return (

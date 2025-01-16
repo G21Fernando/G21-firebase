@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Session } from '@supabase/auth-helpers-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 export const useAdminStatus = (session: Session | null) => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -33,10 +33,6 @@ export const useAdminStatus = (session: Session | null) => {
           
           if (!!data) {
             console.log('User is an admin');
-            toast({
-              title: "Admin access granted",
-              description: "You now have access to admin features",
-            });
           } else {
             console.log('User is not an admin');
           }
