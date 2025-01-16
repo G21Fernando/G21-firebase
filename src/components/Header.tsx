@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSession } from '@supabase/auth-helpers-react';
-import { supabase } from '@/integrations/supabase/client';
 import NavigationLinks from './header/NavigationLinks';
 import ProfileMenu from './header/ProfileMenu';
 import ProfileEditDialog from './ProfileEditDialog';
@@ -34,11 +33,6 @@ const Header = ({ profile, onProfileUpdate }: HeaderProps) => {
     }
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate('/');
-  };
-
   return (
     <header className="bg-white shadow-sm w-full z-50">
       <div className="flex justify-between items-center px-4 h-12 md:h-16">
@@ -58,7 +52,6 @@ const Header = ({ profile, onProfileUpdate }: HeaderProps) => {
             dropdownOpen={dropdownOpen}
             setDropdownOpen={setDropdownOpen}
             onProfileClick={handleProfileClick}
-            onLogout={handleLogout}
           />
         </div>
       </div>

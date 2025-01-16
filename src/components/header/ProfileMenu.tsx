@@ -12,6 +12,7 @@ import ProfileAvatar from './ProfileAvatar';
 import { useAdminStatus } from '@/hooks/useAdminStatus';
 import { useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ProfileMenuProps {
   session: Session | null;
@@ -28,7 +29,6 @@ const ProfileMenu = ({
   dropdownOpen,
   setDropdownOpen,
   onProfileClick,
-  onLogout,
 }: ProfileMenuProps) => {
   const navigate = useNavigate();
   const isAdmin = useAdminStatus(session);
@@ -43,6 +43,32 @@ const ProfileMenu = ({
       });
     }
   }, [isAdmin, toast]);
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      navigate('/auth');
+      toast({
+        title: "Logged out successfully",
+        description: "You have been signed out of your account",
+      });
+    } catch (error: any) {
+      console.error('Logout error:', error);
+      
+      // Force clear the session from local storage
+      localStorage.removeItem('supabase.auth.token');
+      
+      // Still redirect to auth page and show success message
+      // since we want the user to be logged out regardless
+      navigate('/auth');
+      toast({
+        title: "Logged out",
+        description: "You have been signed out of your account",
+      });
+    }
+  };
 
   if (!session) {
     return (
@@ -68,7 +94,7 @@ const ProfileMenu = ({
             Switch to admin view
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem onClick={onLogout}>Logout</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
