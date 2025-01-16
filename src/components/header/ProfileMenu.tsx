@@ -46,9 +46,9 @@ const ProfileMenu = ({
           console.log('Checking admin status for user:', session.user.id);
           const { data, error } = await supabase
             .from('admin_users')
-            .select('id')
+            .select('*')  // Changed from 'id' to '*' to get full row
             .eq('id', session.user.id)
-            .maybeSingle();
+            .single();
           
           if (error) {
             console.error('Error checking admin status:', error);
@@ -60,8 +60,14 @@ const ProfileMenu = ({
             return;
           }
           
-          console.log('Admin check result:', data);
+          console.log('Admin check query result:', data);
           setIsAdmin(!!data);
+          
+          if (!!data) {
+            console.log('User is an admin');
+          } else {
+            console.log('User is not an admin');
+          }
         } catch (error) {
           console.error('Unexpected error checking admin status:', error);
           toast({
