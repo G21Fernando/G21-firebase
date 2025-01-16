@@ -6,12 +6,37 @@ import { useEffect, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const AuthPage = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Add cache prevention headers
+    const meta = document.createElement('meta');
+    meta.httpEquiv = 'Cache-Control';
+    meta.content = 'no-cache, no-store, must-revalidate';
+    document.head.appendChild(meta);
+
+    const pragma = document.createElement('meta');
+    pragma.httpEquiv = 'Pragma';
+    pragma.content = 'no-cache';
+    document.head.appendChild(pragma);
+
+    const expires = document.createElement('meta');
+    expires.httpEquiv = 'Expires';
+    expires.content = '0';
+    document.head.appendChild(expires);
+
+    // Clean up function
+    return () => {
+      document.head.removeChild(meta);
+      document.head.removeChild(pragma);
+      document.head.removeChild(expires);
+    };
+  }, []);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {

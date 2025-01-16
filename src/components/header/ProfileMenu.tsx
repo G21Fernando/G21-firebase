@@ -43,17 +43,46 @@ const ProfileMenu = ({
     }
   }, [isAdmin, toast]);
 
+  const clearAllCaches = async () => {
+    // Clear all caches
+    if ('caches' in window) {
+      try {
+        const cacheKeys = await caches.keys();
+        await Promise.all(cacheKeys.map(key => caches.delete(key)));
+      } catch (e) {
+        console.error('Cache clearing error:', e);
+      }
+    }
+    
+    // Clear storage
+    localStorage.clear();
+    sessionStorage.clear();
+    
+    // Clear any session cookies
+    document.cookie.split(';').forEach(cookie => {
+      document.cookie = cookie
+        .replace(/^ +/, '')
+        .replace(/=.*/, `=;expires=${new Date(0).toUTCString()};path=/`);
+    });
+  };
+
   const handleLogout = async () => {
     try {
-      // Clear storage first
-      localStorage.clear();
-      sessionStorage.clear();
+      // First clear all caches and storage
+      await clearAllCaches();
 
-      // Attempt to sign out without checking session
-      await supabase.auth.signOut();
+      // Attempt to sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Supabase signout error:', error);
+      }
 
-      // Navigate and show success message regardless of signout result
-      navigate('/auth');
+      // Navigate and show success message
+      navigate('/auth', { 
+        replace: true, // Use replace to prevent back navigation
+        state: { timestamp: new Date().getTime() } // Force new state to prevent caching
+      });
+      
       toast({
         title: "Logged out successfully",
         description: "You have been signed out of your account",
@@ -62,7 +91,11 @@ const ProfileMenu = ({
       console.error('Logout error:', error);
       
       // Ensure user is redirected even if there's an error
-      navigate('/auth');
+      navigate('/auth', { 
+        replace: true,
+        state: { timestamp: new Date().getTime() }
+      });
+      
       toast({
         title: "Logged out",
         description: "You have been signed out of your account",
