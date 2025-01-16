@@ -60,7 +60,6 @@ const ProfileMenu = ({
       localStorage.removeItem('supabase.auth.token');
       
       // Still redirect to auth page and show success message
-      // since we want the user to be logged out regardless
       navigate('/auth');
       toast({
         title: "Logged out",
