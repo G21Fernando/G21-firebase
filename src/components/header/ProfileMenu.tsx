@@ -40,11 +40,18 @@ const ProfileMenu = ({
   useEffect(() => {
     const checkAdminStatus = async () => {
       if (session?.user) {
-        const { data } = await supabase
+        console.log('Checking admin status for user:', session.user.id);
+        const { data, error } = await supabase
           .from('admin_users')
           .select('id')
           .eq('id', session.user.id)
           .maybeSingle();
+        
+        if (error) {
+          console.error('Error checking admin status:', error);
+        }
+        
+        console.log('Admin check result:', data);
         setIsAdmin(!!data);
       }
     };
