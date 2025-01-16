@@ -45,15 +45,22 @@ const ProfileMenu = ({
 
   const handleLogout = async () => {
     try {
-      // First attempt to sign out from Supabase
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-
-      // If successful, clear storage
+      // Get current session
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      
+      // Clear storage first to ensure clean state
       localStorage.clear();
       sessionStorage.clear();
-      
-      // Navigate and show success message
+
+      // Only attempt to sign out if there's an active session
+      if (currentSession) {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+          console.error('Supabase signout error:', error);
+        }
+      }
+
+      // Always navigate and show success message
       navigate('/auth');
       toast({
         title: "Logged out successfully",
@@ -62,10 +69,7 @@ const ProfileMenu = ({
     } catch (error: any) {
       console.error('Logout error:', error);
       
-      // If server logout fails, force a client-side logout
-      localStorage.clear();
-      sessionStorage.clear();
-      
+      // Ensure user is logged out locally and redirected
       navigate('/auth');
       toast({
         title: "Logged out",
