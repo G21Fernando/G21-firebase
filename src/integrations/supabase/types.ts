@@ -24,6 +24,30 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_events: {
+        Row: {
+          created_at: string
+          event_data: Json
+          event_type: Database["public"]["Enums"]["event_type"]
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_data: Json
+          event_type: Database["public"]["Enums"]["event_type"]
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_data?: Json
+          event_type?: Database["public"]["Enums"]["event_type"]
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       backing_tracks: {
         Row: {
           created_at: string
@@ -378,11 +402,78 @@ export type Database = {
           },
         ]
       }
+      user_progress_snapshots: {
+        Row: {
+          active_days: number | null
+          average_chord_transitions: number | null
+          completed_exercises: number | null
+          created_at: string
+          id: string
+          total_practice_time: number | null
+          user_id: string | null
+          week_start: string
+        }
+        Insert: {
+          active_days?: number | null
+          average_chord_transitions?: number | null
+          completed_exercises?: number | null
+          created_at?: string
+          id?: string
+          total_practice_time?: number | null
+          user_id?: string | null
+          week_start: string
+        }
+        Update: {
+          active_days?: number | null
+          average_chord_transitions?: number | null
+          completed_exercises?: number | null
+          created_at?: string
+          id?: string
+          total_practice_time?: number | null
+          user_id?: string | null
+          week_start?: string
+        }
+        Relationships: []
+      }
+      user_sessions: {
+        Row: {
+          created_at: string
+          features_used: Json | null
+          id: string
+          practice_duration: number | null
+          session_end: string | null
+          session_start: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          features_used?: Json | null
+          id?: string
+          practice_duration?: number | null
+          session_end?: string | null
+          session_start?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          features_used?: Json | null
+          id?: string
+          practice_duration?: number | null
+          session_end?: string | null
+          session_start?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      create_weekly_progress_snapshot: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       reset_daily_stats: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -391,6 +482,12 @@ export type Database = {
     Enums: {
       chord_name: "A" | "Am" | "C" | "D" | "Dm" | "E" | "Em" | "F" | "G"
       chord_pair: "Am-C" | "Em-G" | "Dm-G" | "Am-F" | "C-G" | "Em-Am"
+      event_type:
+        | "practice_session"
+        | "chord_transition"
+        | "metronome_usage"
+        | "feature_interaction"
+        | "user_milestone"
       exercise_status: "not_started" | "in_progress" | "completed"
       guitar_string: "1" | "2" | "3" | "4" | "5" | "6"
       string_state: "muted" | "open" | "fretted"
