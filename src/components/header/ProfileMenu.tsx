@@ -44,7 +44,7 @@ const ProfileMenu = ({
           .from('admin_users')
           .select('id')
           .eq('id', session.user.id)
-          .single();
+          .maybeSingle();
         setIsAdmin(!!data);
       }
     };
