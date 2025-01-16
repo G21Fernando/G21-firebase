@@ -17,30 +17,46 @@ interface Message {
 const ChatTab = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [isConnected, setIsConnected] = useState(false);
   const session = useSession();
   const { toast } = useToast();
 
   useEffect(() => {
     fetchMessages();
-    subscribeToMessages();
+    const channel = setupRealtimeSubscription();
+
+    return () => {
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
+    };
   }, []);
 
   const fetchMessages = async () => {
-    const { data, error } = await supabase
-      .from('messages')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(50);
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
 
-    if (error) {
-      console.error('Error fetching messages:', error);
-      return;
+      if (error) {
+        console.error('Error fetching messages:', error);
+        toast({
+          title: "Error fetching messages",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setMessages(data.reverse());
+    } catch (error) {
+      console.error('Error in fetchMessages:', error);
     }
-
-    setMessages(data.reverse());
   };
 
-  const subscribeToMessages = () => {
+  const setupRealtimeSubscription = () => {
     const channel = supabase
       .channel('schema-db-changes')
       .on(
@@ -54,35 +70,57 @@ const ChatTab = () => {
           setMessages(prev => [...prev, payload.new as Message]);
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Realtime subscription status:', status);
+        if (status === 'SUBSCRIBED') {
+          setIsConnected(true);
+          toast({
+            title: "Connected to chat",
+            description: "You'll receive messages in real-time",
+          });
+        } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
+          setIsConnected(false);
+          toast({
+            title: "Chat connection lost",
+            description: "Trying to reconnect...",
+            variant: "destructive",
+          });
+          // Attempt to reconnect after 5 seconds
+          setTimeout(() => {
+            setupRealtimeSubscription();
+          }, 5000);
+        }
+      });
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return channel;
   };
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!session?.user || !newMessage.trim()) return;
 
-    const { error } = await supabase
-      .from('messages')
-      .insert({
-        content: newMessage.trim(),
-        user_id: session.user.id,
-        username: session.user.email?.split('@')[0] || 'Anonymous'
-      });
+    try {
+      const { error } = await supabase
+        .from('messages')
+        .insert({
+          content: newMessage.trim(),
+          user_id: session.user.id,
+          username: session.user.email?.split('@')[0] || 'Anonymous'
+        });
 
-    if (error) {
-      toast({
-        title: "Error sending message",
-        description: error.message,
-        variant: "destructive",
-      });
-      return;
+      if (error) {
+        toast({
+          title: "Error sending message",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setNewMessage('');
+    } catch (error) {
+      console.error('Error in sendMessage:', error);
     }
-
-    setNewMessage('');
   };
 
   return (
@@ -114,7 +152,10 @@ const ChatTab = () => {
           placeholder="Type a message..."
           className="flex-1"
         />
-        <Button type="submit" disabled={!newMessage.trim()}>
+        <Button 
+          type="submit" 
+          disabled={!newMessage.trim() || !isConnected}
+        >
           Send
         </Button>
       </form>
