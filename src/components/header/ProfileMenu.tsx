@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { UserRound } from 'lucide-react';
 import { Session } from '@supabase/auth-helpers-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useNavigate } from 'react-router-dom';
 
 interface ProfileMenuProps {
   session: Session | null;
@@ -28,10 +29,28 @@ const ProfileMenu = ({
   onProfileClick,
   onLogout,
 }: ProfileMenuProps) => {
+  const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
+  
   const avatarUrl = useMemo(() => {
     if (!profile?.avatar_url) return undefined;
     return supabase.storage.from('avatars').getPublicUrl(profile.avatar_url).data.publicUrl;
   }, [profile?.avatar_url]);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (session?.user) {
+        const { data } = await supabase
+          .from('admin_users')
+          .select('id')
+          .eq('id', session.user.id)
+          .single();
+        setIsAdmin(!!data);
+      }
+    };
+
+    checkAdminStatus();
+  }, [session]);
 
   if (!session) {
     return (
@@ -57,6 +76,11 @@ const ProfileMenu = ({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={onProfileClick}>Profile</DropdownMenuItem>
+        {isAdmin && (
+          <DropdownMenuItem onClick={() => navigate('/admin')}>
+            Switch to admin view
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem onClick={onLogout}>Logout</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
