@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format, subDays } from 'date-fns';
+import { G21Assets } from '@/components/admin/G21Assets';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface MetricCardProps {
   title: string;
@@ -87,53 +89,66 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen p-6" style={{ backgroundColor: '#F5E6DB' }}>
       <div className="max-w-7xl mx-auto space-y-6">
-        <h1 className="text-2xl font-bold text-[#11245A]">Analytics Dashboard</h1>
+        <h1 className="text-2xl font-bold text-[#11245A]">Admin Dashboard</h1>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* User Signups */}
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-lg font-semibold mb-4">User Signups</h2>
-            <MetricCard
-              title="Daily, Last 30 Days"
-              value={signupData.length > 0 ? signupData[signupData.length - 1].value.toString() : "0"}
-              subValue={format(new Date(), 'MMM d')}
-              percentageChange={10}
-            />
-            <div className="h-[300px] mt-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={signupData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="value" stroke="#8884d8" />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+        <Tabs defaultValue="analytics" className="w-full">
+          <TabsList>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="g21-assets">G21 Assets</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="analytics">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* User Signups */}
+              <div className="bg-white p-6 rounded-lg shadow-lg">
+                <h2 className="text-lg font-semibold mb-4">User Signups</h2>
+                <MetricCard
+                  title="Daily, Last 30 Days"
+                  value={signupData.length > 0 ? signupData[signupData.length - 1].value.toString() : "0"}
+                  subValue={format(new Date(), 'MMM d')}
+                  percentageChange={10}
+                />
+                <div className="h-[300px] mt-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={signupData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <Tooltip />
+                      <Line type="monotone" dataKey="value" stroke="#8884d8" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
 
-          {/* Engaged Users */}
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-lg font-semibold mb-4">Engaged Users</h2>
-            <MetricCard
-              title="Daily, Last 30 Days"
-              value={engagementData.length > 0 ? engagementData[engagementData.length - 1].value.toString() : "0"}
-              subValue={format(new Date(), 'MMM d')}
-              percentageChange={15}
-            />
-            <div className="h-[300px] mt-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={engagementData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="value" stroke="#82ca9d" />
-                </LineChart>
-              </ResponsiveContainer>
+              {/* Engaged Users */}
+              <div className="bg-white p-6 rounded-lg shadow-lg">
+                <h2 className="text-lg font-semibold mb-4">Engaged Users</h2>
+                <MetricCard
+                  title="Daily, Last 30 Days"
+                  value={engagementData.length > 0 ? engagementData[engagementData.length - 1].value.toString() : "0"}
+                  subValue={format(new Date(), 'MMM d')}
+                  percentageChange={15}
+                />
+                <div className="h-[300px] mt-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={engagementData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <Tooltip />
+                      <Line type="monotone" dataKey="value" stroke="#82ca9d" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </TabsContent>
+          
+          <TabsContent value="g21-assets">
+            <G21Assets />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
