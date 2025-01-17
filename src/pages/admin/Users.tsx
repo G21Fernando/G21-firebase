@@ -23,12 +23,12 @@ const UsersPage = () => {
   const { data: users, isLoading } = useQuery({
     queryKey: ['admin-users'],
     queryFn: async () => {
-      const { data: profiles, error } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select(`
           *,
           admin_users (
-            role
+            *
           )
         `)
         .order('created_at', { ascending: false });
@@ -42,7 +42,7 @@ const UsersPage = () => {
         throw error;
       }
 
-      return profiles as UserWithAdmin[];
+      return (data || []) as UserWithAdmin[];
     },
   });
 
