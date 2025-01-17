@@ -6,6 +6,7 @@ import MetronomeIndicator from './metronome/MetronomeIndicator';
 import { useMetronome } from './metronome/useMetronome';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import TimekeeperIcon from './icons/TimekeeperIcon';
+import { Lock } from 'lucide-react';
 
 interface MetronomeControlProps {
   onPointsUpdate: (points: number) => void;
@@ -46,7 +47,15 @@ const MetronomeControl: React.FC<MetronomeControlProps> = ({ onPointsUpdate, onP
   }
 
   return (
-    <div className="p-6 h-full flex flex-col gap-4">
+    <div className="p-6 h-full flex flex-col gap-4 relative">
+      {/* Lock Overlay */}
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] z-10 rounded-2xl flex flex-col items-center justify-center text-white gap-4">
+        <Lock className="w-12 h-12" />
+        <p className="text-lg font-semibold text-center px-4">
+          The Timekeeper is currently locked
+        </p>
+      </div>
+
       <div className="text-center mb-2">
         <div className="w-8 h-8 mx-auto mb-2">
           <TimekeeperIcon className="w-full h-full text-[#11245A]" />
