@@ -1,16 +1,31 @@
-import AdminLayout from '@/components/layouts/AdminLayout';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAdmin } from '@/hooks/useAdmin';
+import { Spinner } from '@/components/ui/spinner';
 
 const Index = () => {
-  return (
-    <AdminLayout>
-      <div className="bg-white shadow rounded-lg p-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Welcome to G21 Admin</h1>
-        <p className="mt-2 text-gray-600">
-          Select an option from the navigation to manage your application.
-        </p>
+  const { isAdmin, isLoading } = useAdmin();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (isAdmin) {
+        navigate('/admin');
+      } else {
+        navigate('/roadmap');
+      }
+    }
+  }, [isAdmin, isLoading, navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Spinner />
       </div>
-    </AdminLayout>
-  );
+    );
+  }
+
+  return null;
 };
 
 export default Index;
