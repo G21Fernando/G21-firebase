@@ -1,18 +1,15 @@
+import { useMemo } from 'react';
 import { UserRound } from 'lucide-react';
 import { Session } from '@supabase/auth-helpers-react';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useNavigate } from 'react-router-dom';
-import ProfileAvatar from './ProfileAvatar';
-import { useAdminStatus } from '@/hooks/useAdminStatus';
-import { useEffect } from 'react';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 
 interface ProfileMenuProps {
   session: Session | null;
@@ -20,6 +17,7 @@ interface ProfileMenuProps {
   dropdownOpen: boolean;
   setDropdownOpen: (open: boolean) => void;
   onProfileClick: () => void;
+  onLogout: () => void;
 }
 
 const ProfileMenu = ({
@@ -28,80 +26,12 @@ const ProfileMenu = ({
   dropdownOpen,
   setDropdownOpen,
   onProfileClick,
+  onLogout,
 }: ProfileMenuProps) => {
-  const navigate = useNavigate();
-  const isAdmin = useAdminStatus(session);
-  const { toast } = useToast();
-
-  useEffect(() => {
-    if (isAdmin) {
-      console.log('User has admin privileges');
-      toast({
-        title: "Admin access granted",
-        description: "You now have access to admin features",
-      });
-    }
-  }, [isAdmin, toast]);
-
-  const clearAllCaches = async () => {
-    // Clear all caches
-    if ('caches' in window) {
-      try {
-        const cacheKeys = await caches.keys();
-        await Promise.all(cacheKeys.map(key => caches.delete(key)));
-      } catch (e) {
-        console.error('Cache clearing error:', e);
-      }
-    }
-    
-    // Clear storage
-    localStorage.clear();
-    sessionStorage.clear();
-    
-    // Clear any session cookies
-    document.cookie.split(';').forEach(cookie => {
-      document.cookie = cookie
-        .replace(/^ +/, '')
-        .replace(/=.*/, `=;expires=${new Date(0).toUTCString()};path=/`);
-    });
-  };
-
-  const handleLogout = async () => {
-    try {
-      // First clear all caches and storage
-      await clearAllCaches();
-
-      // Attempt to sign out from Supabase
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error('Supabase signout error:', error);
-      }
-
-      // Navigate and show success message
-      navigate('/auth', { 
-        replace: true, // Use replace to prevent back navigation
-        state: { timestamp: new Date().getTime() } // Force new state to prevent caching
-      });
-      
-      toast({
-        title: "Logged out successfully",
-        description: "You have been signed out of your account",
-      });
-    } catch (error) {
-      console.error('Logout error:', error);
-      
-      // Ensure user is redirected even if there's an error
-      navigate('/auth', { 
-        replace: true,
-        state: { timestamp: new Date().getTime() }
-      });
-      
-      toast({
-        title: "Logged out",
-        description: "You have been signed out of your account",
-      });
-    }
-  };
+  const avatarUrl = useMemo(() => {
+    if (!profile?.avatar_url) return undefined;
+    return supabase.storage.from('avatars').getPublicUrl(profile.avatar_url).data.publicUrl;
+  }, [profile?.avatar_url]);
 
   if (!session) {
     return (
@@ -116,18 +46,18 @@ const ProfileMenu = ({
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 md:h-10 md:w-10 md:px-4 rounded-full">
           <div className="flex items-center gap-2">
-            <ProfileAvatar avatarUrl={profile?.avatar_url} />
+            <Avatar className="h-6 w-6 md:h-8 md:w-8">
+              <AvatarImage src={avatarUrl} />
+              <AvatarFallback>
+                <UserRound className="h-4 w-4" />
+              </AvatarFallback>
+            </Avatar>
           </div>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={onProfileClick}>Profile</DropdownMenuItem>
-        {isAdmin && (
-          <DropdownMenuItem onClick={() => navigate('/admin')}>
-            Switch to admin view
-          </DropdownMenuItem>
-        )}
-        <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+        <DropdownMenuItem onClick={onLogout}>Logout</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

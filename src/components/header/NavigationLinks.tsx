@@ -9,11 +9,6 @@ interface NavigationLinksProps {
 
 const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
   const location = useLocation();
-  
-  // If we're on the admin route, don't show the regular navigation links
-  if (location.pathname === '/admin') {
-    return null;
-  }
 
   return (
     <div className="hidden md:flex items-center gap-2">
