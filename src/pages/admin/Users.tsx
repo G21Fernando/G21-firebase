@@ -6,6 +6,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
+import { AdminRole } from '@/hooks/useAdmin';
+
+interface UserWithAdmin {
+  id: string;
+  username: string;
+  points: number | null;
+  practice_time: number | null;
+  created_at: string;
+  admin_users: {
+    role: AdminRole;
+  }[];
+}
 
 const UsersPage = () => {
   const { toast } = useToast();
@@ -33,7 +45,7 @@ const UsersPage = () => {
         throw error;
       }
 
-      return profiles;
+      return profiles as UserWithAdmin[];
     },
   });
 
