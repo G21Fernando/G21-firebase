@@ -46,8 +46,8 @@ const AuthPage = () => {
       if (event === "SIGNED_OUT") {
         setError(null);
       }
-      // Handle authentication errors
-      if (event === "USER_DELETED" || event === "SIGNED_OUT") {
+      // Handle authentication errors with valid event types
+      if (event === "SIGNED_OUT" || event === "USER_UPDATED") {
         toast({
           variant: "destructive",
           title: "Authentication Error",
