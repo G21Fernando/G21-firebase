@@ -1,104 +1,41 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { SessionContextProvider, useSession } from '@supabase/auth-helpers-react';
-import { supabase } from "@/integrations/supabase/client";
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import Challenge from "./pages/Challenge";
-import Feed from "./pages/Feed";
-import Dashboard from "./pages/Dashboard";
-import Roadmap from "./pages/Roadmap";
-import MobileFooter from "./components/MobileFooter";
-import { useEffect, useRef } from "react";
-import { useToast } from "./components/ui/use-toast";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import Auth from './pages/Auth';
+import UsersPage from './pages/admin/Users';
+import ContentPage from './pages/admin/Content';
+import './App.css';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+const queryClient = new QueryClient();
 
-// Protected route wrapper
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const session = useSession();
-  const { toast } = useToast();
-  const hadInitialSession = useRef(false);
-
-  useEffect(() => {
-    if (session && !hadInitialSession.current) {
-      hadInitialSession.current = true;
-    }
-    
-    if (!session && hadInitialSession.current) {
-      toast({
-        title: "Session expired",
-        description: "Please sign in again",
-        variant: "destructive",
-      });
-      hadInitialSession.current = false;
-    }
-  }, [session, toast]);
-
-  if (!session) {
-    return <Navigate to="/auth" replace />;
-  }
-
+function App() {
   return (
-    <>
-      {children}
-      <MobileFooter />
-    </>
-  );
-};
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <SessionContextProvider 
-      supabaseClient={supabase}
-      initialSession={null}
-    >
-      <TooltipProvider>
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <Routes>
+          <Route path="/auth" element={<Auth />} />
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute>
+                <UsersPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/content"
+            element={
+              <ProtectedRoute>
+                <ContentPage />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
         <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={
-              <ProtectedRoute>
-                <Index />
-              </ProtectedRoute>
-            } />
-            <Route path="/feed" element={
-              <ProtectedRoute>
-                <Feed />
-              </ProtectedRoute>
-            } />
-            <Route path="/challenge" element={
-              <ProtectedRoute>
-                <Challenge />
-              </ProtectedRoute>
-            } />
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/roadmap" element={
-              <ProtectedRoute>
-                <Roadmap />
-              </ProtectedRoute>
-            } />
-            <Route path="/auth" element={<Auth />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </SessionContextProvider>
-  </QueryClientProvider>
-);
+      </Router>
+    </QueryClientProvider>
+  );
+}
 
 export default App;
