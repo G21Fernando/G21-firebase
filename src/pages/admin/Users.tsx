@@ -27,9 +27,7 @@ const UsersPage = () => {
         .from('profiles')
         .select(`
           *,
-          admin_users (
-            *
-          )
+          admin_users (*)
         `)
         .order('created_at', { ascending: false });
 
@@ -42,7 +40,7 @@ const UsersPage = () => {
         throw error;
       }
 
-      return (data || []) as UserWithAdmin[];
+      return data as UserWithAdmin[];
     },
   });
 
