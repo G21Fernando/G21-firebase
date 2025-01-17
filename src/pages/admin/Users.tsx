@@ -21,6 +21,10 @@ interface Profile {
   points: number | null;
   practice_time: number | null;
   created_at: string;
+  daily_points?: number;
+  daily_practice_time?: number;
+  last_practice_date?: string;
+  avatar_url?: string | null;
   admin_users: AdminUser[];
 }
 
