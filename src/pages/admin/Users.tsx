@@ -7,12 +7,20 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
 import { AdminRole } from '@/hooks/useAdmin';
-import { Database } from '@/integrations/supabase/types';
 
-type Profile = Database['public']['Tables']['profiles']['Row'];
-type AdminUser = Database['public']['Tables']['admin_users']['Row'];
+interface AdminUser {
+  id: string;
+  role: AdminRole;
+  created_at: string;
+  updated_at: string;
+}
 
-interface UserWithAdmin extends Profile {
+interface Profile {
+  id: string;
+  username: string;
+  points: number | null;
+  practice_time: number | null;
+  created_at: string;
   admin_users: AdminUser[];
 }
 
@@ -40,7 +48,7 @@ const UsersPage = () => {
         throw error;
       }
 
-      return data as UserWithAdmin[];
+      return (data || []) as Profile[];
     },
   });
 
