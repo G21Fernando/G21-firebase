@@ -7,16 +7,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
 import { AdminRole } from '@/hooks/useAdmin';
+import { Database } from '@/integrations/supabase/types';
 
-interface UserWithAdmin {
-  id: string;
-  username: string;
-  points: number | null;
-  practice_time: number | null;
-  created_at: string;
-  admin_users: {
-    role: AdminRole;
-  }[];
+type Profile = Database['public']['Tables']['profiles']['Row'];
+type AdminUser = Database['public']['Tables']['admin_users']['Row'];
+
+interface UserWithAdmin extends Profile {
+  admin_users: AdminUser[];
 }
 
 const UsersPage = () => {
