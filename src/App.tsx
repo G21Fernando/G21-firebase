@@ -11,7 +11,6 @@ import Challenge from "./pages/Challenge";
 import Feed from "./pages/Feed";
 import Dashboard from "./pages/Dashboard";
 import Roadmap from "./pages/Roadmap";
-import AdminDashboard from "./pages/AdminDashboard";
 import MobileFooter from "./components/MobileFooter";
 import { useEffect, useRef } from "react";
 import { useToast } from "./components/ui/use-toast";
@@ -32,59 +31,18 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const hadInitialSession = useRef(false);
 
   useEffect(() => {
-    // Only set initial session state once
     if (session && !hadInitialSession.current) {
       hadInitialSession.current = true;
     }
     
-    // Only show expired message if we previously had a session
     if (!session && hadInitialSession.current) {
       toast({
         title: "Session expired",
         description: "Please sign in again",
         variant: "destructive",
       });
-      hadInitialSession.current = false; // Reset the flag
+      hadInitialSession.current = false;
     }
-  }, [session, toast]);
-
-  if (!session) {
-    return <Navigate to="/auth" replace />;
-  }
-
-  return (
-    <>
-      {children}
-      <MobileFooter />
-    </>
-  );
-};
-
-// Admin route wrapper
-const AdminRoute = ({ children }: { children: React.ReactNode }) => {
-  const session = useSession();
-  const { toast } = useToast();
-
-  useEffect(() => {
-    const checkAdminStatus = async () => {
-      if (session?.user) {
-        const { data } = await supabase
-          .from('admin_users')
-          .select('id')
-          .eq('id', session.user.id)
-          .single();
-
-        if (!data) {
-          toast({
-            title: "Access denied",
-            description: "You need admin privileges to access this page",
-            variant: "destructive",
-          });
-        }
-      }
-    };
-
-    checkAdminStatus();
   }, [session, toast]);
 
   if (!session) {
@@ -134,11 +92,6 @@ const App = () => (
               <ProtectedRoute>
                 <Roadmap />
               </ProtectedRoute>
-            } />
-            <Route path="/admin" element={
-              <AdminRoute>
-                <AdminDashboard />
-              </AdminRoute>
             } />
             <Route path="/auth" element={<Auth />} />
           </Routes>
