@@ -189,6 +189,30 @@ export type Database = {
           },
         ]
       }
+      development_activities: {
+        Row: {
+          activity_type: string
+          created_at: string
+          description: string | null
+          id: string
+          time_spent: number
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          time_spent: number
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          time_spent?: number
+        }
+        Relationships: []
+      }
       exercises: {
         Row: {
           id: string
@@ -207,6 +231,33 @@ export type Database = {
           level?: number
           name?: string
           order_in_level?: number
+        }
+        Relationships: []
+      }
+      github_integrations: {
+        Row: {
+          access_token: string
+          created_at: string
+          id: string
+          repository_url: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          id?: string
+          repository_url: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          id?: string
+          repository_url?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -306,6 +357,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          acquisition_type: string | null
           avatar_url: string | null
           created_at: string
           daily_points: number | null
@@ -314,9 +366,11 @@ export type Database = {
           last_practice_date: string | null
           points: number | null
           practice_time: number | null
+          subscription_status: string | null
           username: string
         }
         Insert: {
+          acquisition_type?: string | null
           avatar_url?: string | null
           created_at?: string
           daily_points?: number | null
@@ -325,9 +379,11 @@ export type Database = {
           last_practice_date?: string | null
           points?: number | null
           practice_time?: number | null
+          subscription_status?: string | null
           username: string
         }
         Update: {
+          acquisition_type?: string | null
           avatar_url?: string | null
           created_at?: string
           daily_points?: number | null
@@ -336,6 +392,7 @@ export type Database = {
           last_practice_date?: string | null
           points?: number | null
           practice_time?: number | null
+          subscription_status?: string | null
           username?: string
         }
         Relationships: []
@@ -489,12 +546,7 @@ export type Database = {
       admin_role: "super_admin" | "content_manager" | "user_manager"
       chord_name: "A" | "Am" | "C" | "D" | "Dm" | "E" | "Em" | "F" | "G"
       chord_pair: "Am-C" | "Em-G" | "Dm-G" | "Am-F" | "C-G" | "Em-Am"
-      event_type:
-        | "practice_session"
-        | "chord_transition"
-        | "metronome_usage"
-        | "feature_interaction"
-        | "user_milestone"
+      event_type: "feature_interaction" | "user_milestone"
       exercise_status: "not_started" | "in_progress" | "completed"
       guitar_string: "1" | "2" | "3" | "4" | "5" | "6"
       string_state: "muted" | "open" | "fretted"
