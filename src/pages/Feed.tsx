@@ -3,12 +3,14 @@ import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import Header from '@/components/Header';
 import CreatePost from '@/components/feed/CreatePost';
 import PostList from '@/components/feed/PostList';
+import { useToast } from "@/components/ui/use-toast";
 
 const Feed = () => {
   const [profile, setProfile] = useState<any>(null);
   const [updateTrigger, setUpdateTrigger] = useState(0);
   const session = useSession();
   const supabase = useSupabaseClient();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (session?.user) {
@@ -24,13 +26,26 @@ const Feed = () => {
         .eq('id', session?.user?.id)
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching profile:', error);
+        toast({
+          title: "Error fetching profile",
+          description: "Your profile information couldn't be loaded, but you can still view posts",
+          variant: "destructive",
+        });
+        return; // Don't set profile if there's an error, but don't logout
+      }
       
       if (data) {
         setProfile(data);
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
+      toast({
+        title: "Error fetching profile",
+        description: "Your profile information couldn't be loaded, but you can still view posts",
+        variant: "destructive",
+      });
     }
   };
 
