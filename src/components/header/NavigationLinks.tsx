@@ -31,12 +31,17 @@ const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
     checkAdminStatus();
   }, [session]);
 
+  const handleClick = (path: string, e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent default button behavior
+    onNavigate(path);
+  };
+
   return (
     <div className="hidden md:flex items-center gap-2">
       <Button
         variant={location.pathname === '/' ? 'ghost' : 'ghost'}
         size="icon"
-        onClick={() => onNavigate('/')}
+        onClick={(e) => handleClick('/', e)}
         className={location.pathname === '/' ? 'bg-[#F1F0FB] hover:bg-[#F1F0FB]' : ''}
       >
         <TimekeeperIcon className="h-5 w-5" />
@@ -44,7 +49,7 @@ const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
       <Button
         variant={location.pathname === '/challenge' ? 'ghost' : 'ghost'}
         size="icon"
-        onClick={() => onNavigate('/challenge')}
+        onClick={(e) => handleClick('/challenge', e)}
         className={location.pathname === '/challenge' ? 'bg-[#F1F0FB] hover:bg-[#F1F0FB]' : ''}
       >
         <Zap className="h-5 w-5" />
@@ -52,7 +57,7 @@ const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
       <Button
         variant={location.pathname === '/feed' ? 'ghost' : 'ghost'}
         size="icon"
-        onClick={() => onNavigate('/feed')}
+        onClick={(e) => handleClick('/feed', e)}
         className={location.pathname === '/feed' ? 'bg-[#F1F0FB] hover:bg-[#F1F0FB]' : ''}
       >
         <Users className="h-5 w-5" />
@@ -61,7 +66,7 @@ const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
         <Button
           variant={location.pathname === '/admin' ? 'ghost' : 'ghost'}
           size="icon"
-          onClick={() => onNavigate('/admin')}
+          onClick={(e) => handleClick('/admin', e)}
           className={location.pathname === '/admin' ? 'bg-[#F1F0FB] hover:bg-[#F1F0FB]' : ''}
         >
           <Settings className="h-5 w-5" />
