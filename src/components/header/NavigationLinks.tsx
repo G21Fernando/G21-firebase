@@ -31,42 +31,46 @@ const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
     checkAdminStatus();
   }, [session]);
 
-  const handleClick = (path: string, e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent default button behavior
+  const handleClick = (path: string) => {
+    // Remove event parameter and directly call onNavigate
     onNavigate(path);
   };
 
   return (
     <div className="hidden md:flex items-center gap-2">
       <Button
+        type="button" // Explicitly set button type to prevent form submission
         variant={location.pathname === '/' ? 'ghost' : 'ghost'}
         size="icon"
-        onClick={(e) => handleClick('/', e)}
+        onClick={() => handleClick('/')}
         className={location.pathname === '/' ? 'bg-[#F1F0FB] hover:bg-[#F1F0FB]' : ''}
       >
         <TimekeeperIcon className="h-5 w-5" />
       </Button>
       <Button
+        type="button"
         variant={location.pathname === '/challenge' ? 'ghost' : 'ghost'}
         size="icon"
-        onClick={(e) => handleClick('/challenge', e)}
+        onClick={() => handleClick('/challenge')}
         className={location.pathname === '/challenge' ? 'bg-[#F1F0FB] hover:bg-[#F1F0FB]' : ''}
       >
         <Zap className="h-5 w-5" />
       </Button>
       <Button
+        type="button"
         variant={location.pathname === '/feed' ? 'ghost' : 'ghost'}
         size="icon"
-        onClick={(e) => handleClick('/feed', e)}
+        onClick={() => handleClick('/feed')}
         className={location.pathname === '/feed' ? 'bg-[#F1F0FB] hover:bg-[#F1F0FB]' : ''}
       >
         <Users className="h-5 w-5" />
       </Button>
       {isAdmin && (
         <Button
+          type="button"
           variant={location.pathname === '/admin' ? 'ghost' : 'ghost'}
           size="icon"
-          onClick={(e) => handleClick('/admin', e)}
+          onClick={() => handleClick('/admin')}
           className={location.pathname === '/admin' ? 'bg-[#F1F0FB] hover:bg-[#F1F0FB]' : ''}
         >
           <Settings className="h-5 w-5" />
