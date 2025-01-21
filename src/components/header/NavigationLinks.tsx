@@ -31,18 +31,18 @@ const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
     checkAdminStatus();
   }, [session]);
 
-  const handleClick = (path: string) => {
-    // Remove event parameter and directly call onNavigate
+  const handleClick = (e: React.MouseEvent, path: string) => {
+    e.preventDefault();
     onNavigate(path);
   };
 
   return (
     <div className="hidden md:flex items-center gap-2">
       <Button
-        type="button" // Explicitly set button type to prevent form submission
+        type="button"
         variant={location.pathname === '/' ? 'ghost' : 'ghost'}
         size="icon"
-        onClick={() => handleClick('/')}
+        onClick={(e) => handleClick(e, '/')}
         className={location.pathname === '/' ? 'bg-[#F1F0FB] hover:bg-[#F1F0FB]' : ''}
       >
         <TimekeeperIcon className="h-5 w-5" />
@@ -51,7 +51,7 @@ const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
         type="button"
         variant={location.pathname === '/challenge' ? 'ghost' : 'ghost'}
         size="icon"
-        onClick={() => handleClick('/challenge')}
+        onClick={(e) => handleClick(e, '/challenge')}
         className={location.pathname === '/challenge' ? 'bg-[#F1F0FB] hover:bg-[#F1F0FB]' : ''}
       >
         <Zap className="h-5 w-5" />
@@ -60,7 +60,7 @@ const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
         type="button"
         variant={location.pathname === '/feed' ? 'ghost' : 'ghost'}
         size="icon"
-        onClick={() => handleClick('/feed')}
+        onClick={(e) => handleClick(e, '/feed')}
         className={location.pathname === '/feed' ? 'bg-[#F1F0FB] hover:bg-[#F1F0FB]' : ''}
       >
         <Users className="h-5 w-5" />
@@ -70,7 +70,7 @@ const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
           type="button"
           variant={location.pathname === '/admin' ? 'ghost' : 'ghost'}
           size="icon"
-          onClick={() => handleClick('/admin')}
+          onClick={(e) => handleClick(e, '/admin')}
           className={location.pathname === '/admin' ? 'bg-[#F1F0FB] hover:bg-[#F1F0FB]' : ''}
         >
           <Settings className="h-5 w-5" />

@@ -25,11 +25,16 @@ const MobileFooter = () => {
     checkAdminStatus();
   }, [session]);
   
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+  };
+
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 px-4 md:hidden">
       <div className="flex justify-around items-center">
         <Link
           to="/"
+          onClick={handleClick}
           className={`flex flex-col items-center ${
             location.pathname === "/" ? "text-[#11245A]" : "text-gray-500"
           }`}
@@ -40,6 +45,7 @@ const MobileFooter = () => {
         
         <Link
           to="/challenge"
+          onClick={handleClick}
           className={`flex flex-col items-center ${
             location.pathname === "/challenge" ? "text-[#11245A]" : "text-gray-500"
           }`}
@@ -50,6 +56,7 @@ const MobileFooter = () => {
 
         <Link
           to="/dashboard"
+          onClick={handleClick}
           className={`flex flex-col items-center ${
             location.pathname === "/dashboard" ? "text-[#11245A]" : "text-gray-500"
           }`}
@@ -60,6 +67,7 @@ const MobileFooter = () => {
         
         <Link
           to="/feed"
+          onClick={handleClick}
           className={`flex flex-col items-center ${
             location.pathname === "/feed" ? "text-[#11245A]" : "text-gray-500"
           }`}
@@ -71,6 +79,7 @@ const MobileFooter = () => {
         {isAdmin && (
           <Link
             to="/admin"
+            onClick={handleClick}
             className={`flex flex-col items-center ${
               location.pathname === "/admin" ? "text-[#11245A]" : "text-gray-500"
             }`}
