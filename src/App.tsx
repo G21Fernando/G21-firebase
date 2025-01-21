@@ -13,7 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import Roadmap from "./pages/Roadmap";
 import AdminDashboard from "./pages/AdminDashboard";
 import MobileFooter from "./components/MobileFooter";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useToast } from "./components/ui/use-toast";
 
 const queryClient = new QueryClient({
@@ -29,26 +29,45 @@ const queryClient = new QueryClient({
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const session = useSession();
   const { toast } = useToast();
-  const hadInitialSession = useRef(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const hadSession = useRef(false);
+  const sessionCheckTimeout = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
-    // Only set initial session state once
-    if (session && !hadInitialSession.current) {
-      hadInitialSession.current = true;
+    // Clear any existing timeout
+    if (sessionCheckTimeout.current) {
+      clearTimeout(sessionCheckTimeout.current);
     }
-    
-    // Only show expired message if we previously had a session
-    if (!session && hadInitialSession.current) {
-      toast({
-        title: "Session expired",
-        description: "Please sign in again",
-        variant: "destructive",
-      });
-      hadInitialSession.current = false; // Reset the flag
-    }
-  }, [session, toast]);
 
-  if (!session) {
+    if (session) {
+      hadSession.current = true;
+      setIsInitialLoad(false);
+    } else if (!isInitialLoad && hadSession.current) {
+      // Set a timeout to allow for session reestablishment
+      sessionCheckTimeout.current = setTimeout(() => {
+        toast({
+          title: "Session expired",
+          description: "Please sign in again",
+          variant: "destructive",
+        });
+        hadSession.current = false;
+      }, 2000); // Give 2 seconds for session to reestablish
+    }
+
+    return () => {
+      if (sessionCheckTimeout.current) {
+        clearTimeout(sessionCheckTimeout.current);
+      }
+    };
+  }, [session, toast, isInitialLoad]);
+
+  // During initial load, show nothing
+  if (isInitialLoad) {
+    return null;
+  }
+
+  // Only redirect if we're sure there's no session
+  if (!session && !isInitialLoad) {
     return <Navigate to="/auth" replace />;
   }
 
