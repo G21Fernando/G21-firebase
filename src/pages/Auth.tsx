@@ -16,7 +16,7 @@ const AuthPage = () => {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN") {
-        navigate("/");
+        navigate("/roadmap");
       }
       if (event === "SIGNED_OUT") {
         setError(null);
@@ -78,7 +78,7 @@ const AuthPage = () => {
         <div className="mt-6 text-center">
           <Button 
             variant="ghost" 
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/roadmap')}
             className="text-[#1A1F2C] hover:text-[#2A2F3C]"
           >
             Back to Practice
