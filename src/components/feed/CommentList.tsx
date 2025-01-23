@@ -2,11 +2,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useMemo } from "react";
+import { X } from "lucide-react";
+import { useSession } from '@supabase/auth-helpers-react';
+import { useToast } from "@/components/ui/use-toast";
 
 interface Comment {
   id: string;
   content: string;
   created_at: string;
+  user_id: string;
   profiles: {
     username: string;
     avatar_url: string | null;
@@ -21,10 +25,35 @@ interface CommentListProps {
 }
 
 const CommentList = ({ comments, commentContent, onCommentChange, onSubmitComment }: CommentListProps) => {
+  const session = useSession();
+  const { toast } = useToast();
+  
   const getAvatarUrl = useMemo(() => (avatarPath: string | null) => {
     if (!avatarPath) return '/placeholder.svg';
     return supabase.storage.from('avatars').getPublicUrl(avatarPath).data.publicUrl;
   }, []);
+
+  const handleDeleteComment = async (commentId: string) => {
+    try {
+      const { error } = await supabase
+        .from('comments')
+        .delete()
+        .eq('id', commentId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Comment deleted successfully",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="w-full space-y-1.5">
@@ -36,7 +65,19 @@ const CommentList = ({ comments, commentContent, onCommentChange, onSubmitCommen
             className="w-6 h-6 rounded-full object-cover"
           />
           <div className="flex-1 bg-gray-50 rounded-lg p-1.5">
-            <p className="font-semibold text-sm">{comment.profiles?.username}</p>
+            <div className="flex justify-between items-start">
+              <p className="font-semibold text-sm">{comment.profiles?.username}</p>
+              {session?.user?.id === comment.user_id && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-4 w-4 p-0 hover:bg-gray-200"
+                  onClick={() => handleDeleteComment(comment.id)}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              )}
+            </div>
             <p className="text-sm">{comment.content}</p>
           </div>
         </div>
