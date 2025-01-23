@@ -20,6 +20,7 @@ export interface Post {
     id: string;
     content: string;
     created_at: string;
+    user_id: string;
     profiles: {
       username: string;
       avatar_url: string | null;
@@ -48,6 +49,7 @@ export const usePosts = (onUpdate: number, selectedTheme: string | null) => {
             id,
             content,
             created_at,
+            user_id,
             profiles (
               username,
               avatar_url
