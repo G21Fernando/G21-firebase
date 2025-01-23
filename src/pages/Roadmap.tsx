@@ -1,7 +1,10 @@
 import { Card } from "@/components/ui/card";
 import Header from "@/components/Header";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const Roadmap = () => {
+  const navigate = useNavigate();
   const weeks = [
     {
       number: 1,
@@ -49,7 +52,15 @@ const Roadmap = () => {
     <div className="min-h-screen pb-16 md:pb-0" style={{ backgroundColor: '#F5E6DB' }}>
       <Header />
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8 text-center">21-Day Guitar Journey</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold">21-Day Guitar Journey</h1>
+          <Button
+            onClick={() => navigate('/')}
+            className="bg-[#11245A] hover:bg-[#1a3575] text-white"
+          >
+            Back to Practice
+          </Button>
+        </div>
         
         <div className="space-y-8">
           {weeks.map((week) => (
