@@ -10,7 +10,6 @@ import Auth from "./pages/Auth";
 import Challenge from "./pages/Challenge";
 import Feed from "./pages/Feed";
 import Dashboard from "./pages/Dashboard";
-import Roadmap from "./pages/Roadmap";
 import AdminDashboard from "./pages/AdminDashboard";
 import MobileFooter from "./components/MobileFooter";
 import { useEffect, useRef } from "react";
@@ -152,11 +151,6 @@ const App = () => (
             <Route path="/dashboard" element={
               <ProtectedRoute>
                 <Dashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/roadmap" element={
-              <ProtectedRoute>
-                <Roadmap />
               </ProtectedRoute>
             } />
             <Route path="/admin" element={

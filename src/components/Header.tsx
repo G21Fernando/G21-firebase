@@ -22,7 +22,7 @@ const Header = ({ profile, onProfileUpdate }: HeaderProps) => {
   };
 
   const handleLogoClick = () => {
-    navigate('/roadmap');
+    navigate('/');
   };
 
   const handleProfileClick = () => {
