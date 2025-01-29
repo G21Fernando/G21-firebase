@@ -7,11 +7,13 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { useSession } from "@supabase/auth-helpers-react";
 
 const AuthPage = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const session = useSession();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -33,6 +35,26 @@ const AuthPage = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate, toast]);
+
+  // If user is already logged in, redirect to home
+  useEffect(() => {
+    if (session) {
+      navigate('/');
+    }
+  }, [session, navigate]);
+
+  const handleBackToPractice = () => {
+    if (session) {
+      navigate('/');
+    } else {
+      // If not logged in, show a toast explaining they need to log in
+      toast({
+        title: "Login Required",
+        description: "Please log in or sign up to access the practice area.",
+        variant: "default",
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F5E6DB' }}>
@@ -78,7 +100,7 @@ const AuthPage = () => {
         <div className="mt-6 text-center">
           <Button 
             variant="ghost" 
-            onClick={() => navigate('/')}
+            onClick={handleBackToPractice}
             className="text-[#1A1F2C] hover:text-[#2A2F3C]"
           >
             Back to Practice

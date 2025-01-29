@@ -3,3 +3,5 @@ export interface SprintResult {
   reps: number;
   created_at: string;
 }
+
+export type ChordPair = 'Am-C' | 'Em-G' | 'Dm-G' | 'Am-F' | 'C-G' | 'Em-Am';

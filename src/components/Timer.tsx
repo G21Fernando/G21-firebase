@@ -2,8 +2,6 @@ import TimerCircle from './challenge/TimerCircle';
 import TimerHeader from './challenge/TimerHeader';
 import ChordDisplay from './challenge/ChordDisplay';
 import { useChordDiagrams } from '@/hooks/useChordDiagrams';
-import { useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 
 interface TimerProps {
   isActive: boolean;
@@ -20,28 +18,6 @@ const Timer = ({ isActive, timeLeft, chordChanges, isPaused }: TimerProps) => {
     isLoading,
     isReady,
   } = useChordDiagrams(isActive, isPaused);
-
-  useEffect(() => {
-    // Subscribe to real-time updates for chord_sprinter_results
-    const channel = supabase
-      .channel('chord-sprinter-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'chord_sprinter_results'
-        },
-        (payload) => {
-          console.log('New chord sprint result:', payload);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
 
   const [leftChord, rightChord] = currentPair?.split('-') || ['', ''];
   const showContent = isActive && isReady && !isLoading;

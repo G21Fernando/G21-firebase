@@ -18,7 +18,7 @@ const StatsCard: React.FC<StatsCardProps> = ({ practiceTime, points }) => {
         <Clock className="w-5 h-5 text-[#11245A]" />
         <div className="flex items-center">
           <span className="text-base text-[#11245A]">
-            Minutes Mastered: {formatTime(practiceTime)}
+            Minutes Mastered Today: {formatTime(practiceTime)}
           </span>
         </div>
       </div>

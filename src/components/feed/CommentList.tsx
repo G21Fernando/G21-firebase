@@ -74,7 +74,7 @@ const CommentList = ({ comments, commentContent, onCommentChange, onSubmitCommen
                   className="h-4 w-4 p-0 hover:bg-gray-200"
                   onClick={() => handleDeleteComment(comment.id)}
                 >
-                  <X className="h-3 w-3" />
+                  <X className="h-3 w-3 text-gray-400" />
                 </Button>
               )}
             </div>

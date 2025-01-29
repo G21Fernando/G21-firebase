@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Trophy, BarChart2, Users, Settings } from "lucide-react";
+import { Home, Zap, BarChart2, Users, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@supabase/auth-helpers-react";
@@ -44,7 +44,7 @@ const MobileFooter = () => {
             location.pathname === "/challenge" ? "text-[#11245A]" : "text-gray-500"
           }`}
         >
-          <Trophy className="w-6 h-6" />
+          <Zap className="w-6 h-6" />
           <span className="text-xs">Challenge</span>
         </Link>
 

@@ -261,6 +261,42 @@ export type Database = {
         }
         Relationships: []
       }
+      github_repositories: {
+        Row: {
+          created_at: string
+          description: string | null
+          github_repo_id: string
+          id: string
+          repository_name: string
+          repository_url: string
+          status: Database["public"]["Enums"]["repository_status"] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          github_repo_id: string
+          id?: string
+          repository_name: string
+          repository_url: string
+          status?: Database["public"]["Enums"]["repository_status"] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          github_repo_id?: string
+          id?: string
+          repository_name?: string
+          repository_url?: string
+          status?: Database["public"]["Enums"]["repository_status"] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       likes: {
         Row: {
           created_at: string
@@ -549,6 +585,7 @@ export type Database = {
       event_type: "feature_interaction" | "user_milestone"
       exercise_status: "not_started" | "in_progress" | "completed"
       guitar_string: "1" | "2" | "3" | "4" | "5" | "6"
+      repository_status: "active" | "disconnected"
       string_state: "muted" | "open" | "fretted"
       strum_direction: "up" | "down" | "muted"
     }

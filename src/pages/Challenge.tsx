@@ -1,34 +1,31 @@
 import { useState, useEffect } from 'react';
 import { useSession } from '@supabase/auth-helpers-react';
-import Header from '@/components/Header';
 import { supabase } from '@/integrations/supabase/client';
+import Header from '@/components/Header';
 import LeaderboardCard from '@/components/LeaderboardCard';
 import ChallengeStats from '@/components/challenge/ChallengeStats';
 import ChallengeMain from '@/components/challenge/ChallengeMain';
 import ChordSprintResults from '@/components/challenge/ChordSprintResults';
-import { useChallenge } from '@/hooks/useChallenge';
 import { Analytics } from '@/utils/analytics';
+import { useToast } from '@/hooks/use-toast';
+import { useChallenge } from '@/hooks/useChallenge';
 
 const Challenge = () => {
   const [profile, setProfile] = useState<any>(null);
   const session = useSession();
+  const { toast } = useToast();
   const { 
     isActive, 
     isPaused, 
     timeLeft, 
-    chordChanges, 
-    startChallenge, 
+    chordChanges,
+    startChallenge,
     stopChallenge 
   } = useChallenge();
 
   useEffect(() => {
     if (session?.user) {
       fetchProfile();
-      // Identify user in Mixpanel
-      Analytics.identify(session.user.id, {
-        email: session.user.email,
-        created_at: session.user.created_at,
-      });
     }
   }, [session]);
 
@@ -57,8 +54,46 @@ const Challenge = () => {
     startChallenge();
   };
 
-  const handleStopChallenge = () => {
+  const handleStopChallenge = async () => {
     if (session?.user) {
+      // Award points when the challenge ends (60 points per transition)
+      const pointsEarned = chordChanges * 60;
+      
+      try {
+        const { data: profile, error: fetchError } = await supabase
+          .from('profiles')
+          .select('points, daily_points')
+          .eq('id', session.user.id)
+          .single();
+
+        if (fetchError) throw fetchError;
+
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ 
+            points: (profile?.points || 0) + pointsEarned,
+            daily_points: (profile?.daily_points || 0) + pointsEarned,
+            last_practice_date: new Date().toISOString()
+          })
+          .eq('id', session.user.id);
+
+        if (updateError) throw updateError;
+
+        toast({
+          title: "Points earned!",
+          description: `You earned ${pointsEarned} points for completing ${chordChanges} transitions!`,
+        });
+
+        fetchProfile(); // Refresh profile data
+      } catch (error: any) {
+        console.error('Error updating points:', error);
+        toast({
+          title: "Error updating points",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+
       Analytics.trackChordSprintComplete(
         session.user.id,
         'current-chord-pair',
