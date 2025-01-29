@@ -6,6 +6,9 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { format, subDays } from 'date-fns';
 import { G21Assets } from '@/components/admin/G21Assets';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 interface MetricCardProps {
   title: string;
@@ -33,6 +36,7 @@ const MetricCard = ({ title, value, subValue, percentageChange }: MetricCardProp
 
 const AdminDashboard = () => {
   const session = useSession();
+  const navigate = useNavigate();
   const [signupData, setSignupData] = useState<any[]>([]);
   const [engagementData, setEngagementData] = useState<any[]>([]);
   
@@ -89,7 +93,17 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen p-6" style={{ backgroundColor: '#F5E6DB' }}>
       <div className="max-w-7xl mx-auto space-y-6">
-        <h1 className="text-2xl font-bold text-[#11245A]">Admin Dashboard</h1>
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-[#11245A]">Admin Dashboard</h1>
+          <Button
+            variant="outline"
+            onClick={() => navigate('/feed')}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to User View
+          </Button>
+        </div>
         
         <Tabs defaultValue="analytics" className="w-full">
           <TabsList>

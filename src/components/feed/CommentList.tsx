@@ -1,99 +1,131 @@
-import { Textarea } from "@/components/ui/textarea";
+import { useRef, useCallback } from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import { useMemo } from "react";
-import { X } from "lucide-react";
-import { useSession } from '@supabase/auth-helpers-react';
-import { useToast } from "@/components/ui/use-toast";
+import { Textarea } from "@/components/ui/textarea";
+import { UserRound, Loader2 } from "lucide-react";
+import { useComments } from '@/hooks/usePosts';
+import { Skeleton } from "@/components/ui/skeleton";
 
-interface Comment {
-  id: string;
-  content: string;
-  created_at: string;
-  user_id: string;
-  profiles: {
-    username: string;
-    avatar_url: string | null;
-  };
-}
+const CommentSkeleton = () => (
+  <div className="flex gap-2 items-start">
+    <Skeleton className="h-8 w-8 rounded-full" />
+    <div className="flex-1 space-y-2">
+      <div className="flex items-center gap-2">
+        <Skeleton className="h-4 w-24" />
+        <Skeleton className="h-4 w-16" />
+      </div>
+      <Skeleton className="h-12 w-full" />
+    </div>
+  </div>
+);
 
 interface CommentListProps {
-  comments: Comment[];
+  postId: string;
   commentContent: string;
   onCommentChange: (content: string) => void;
   onSubmitComment: () => void;
 }
 
-const CommentList = ({ comments, commentContent, onCommentChange, onSubmitComment }: CommentListProps) => {
-  const session = useSession();
-  const { toast } = useToast();
-  
-  const getAvatarUrl = useMemo(() => (avatarPath: string | null) => {
-    if (!avatarPath) return '/placeholder.svg';
-    return supabase.storage.from('avatars').getPublicUrl(avatarPath).data.publicUrl;
-  }, []);
+const CommentList = ({
+  postId,
+  commentContent,
+  onCommentChange,
+  onSubmitComment
+}: CommentListProps) => {
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useComments(postId);
 
-  const handleDeleteComment = async (commentId: string) => {
-    try {
-      const { error } = await supabase
-        .from('comments')
-        .delete()
-        .eq('id', commentId);
+  const observer = useRef<IntersectionObserver>();
+  const lastCommentRef = useCallback((node: HTMLDivElement) => {
+    if (isLoading) return;
+    if (observer.current) observer.current.disconnect();
+    
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    });
+    
+    if (node) observer.current.observe(node);
+  }, [isLoading, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Comment deleted successfully",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
+  if (isLoading) {
+    return (
+      <div className="flex justify-center p-4">
+        <Loader2 className="animate-spin" />
+      </div>
+    );
+  }
 
   return (
-    <div className="w-full space-y-1.5">
-      {comments?.map((comment) => (
-        <div key={comment.id} className="flex items-start gap-1">
-          <img
-            src={getAvatarUrl(comment.profiles?.avatar_url)}
-            alt={comment.profiles?.username}
-            className="w-6 h-6 rounded-full object-cover"
-          />
-          <div className="flex-1 bg-gray-50 rounded-lg p-1.5">
-            <div className="flex justify-between items-start">
-              <p className="font-semibold text-sm">{comment.profiles?.username}</p>
-              {session?.user?.id === comment.user_id && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-4 w-4 p-0 hover:bg-gray-200"
-                  onClick={() => handleDeleteComment(comment.id)}
-                >
-                  <X className="h-3 w-3 text-gray-400" />
-                </Button>
-              )}
-            </div>
-            <p className="text-sm">{comment.content}</p>
+    <div className="w-full space-y-4 mt-4">
+      <div className="space-y-4">
+        {isLoading ? (
+          <div className="space-y-4">
+            <CommentSkeleton />
+            <CommentSkeleton />
+            <CommentSkeleton />
           </div>
-        </div>
-      ))}
-      <div className="flex gap-1.5 items-start">
+        ) : (
+          data?.pages.map((page, pageIndex) => (
+            <div key={pageIndex} className="space-y-4">
+              {page.comments.map((comment, commentIndex) => {
+                const isLastComment = pageIndex === data.pages.length - 1 && commentIndex === page.comments.length - 1;
+                
+                return (
+                  <div
+                    key={comment.id}
+                    ref={isLastComment ? lastCommentRef : undefined}
+                    className="flex items-start gap-2"
+                  >
+                    <Avatar className="h-6 w-6">
+                      <AvatarImage src={comment.profiles.avatar_url || ''} alt={comment.profiles.username} />
+                      <AvatarFallback>
+                        <UserRound className="h-4 w-4" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-sm">
+                          {comment.profiles.username}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {new Date(comment.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="text-sm">{comment.content}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ))
+        )}
+        
+        {isFetchingNextPage && (
+          <div className="flex justify-center p-2">
+            <Loader2 className="animate-spin" />
+          </div>
+        )}
+      </div>
+
+      <div className="flex gap-2">
         <Textarea
           placeholder="Write a comment..."
           value={commentContent}
           onChange={(e) => onCommentChange(e.target.value)}
-          className="flex-1 min-h-[40px] resize-none text-sm py-1.5 px-2"
+          className="min-h-[80px]"
         />
-        <Button 
+        <Button
           onClick={onSubmitComment}
-          className="text-gray-400 hover:text-gray-600 text-sm py-1.5 px-3 h-auto bg-gray-50 hover:bg-gray-100"
+          disabled={!commentContent.trim()}
         >
-          Comment
+          Post
         </Button>
       </div>
     </div>
