@@ -30,7 +30,9 @@ export const useChallenge = () => {
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
     if (isActive && currentPair) {
       if (event.code === 'Space') {
+        // Prevent the default spacebar behavior
         event.preventDefault();
+        // Increment chord changes counter
         setChordChanges(prev => prev + 1);
       }
     }
