@@ -29,8 +29,10 @@ export const useChallenge = () => {
 
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
     if (isActive && currentPair) {
-      // Logic to handle key press for chord changes
-      // Increment chordChanges based on the key pressed
+      if (event.code === 'Space') {
+        event.preventDefault();
+        setChordChanges(prev => prev + 1);
+      }
     }
   }, [isActive, currentPair]);
 
@@ -98,11 +100,13 @@ export const useChallenge = () => {
   };
 
   const startChallenge = () => {
+    const chordPairs: ChordPair[] = ['Am-C', 'Em-G', 'Dm-G', 'Am-F', 'C-G', 'Em-Am'];
+    const randomPair = chordPairs[Math.floor(Math.random() * chordPairs.length)];
+    setCurrentPair(randomPair);
     setIsActive(true);
     setIsPaused(false);
     setTimeLeft(60);
     setChordChanges(0);
-    // Logic to set currentPair
     window.addEventListener('keydown', handleKeyPress);
   };
 
