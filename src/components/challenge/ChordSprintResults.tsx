@@ -10,12 +10,6 @@ const ChordSprintResults = () => {
   const [previousResults, setPreviousResults] = useState<SprintResult[]>([]);
   const session = useSession();
 
-  useEffect(() => {
-    if (session?.user) {
-      fetchResults();
-    }
-  }, [session]);
-
   const fetchResults = async () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -44,6 +38,34 @@ const ChordSprintResults = () => {
       setPreviousResults(previousData.slice(0, 5));
     }
   };
+
+  useEffect(() => {
+    if (session?.user) {
+      fetchResults();
+
+      // Subscribe to realtime updates
+      const channel = supabase
+        .channel('chord-sprinter-results')
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'chord_sprinter_results',
+            filter: `user_id=eq.${session.user.id}`
+          },
+          () => {
+            // Refresh results when new data is inserted
+            fetchResults();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [session]);
 
   return (
     <div className="bg-white rounded-2xl shadow-sm p-3 md:p-4 mx-auto max-w-[95%] md:max-w-[800px] h-[70vh]">
