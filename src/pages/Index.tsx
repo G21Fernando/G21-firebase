@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import Header from '@/components/Header';
 import MainContent from '@/components/MainContent';
+import { useToast } from "@/components/ui/use-toast";
 
 const Index = () => {
   const [dailyPoints, setDailyPoints] = useState(0);
@@ -9,6 +10,7 @@ const Index = () => {
   const [profile, setProfile] = useState<any>(null);
   const session = useSession();
   const supabase = useSupabaseClient();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (session?.user) {
@@ -18,33 +20,59 @@ const Index = () => {
 
   const fetchProfile = async () => {
     try {
-      const { data, error } = await supabase
+      const { data: existingProfile, error: fetchError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', session?.user?.id)
-        .single();
+        .maybeSingle();
       
-      if (error) throw error;
+      if (fetchError) throw fetchError;
       
-      if (data) {
-        setProfile(data);
-        
-        // Check if last practice date is from a previous day
-        const lastPracticeDate = new Date(data.last_practice_date);
-        const today = new Date();
-        
-        if (lastPracticeDate.toDateString() !== today.toDateString()) {
-          // If it's a new day, start with fresh daily stats
-          setDailyPoints(0);
-          setDailyPracticeTime(0);
-        } else {
-          // If it's the same day, use the stored daily stats
-          setDailyPoints(data.daily_points || 0);
-          setDailyPracticeTime(data.daily_practice_time || 0);
-        }
+      if (!existingProfile) {
+        // Create profile if it doesn't exist
+        const { data: newProfile, error: insertError } = await supabase
+          .from('profiles')
+          .insert([{ 
+            id: session?.user?.id,
+            username: session?.user?.email?.split('@')[0] || 'user',
+            points: 0,
+            practice_time: 0,
+            daily_points: 0,
+            daily_practice_time: 0,
+            last_practice_date: new Date().toISOString()
+          }])
+          .select()
+          .single();
+
+        if (insertError) throw insertError;
+        setProfile(newProfile);
+        setDailyPoints(0);
+        setDailyPracticeTime(0);
+        return;
       }
-    } catch (error) {
-      console.error('Error fetching profile:', error);
+      
+      setProfile(existingProfile);
+      
+      // Check if last practice date is from a previous day
+      const lastPracticeDate = new Date(existingProfile.last_practice_date);
+      const today = new Date();
+      
+      if (lastPracticeDate.toDateString() !== today.toDateString()) {
+        // If it's a new day, start with fresh daily stats
+        setDailyPoints(0);
+        setDailyPracticeTime(0);
+      } else {
+        // If it's the same day, use the stored daily stats
+        setDailyPoints(existingProfile.daily_points || 0);
+        setDailyPracticeTime(existingProfile.daily_practice_time || 0);
+      }
+    } catch (error: any) {
+      console.error('Error fetching/creating profile:', error);
+      toast({
+        title: "Error loading profile",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -65,8 +93,13 @@ const Index = () => {
         .eq('id', session.user.id);
 
       if (error) throw error;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating practice time:', error);
+      toast({
+        title: "Error updating practice time",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -87,8 +120,13 @@ const Index = () => {
         .eq('id', session.user.id);
 
       if (error) throw error;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating points:', error);
+      toast({
+        title: "Error updating points",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
