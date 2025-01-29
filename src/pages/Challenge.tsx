@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useSession } from '@supabase/auth-helpers-react';
-import Header from '@/components/Header';
 import { supabase } from '@/integrations/supabase/client';
+import Header from '@/components/Header';
 import LeaderboardCard from '@/components/LeaderboardCard';
 import ChallengeStats from '@/components/challenge/ChallengeStats';
 import ChallengeMain from '@/components/challenge/ChallengeMain';
 import ChordSprintResults from '@/components/challenge/ChordSprintResults';
 import { Analytics } from '@/utils/analytics';
 import { useToast } from '@/hooks/use-toast';
+import { useChallenge } from '@/hooks/useChallenge';
 
 const Challenge = () => {
   const [profile, setProfile] = useState<any>(null);
@@ -17,19 +18,14 @@ const Challenge = () => {
     isActive, 
     isPaused, 
     timeLeft, 
-    chordChanges, 
-    startChallenge, 
+    chordChanges,
+    startChallenge,
     stopChallenge 
   } = useChallenge();
 
   useEffect(() => {
     if (session?.user) {
       fetchProfile();
-      // Identify user in Mixpanel
-      Analytics.identify(session.user.id, {
-        email: session.user.email,
-        created_at: session.user.created_at,
-      });
     }
   }, [session]);
 

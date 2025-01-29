@@ -25,13 +25,7 @@ export const useChallenge = () => {
       }, 1000);
     } else if (timeLeft === 0) {
       setIsActive(false);
-      saveResults();
-      updatePracticeTime();
       playEndSound();
-      toast({
-        title: "Challenge completed!",
-        description: `You completed ${chordChanges} chord changes in 60 seconds!`,
-      });
     }
 
     return () => {
@@ -39,7 +33,7 @@ export const useChallenge = () => {
         clearInterval(interval);
       }
     };
-  }, [isActive, isPaused, timeLeft, chordChanges, toast]);
+  }, [isActive, isPaused, timeLeft]);
 
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
     if (event.code === 'Space' && isActive && !isPaused) {
@@ -55,61 +49,6 @@ export const useChallenge = () => {
     };
   }, [handleKeyPress]);
 
-  const updatePracticeTime = async () => {
-    if (session?.user) {
-      try {
-        // Get current profile data
-        const { data: profile, error: fetchError } = await supabase
-          .from('profiles')
-          .select('practice_time, daily_practice_time')
-          .eq('id', session.user.id)
-          .single();
-
-        if (fetchError) throw fetchError;
-
-        // Add 60 seconds (1 minute) to both total and daily practice time
-        const { error: updateError } = await supabase
-          .from('profiles')
-          .update({ 
-            practice_time: (profile?.practice_time || 0) + 60,
-            daily_practice_time: (profile?.daily_practice_time || 0) + 60,
-            last_practice_date: new Date().toISOString()
-          })
-          .eq('id', session.user.id);
-
-        if (updateError) throw updateError;
-      } catch (error) {
-        console.error('Error updating practice time:', error);
-        toast({
-          title: "Error updating practice time",
-          description: "Please try again later",
-          variant: "destructive",
-        });
-      }
-    }
-  };
-
-  const saveResults = async () => {
-    if (session?.user && currentPair) {
-      const { error } = await supabase
-        .from('chord_sprinter_results')
-        .insert({
-          user_id: session.user.id,
-          chord_pair: currentPair,
-          reps: chordChanges
-        });
-
-      if (error) {
-        console.error('Error saving results:', error);
-        toast({
-          title: "Error saving results",
-          description: "Please try again later",
-          variant: "destructive",
-        });
-      }
-    }
-  };
-
   const startChallenge = () => {
     const chordPairs: ChordPair[] = ['Am-C', 'Em-G', 'Dm-G', 'Am-F', 'C-G', 'Em-Am'];
     const randomPair = chordPairs[Math.floor(Math.random() * chordPairs.length)];
@@ -123,10 +62,6 @@ export const useChallenge = () => {
   const stopChallenge = () => {
     setIsActive(false);
     setIsPaused(false);
-    toast({
-      title: "Challenge stopped",
-      description: "Remember, you need to complete the full 60 seconds to track your progress.",
-    });
   };
 
   return {
