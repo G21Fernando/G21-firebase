@@ -1,59 +1,38 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from '@supabase/auth-helpers-react';
-import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { playEndSound } from '@/utils/audio';
-import type { Database } from '@/integrations/supabase/types';
-
-type ChordPair = Database['public']['Enums']['chord_pair'];
+import { useToast } from '@/components/ui/use-toast';
+import type { ChordPair } from '@/components/challenge/types';
 
 export const useChallenge = () => {
+  const [timeLeft, setTimeLeft] = useState(60);
   const [isActive, setIsActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(60);
   const [chordChanges, setChordChanges] = useState(0);
   const [currentPair, setCurrentPair] = useState<ChordPair | null>(null);
   const session = useSession();
   const { toast } = useToast();
 
   useEffect(() => {
-    let interval: number | undefined;
-    
-    if (isActive && !isPaused && timeLeft > 0) {
-      interval = window.setInterval(() => {
-        setTimeLeft((time) => time - 1);
+    let timer: NodeJS.Timeout;
+
+    if (isActive && timeLeft > 0) {
+      timer = setTimeout(() => {
+        setTimeLeft((prev) => prev - 1);
       }, 1000);
     } else if (timeLeft === 0) {
-      setIsActive(false);
-      saveResults();
-      updatePracticeTime();
-      playEndSound();
-      toast({
-        title: "Challenge completed!",
-        description: `You completed ${chordChanges} chord changes in 60 seconds!`,
-      });
+      stopChallenge();
     }
 
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
-    };
-  }, [isActive, isPaused, timeLeft, chordChanges, toast]);
+    return () => clearTimeout(timer);
+  }, [isActive, timeLeft]);
 
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
-    if (event.code === 'Space' && isActive && !isPaused) {
-      event.preventDefault();
-      setChordChanges((prev) => prev + 1);
+    if (isActive && currentPair) {
+      // Logic to handle key press for chord changes
+      // Increment chordChanges based on the key pressed
     }
-  }, [isActive, isPaused]);
-
-  useEffect(() => {
-    document.addEventListener('keydown', handleKeyPress);
-    return () => {
-      document.removeEventListener('keydown', handleKeyPress);
-    };
-  }, [handleKeyPress]);
+  }, [isActive, currentPair]);
 
   const updatePracticeTime = async () => {
     if (session?.user) {
@@ -119,31 +98,32 @@ export const useChallenge = () => {
   };
 
   const startChallenge = () => {
-    const chordPairs: ChordPair[] = ['Am-C', 'Em-G', 'Dm-G', 'Am-F', 'C-G', 'Em-Am'];
-    const randomPair = chordPairs[Math.floor(Math.random() * chordPairs.length)];
-    setCurrentPair(randomPair);
     setIsActive(true);
     setIsPaused(false);
     setTimeLeft(60);
     setChordChanges(0);
+    // Logic to set currentPair
+    window.addEventListener('keydown', handleKeyPress);
   };
 
   const stopChallenge = () => {
     setIsActive(false);
-    setIsPaused(false);
-    toast({
-      title: "Challenge stopped",
-      description: "Remember, you need to complete the full 60 seconds to track your progress.",
-    });
+    updatePracticeTime();
+    saveResults();
+    window.removeEventListener('keydown', handleKeyPress);
   };
 
   return {
+    timeLeft,
     isActive,
     isPaused,
-    timeLeft,
     chordChanges,
     currentPair,
     startChallenge,
-    stopChallenge
+    stopChallenge,
+    setIsPaused,
+    setChordChanges
   };
 };
+
+export default useChallenge;
