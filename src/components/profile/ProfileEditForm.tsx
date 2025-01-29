@@ -6,6 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Spinner } from "@/components/ui/spinner";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Trash2 } from "lucide-react";
 
 interface ProfileEditFormProps {
   currentUsername: string;
@@ -46,6 +47,44 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
       setSelectedFile(file);
       const objectUrl = URL.createObjectURL(file);
       setPreviewUrl(objectUrl);
+    }
+  };
+
+  const handleDeleteAvatar = async () => {
+    setIsLoading(true);
+    try {
+      if (currentAvatarUrl) {
+        await supabase.storage
+          .from('avatars')
+          .remove([currentAvatarUrl]);
+      }
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ avatar_url: null })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      setPreviewUrl(null);
+      setSelectedFile(null);
+      
+      toast({
+        title: "Avatar deleted successfully!",
+        duration: 3000,
+      });
+      
+      onProfileUpdate();
+    } catch (error) {
+      console.error('Avatar deletion error:', error);
+      toast({
+        title: "Error deleting avatar",
+        description: "Please try again later.",
+        variant: "destructive",
+        duration: 3000,
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -112,10 +151,24 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="flex flex-col items-center gap-4">
-        <Avatar className="w-24 h-24">
-          <AvatarImage src={previewUrl || '/placeholder.svg'} alt={username} />
-          <AvatarFallback>{username[0]?.toUpperCase()}</AvatarFallback>
-        </Avatar>
+        <div className="relative">
+          <Avatar className="w-24 h-24">
+            <AvatarImage src={previewUrl || '/placeholder.svg'} alt={username} />
+            <AvatarFallback>{username[0]?.toUpperCase()}</AvatarFallback>
+          </Avatar>
+          {(previewUrl || currentAvatarUrl) && (
+            <Button
+              type="button"
+              variant="destructive"
+              size="icon"
+              className="absolute -bottom-2 -right-2"
+              onClick={handleDeleteAvatar}
+              disabled={isLoading}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
         <div className="space-y-2 w-full">
           <Label htmlFor="avatar">Profile Picture</Label>
           <Input
