@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Spinner } from "@/components/ui/spinner";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Trash2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface ProfileEditFormProps {
   currentUsername: string;
@@ -24,53 +24,54 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
   onClose,
 }) => {
   const [username, setUsername] = useState(currentUsername);
-  const [isLoading, setIsLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(
-    currentAvatarUrl 
-      ? supabase.storage.from('avatars').getPublicUrl(currentAvatarUrl).data.publicUrl 
-      : null
-  );
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast({
-          title: "File too large",
-          description: "Please select an image under 5MB",
-          variant: "destructive",
-        });
-        return;
+  useEffect(() => {
+    if (currentAvatarUrl) {
+      if (currentAvatarUrl.startsWith('http')) {
+        setPreviewUrl(currentAvatarUrl);
+      } else {
+        const { data: { publicUrl } } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(currentAvatarUrl);
+        setPreviewUrl(publicUrl);
       }
+    }
+  }, [currentAvatarUrl]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
       setSelectedFile(file);
-      const objectUrl = URL.createObjectURL(file);
-      setPreviewUrl(objectUrl);
+      setPreviewUrl(URL.createObjectURL(file));
     }
   };
 
   const handleDeleteAvatar = async () => {
     setIsLoading(true);
     try {
-      if (currentAvatarUrl) {
+      if (currentAvatarUrl && !currentAvatarUrl.startsWith('http')) {
         await supabase.storage
           .from('avatars')
           .remove([currentAvatarUrl]);
       }
 
+      const defaultAvatar = `https://api.multiavatar.com/${userId}.svg`;
       const { error } = await supabase
         .from('profiles')
-        .update({ avatar_url: null })
+        .update({ avatar_url: defaultAvatar })
         .eq('id', userId);
 
       if (error) throw error;
 
-      setPreviewUrl(null);
+      setPreviewUrl(defaultAvatar);
       setSelectedFile(null);
       
       toast({
-        title: "Avatar deleted successfully!",
+        title: "Avatar reset to default!",
         duration: 3000,
       });
       
@@ -78,7 +79,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
     } catch (error) {
       console.error('Avatar deletion error:', error);
       toast({
-        title: "Error deleting avatar",
+        title: "Error resetting avatar",
         description: "Please try again later.",
         variant: "destructive",
         duration: 3000,
@@ -91,38 +92,27 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     try {
       let avatarUrl = currentAvatarUrl;
 
       if (selectedFile) {
-        // Delete the old avatar if it exists
-        if (currentAvatarUrl) {
-          await supabase.storage
-            .from('avatars')
-            .remove([currentAvatarUrl]);
-        }
+        const fileExt = selectedFile.name.split('.').pop();
+        const filePath = `${userId}/avatar.${fileExt}`;
 
-        const formData = new FormData();
-        formData.append('file', selectedFile);
-        formData.append('userId', userId);
+        const { error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(filePath, selectedFile, { upsert: true });
 
-        const { data, error: functionError } = await supabase.functions.invoke('optimize-avatar', {
-          body: formData,
-        });
-
-        if (functionError) {
-          throw functionError;
-        }
-
-        avatarUrl = data?.filePath;
+        if (uploadError) throw uploadError;
+        avatarUrl = filePath;
       }
 
       const { error } = await supabase
         .from('profiles')
-        .update({ 
+        .update({
           username,
-          avatar_url: avatarUrl
+          avatar_url: avatarUrl,
         })
         .eq('id', userId);
 
@@ -132,7 +122,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
         title: "Profile updated successfully!",
         duration: 3000,
       });
-      
+
       onProfileUpdate();
       onClose();
     } catch (error) {
@@ -148,15 +138,20 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
     }
   };
 
+  const defaultAvatarUrl = `https://api.multiavatar.com/${userId}.svg`;
+  const avatarSrc = previewUrl || defaultAvatarUrl;
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="flex flex-col items-center gap-4">
         <div className="relative">
           <Avatar className="w-24 h-24">
-            <AvatarImage src={previewUrl || '/placeholder.svg'} alt={username} />
-            <AvatarFallback>{username[0]?.toUpperCase()}</AvatarFallback>
+            <AvatarImage src={avatarSrc} alt={username} />
+            <AvatarFallback>
+              <img src={defaultAvatarUrl} alt={username} className="w-full h-full" />
+            </AvatarFallback>
           </Avatar>
-          {(previewUrl || currentAvatarUrl) && (
+          {(previewUrl || currentAvatarUrl) && !avatarSrc.includes('multiavatar.com') && (
             <Button
               type="button"
               variant="destructive"
@@ -175,33 +170,36 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
             id="avatar"
             type="file"
             accept="image/*"
-            onChange={handleFileSelect}
+            onChange={handleFileChange}
             disabled={isLoading}
           />
-          <p className="text-sm text-gray-500">
-            Maximum file size: 5MB. The image will be optimized automatically.
-          </p>
         </div>
       </div>
+
       <div className="space-y-2">
         <Label htmlFor="username">Username</Label>
         <Input
           id="username"
+          type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          placeholder="Enter your username"
           disabled={isLoading}
         />
       </div>
-      <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? (
-          <div className="flex items-center gap-2">
-            <Spinner size={16} /> Saving...
-          </div>
-        ) : (
-          'Save Changes'
-        )}
-      </Button>
+
+      <div className="flex justify-end gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onClose}
+          disabled={isLoading}
+        >
+          Cancel
+        </Button>
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? <Spinner /> : 'Save Changes'}
+        </Button>
+      </div>
     </form>
   );
 };
