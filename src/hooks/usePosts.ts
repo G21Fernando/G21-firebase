@@ -89,11 +89,11 @@ export const usePosts = (onUpdate: number, selectedTheme: string | null) => {
     },
     getNextPageParam: (lastPage) => lastPage.nextPage,
     initialPageParam: 0,
-    staleTime: 1000 * 60, // Cache data for 1 minute
+    staleTime: 1000 * 30, // Cache data for 30 seconds
     gcTime: 1000 * 60 * 5, // Keep unused data in cache for 5 minutes
-    refetchOnWindowFocus: false, // Don't refetch when window regains focus
-    refetchOnReconnect: false, // Don't refetch on reconnection
-    refetchOnMount: false, // Don't refetch on component mount
+    refetchOnWindowFocus: true, // Enable refetch when window regains focus
+    refetchOnReconnect: true, // Enable refetch on reconnection
+    refetchOnMount: true, // Enable refetch on component mount
   });
 };
 
@@ -139,10 +139,10 @@ export const useComments = (postId: string) => {
     },
     getNextPageParam: (lastPage) => lastPage.nextPage,
     initialPageParam: 0,
-    staleTime: 1000 * 60, // Cache comments for 1 minute
+    staleTime: 1000 * 30, // Cache comments for 30 seconds
     gcTime: 1000 * 60 * 5, // Keep unused comments in cache for 5 minutes
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    refetchOnMount: false,
+    refetchOnWindowFocus: true, // Enable refetch when window regains focus
+    refetchOnReconnect: true, // Enable refetch on reconnection
+    refetchOnMount: true, // Enable refetch on component mount
   });
 };

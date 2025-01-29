@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { SessionContextProvider, useSession } from '@supabase/auth-helpers-react';
 import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
@@ -14,15 +14,34 @@ import AdminDashboard from "./pages/AdminDashboard";
 import MobileFooter from "./components/MobileFooter";
 import { useEffect, useRef } from "react";
 import { useToast } from "./components/ui/use-toast";
+import { useAdmin } from "@/hooks/useAdmin";
+import { Loader2 } from "lucide-react";
 
+// Initialize QueryClient with better defaults for immediate rendering
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
+      retry: 2,
+      retryDelay: 1000,
+      refetchOnWindowFocus: true,
+      refetchOnMount: true,
+      refetchOnReconnect: true,
+      staleTime: 1000 * 30,
+      suspense: false,
+      networkMode: 'always',
+      refetchInterval: false,
     },
   },
 });
+
+// Root Layout wrapper to ensure consistent styling
+const RootLayout = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <div className="min-h-screen bg-[#F5E6DB]">
+      {children}
+    </div>
+  );
+};
 
 // Protected route wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -49,27 +68,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
       sessionCheckTimeout.current = setTimeout(() => {
         toast({
           title: "Session expired",
-          description: "Please sign in again",
+          description: "Please log in again to continue",
           variant: "destructive",
         });
-        hadSession.current = false;
-      }, 2000);
+      }, 100);
     }
-
-    if (session) {
-      hadSession.current = true;
-    }
-
-    return () => {
-      if (sessionCheckTimeout.current) {
-        clearTimeout(sessionCheckTimeout.current);
-      }
-    };
   }, [session, toast]);
-
-  if (!initialCheckDone.current) {
-    return null;
-  }
 
   if (!session) {
     return <Navigate to="/auth" replace />;
@@ -86,32 +90,35 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 // Admin route wrapper
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const session = useSession();
+  const { isAdmin, isLoading } = useAdmin();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const checkAdminStatus = async () => {
-      if (session?.user) {
-        const { data } = await supabase
-          .from('admin_users')
-          .select('id')
-          .eq('id', session.user.id)
-          .single();
-
-        if (!data) {
-          toast({
-            title: "Access denied",
-            description: "You need admin privileges to access this page",
-            variant: "destructive",
-          });
-        }
-      }
-    };
-
-    checkAdminStatus();
-  }, [session, toast]);
+    if (!isLoading && !isAdmin) {
+      toast({
+        title: "Access denied",
+        description: "You need admin privileges to access this page",
+        variant: "destructive",
+      });
+      navigate('/');
+    }
+  }, [isAdmin, isLoading, toast, navigate]);
 
   if (!session) {
     return <Navigate to="/auth" replace />;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return <Navigate to="/" replace />;
   }
 
   return (
@@ -129,38 +136,40 @@ const App = () => (
       initialSession={null}
     >
       <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={
-              <ProtectedRoute>
-                <Index />
-              </ProtectedRoute>
-            } />
-            <Route path="/feed" element={
-              <ProtectedRoute>
-                <Feed />
-              </ProtectedRoute>
-            } />
-            <Route path="/challenge" element={
-              <ProtectedRoute>
-                <Challenge />
-              </ProtectedRoute>
-            } />
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin" element={
-              <AdminRoute>
-                <AdminDashboard />
-              </AdminRoute>
-            } />
-            <Route path="/auth" element={<Auth />} />
-          </Routes>
-        </BrowserRouter>
+        <RootLayout>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <Index />
+                </ProtectedRoute>
+              } />
+              <Route path="/feed" element={
+                <ProtectedRoute>
+                  <Feed />
+                </ProtectedRoute>
+              } />
+              <Route path="/challenge" element={
+                <ProtectedRoute>
+                  <Challenge />
+                </ProtectedRoute>
+              } />
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin" element={
+                <AdminRoute>
+                  <AdminDashboard />
+                </AdminRoute>
+              } />
+              <Route path="/auth" element={<Auth />} />
+            </Routes>
+          </BrowserRouter>
+        </RootLayout>
       </TooltipProvider>
     </SessionContextProvider>
   </QueryClientProvider>

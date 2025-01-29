@@ -13,7 +13,7 @@ const Feed = () => {
   const supabase = useSupabaseClient();
   const { toast } = useToast();
 
-  // Use React Query for profile fetching
+  // Use React Query for profile fetching with better defaults
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ['profile', session?.user?.id],
     queryFn: async () => {
@@ -40,35 +40,43 @@ const Feed = () => {
     enabled: !!session?.user?.id,
     staleTime: 1000 * 60 * 5, // Cache profile for 5 minutes
     gcTime: 1000 * 60 * 10, // Keep unused data for 10 minutes
-    retry: 1, // Only retry once on failure
+    retry: 2,
+    retryDelay: 1000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
+
+  // Force an immediate render of the layout
+  useEffect(() => {
+    document.body.style.backgroundColor = '#F5E6DB';
+    return () => {
+      document.body.style.backgroundColor = '';
+    };
+  }, []);
 
   const handlePostCreated = () => {
     setUpdateTrigger(prev => prev + 1);
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#F5E6DB' }}>
-      <Header 
-        profile={profile}
-        onProfileUpdate={() => {}}
-      />
-      <div className="max-w-2xl mx-auto px-4 pt-4 pb-8">
+    <>
+      <Header />
+      <main className="container mx-auto px-4 py-8">
         {profileLoading ? (
-          <div className="space-y-4 mb-6">
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-20 w-full" />
+          <div className="space-y-4 animate-pulse">
+            <Skeleton className="h-32 w-full rounded-lg" />
+            <Skeleton className="h-64 w-full rounded-lg" />
           </div>
         ) : (
-          <div className="space-y-6">
+          <>
             <CreatePost onPostCreated={handlePostCreated} />
             <div className="mt-8">
               <PostList onUpdate={updateTrigger} />
             </div>
-          </div>
+          </>
         )}
-      </div>
-    </div>
+      </main>
+    </>
   );
 };
 

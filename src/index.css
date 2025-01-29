@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Ensure background color is applied immediately */
+html, body, #root {
+  min-height: 100vh;
+  background-color: #F5E6DB;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -32,7 +38,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-[#e3d1ba] text-foreground;
+    @apply bg-background text-foreground;
   }
 }
 
