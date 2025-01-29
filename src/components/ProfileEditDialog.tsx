@@ -4,6 +4,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import ProfileEditForm from './profile/ProfileEditForm';
 
@@ -25,6 +26,9 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Profile</DialogTitle>
+          <DialogDescription>
+            Make changes to your profile here. Click save when you're done.
+          </DialogDescription>
         </DialogHeader>
         <ProfileEditForm
           currentUsername={profile?.username || ''}

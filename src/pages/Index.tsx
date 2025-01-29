@@ -19,11 +19,13 @@ const Index = () => {
   }, [session]);
 
   const fetchProfile = async () => {
+    if (!session?.user?.id) return;
+
     try {
       const { data: existingProfile, error: fetchError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', session?.user?.id)
+        .eq('id', session.user.id)
         .maybeSingle();
       
       if (fetchError) throw fetchError;
@@ -33,8 +35,8 @@ const Index = () => {
         const { data: newProfile, error: insertError } = await supabase
           .from('profiles')
           .insert([{ 
-            id: session?.user?.id,
-            username: session?.user?.email?.split('@')[0] || 'user',
+            id: session.user.id,
+            username: session.user.email?.split('@')[0] || 'user',
             points: 0,
             practice_time: 0,
             daily_points: 0,
@@ -44,7 +46,16 @@ const Index = () => {
           .select()
           .single();
 
-        if (insertError) throw insertError;
+        if (insertError) {
+          console.error('Error creating profile:', insertError);
+          toast({
+            title: "Error creating profile",
+            description: insertError.message,
+            variant: "destructive",
+          });
+          return;
+        }
+
         setProfile(newProfile);
         setDailyPoints(0);
         setDailyPracticeTime(0);
