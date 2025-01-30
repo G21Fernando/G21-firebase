@@ -13,7 +13,6 @@ const Feed = () => {
   const supabase = useSupabaseClient();
   const { toast } = useToast();
 
-  // Use React Query for profile fetching with better defaults
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ['profile', session?.user?.id],
     queryFn: async () => {
@@ -38,15 +37,14 @@ const Feed = () => {
       return data;
     },
     enabled: !!session?.user?.id,
-    staleTime: 1000 * 60 * 5, // Cache profile for 5 minutes
-    gcTime: 1000 * 60 * 10, // Keep unused data for 10 minutes
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
     retry: 2,
     retryDelay: 1000,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
   });
 
-  // Force an immediate render of the layout
   useEffect(() => {
     document.body.style.backgroundColor = '#F5E6DB';
     return () => {
@@ -59,9 +57,9 @@ const Feed = () => {
   };
 
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="container mx-auto px-4 py-8">
+      <main className="flex-1 container mx-auto px-4 py-6 max-w-5xl">
         {profileLoading ? (
           <div className="space-y-4 animate-pulse">
             <Skeleton className="h-32 w-full rounded-lg" />
@@ -70,13 +68,13 @@ const Feed = () => {
         ) : (
           <>
             <CreatePost onPostCreated={handlePostCreated} />
-            <div className="mt-8">
+            <div className="mt-6">
               <PostList onUpdate={updateTrigger} />
             </div>
           </>
         )}
       </main>
-    </>
+    </div>
   );
 };
 

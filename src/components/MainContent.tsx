@@ -18,23 +18,23 @@ const MainContent = ({
 }: MainContentProps) => {
   return (
     <main className="flex-1 overflow-auto">
-      <div className="container mx-auto px-4 py-6 md:py-8 min-h-[calc(100vh-4rem)]">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-          <div className="bg-[#E8DFD8] rounded-2xl shadow-sm p-4 min-h-[24rem]">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-[#E8DFD8] rounded-2xl shadow-sm p-6 min-h-[24rem]">
             <StatsCard 
               points={dailyPoints}
               practiceTime={dailyPracticeTime}
             />
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm p-4 min-h-[24rem]">
+          <div className="bg-white rounded-2xl shadow-sm p-6 min-h-[24rem]">
             <MetronomeControl 
               onPointsUpdate={onPointsUpdate}
               onPracticeTimeUpdate={onPracticeTimeUpdate}
             />
           </div>
 
-          <div className="bg-[#f8f8f8] rounded-2xl shadow-sm p-4 min-h-[24rem]">
+          <div className="bg-[#f8f8f8] rounded-2xl shadow-sm p-6 min-h-[24rem]">
             <LeaderboardCard />
           </div>
         </div>
