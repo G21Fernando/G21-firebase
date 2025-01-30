@@ -399,6 +399,7 @@ export type Database = {
           daily_points: number | null
           daily_practice_time: number | null
           id: string
+          is_admin: boolean | null
           last_practice_date: string | null
           points: number | null
           practice_time: number | null
@@ -412,6 +413,7 @@ export type Database = {
           daily_points?: number | null
           daily_practice_time?: number | null
           id: string
+          is_admin?: boolean | null
           last_practice_date?: string | null
           points?: number | null
           practice_time?: number | null
@@ -425,6 +427,7 @@ export type Database = {
           daily_points?: number | null
           daily_practice_time?: number | null
           id?: string
+          is_admin?: boolean | null
           last_practice_date?: string | null
           points?: number | null
           practice_time?: number | null
