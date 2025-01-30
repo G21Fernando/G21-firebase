@@ -16,25 +16,17 @@ const AuthPage = () => {
   const session = useSession();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN") {
         navigate("/");
       }
       if (event === "SIGNED_OUT") {
         setError(null);
       }
-      // Handle authentication errors
-      if (event === "SIGNED_OUT") {
-        toast({
-          variant: "destructive",
-          title: "Authentication Error",
-          description: "Please check your credentials and try again.",
-        });
-      }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate, toast]);
+  }, [navigate]);
 
   // If user is already logged in, redirect to home
   useEffect(() => {
@@ -47,13 +39,25 @@ const AuthPage = () => {
     if (session) {
       navigate('/');
     } else {
-      // If not logged in, show a toast explaining they need to log in
       toast({
         title: "Login Required",
         description: "Please log in or sign up to access the practice area.",
         variant: "default",
       });
     }
+  };
+
+  const handleAuthError = (error: Error) => {
+    console.error('Auth error:', error);
+    let errorMessage = 'An error occurred during authentication. ';
+    
+    if (error.message.includes('Failed to fetch')) {
+      errorMessage += 'Please check your internet connection and try again.';
+    } else {
+      errorMessage += error.message;
+    }
+    
+    setError(errorMessage);
   };
 
   return (
@@ -96,6 +100,7 @@ const AuthPage = () => {
           providers={[]}
           view="sign_in"
           redirectTo={window.location.origin}
+          onError={handleAuthError}
         />
         <div className="mt-6 text-center">
           <Button 
