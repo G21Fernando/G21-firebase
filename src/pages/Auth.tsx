@@ -28,7 +28,6 @@ const AuthPage = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  // If user is already logged in, redirect to home
   useEffect(() => {
     if (session) {
       navigate('/');

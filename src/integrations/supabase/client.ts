@@ -14,22 +14,13 @@ export const supabase = createClient<Database>(
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      storage: localStorage,
       detectSessionInUrl: true,
-    },
-    db: {
-      schema: 'public'
+      flowType: 'pkce',
     },
     global: {
-      fetch: (url, options) => {
-        const headers = new Headers(options?.headers || {});
-        headers.set('Cache-Control', 'no-cache');
-        return fetch(url, {
-          ...options,
-          headers,
-          credentials: 'include',
-        });
-      }
-    }
+      headers: {
+        'X-Client-Info': 'supabase-js-web'
+      },
+    },
   }
 );
