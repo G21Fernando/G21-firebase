@@ -27,16 +27,23 @@ export const useChallenge = () => {
     return () => clearTimeout(timer);
   }, [isActive, timeLeft]);
 
-  const handleKeyPress = useCallback((event: KeyboardEvent) => {
-    if (isActive && currentPair) {
-      if (event.code === 'Space') {
-        // Prevent the default spacebar behavior
-        event.preventDefault();
-        // Increment chord changes counter
+  // Handle spacebar press for chord changes
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (isActive && !isPaused && event.code === 'Space') {
+        event.preventDefault(); // Prevent page scrolling
         setChordChanges(prev => prev + 1);
       }
+    };
+
+    if (isActive && !isPaused) {
+      window.addEventListener('keydown', handleKeyPress);
     }
-  }, [isActive, currentPair]);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [isActive, isPaused]);
 
   const updatePracticeTime = async () => {
     if (session?.user) {
@@ -109,14 +116,12 @@ export const useChallenge = () => {
     setIsPaused(false);
     setTimeLeft(60);
     setChordChanges(0);
-    window.addEventListener('keydown', handleKeyPress);
   };
 
   const stopChallenge = () => {
     setIsActive(false);
     updatePracticeTime();
     saveResults();
-    window.removeEventListener('keydown', handleKeyPress);
   };
 
   return {
