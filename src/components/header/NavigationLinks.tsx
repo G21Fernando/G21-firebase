@@ -2,9 +2,7 @@ import { useLocation } from 'react-router-dom';
 import { Users, Zap, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import TimekeeperIcon from '../icons/TimekeeperIcon';
-import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useSession } from '@supabase/auth-helpers-react';
+import { useAdmin } from '@/hooks/useAdmin';
 
 interface NavigationLinksProps {
   onNavigate: (path: string) => void;
@@ -12,24 +10,7 @@ interface NavigationLinksProps {
 
 const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
   const location = useLocation();
-  const session = useSession();
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  useEffect(() => {
-    const checkAdminStatus = async () => {
-      if (session?.user) {
-        const { data } = await supabase
-          .from('admin_users')
-          .select('id')
-          .eq('id', session.user.id)
-          .single();
-        
-        setIsAdmin(!!data);
-      }
-    };
-
-    checkAdminStatus();
-  }, [session]);
+  const { isAdmin } = useAdmin();
 
   return (
     <div className="hidden md:flex items-center gap-2">

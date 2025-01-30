@@ -29,7 +29,6 @@ const queryClient = new QueryClient({
       staleTime: 1000 * 30,
       suspense: false,
       networkMode: 'always',
-      refetchInterval: false,
     },
   },
 });
@@ -37,7 +36,7 @@ const queryClient = new QueryClient({
 // Root Layout wrapper to ensure consistent styling
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="min-h-screen bg-[#F5E6DB]">
+    <div className="min-h-screen bg-[#F5E6DB] flex flex-col">
       {children}
     </div>
   );
@@ -79,12 +78,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/auth" replace />;
   }
 
-  return (
-    <>
-      {children}
-      <MobileFooter />
-    </>
-  );
+  return children;
 };
 
 // Admin route wrapper
@@ -121,12 +115,7 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/" replace />;
   }
 
-  return (
-    <>
-      {children}
-      <MobileFooter />
-    </>
-  );
+  return children;
 };
 
 const App = () => (
@@ -168,6 +157,7 @@ const App = () => (
               } />
               <Route path="/auth" element={<Auth />} />
             </Routes>
+            <MobileFooter />
           </BrowserRouter>
         </RootLayout>
       </TooltipProvider>

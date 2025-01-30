@@ -31,12 +31,17 @@ const Index = () => {
       if (fetchError) throw fetchError;
       
       if (!existingProfile) {
+        const defaultUsername = session.user.email?.split('@')[0] || 'user';
+        // Generate default avatar URL using DiceBear Identicon
+        const defaultAvatarUrl = `https://api.dicebear.com/7.x/identicon/svg?seed=${defaultUsername}`;
+
         // Create profile if it doesn't exist
         const { data: newProfile, error: insertError } = await supabase
           .from('profiles')
           .insert([{ 
             id: session.user.id,
-            username: session.user.email?.split('@')[0] || 'user',
+            username: defaultUsername,
+            avatar_url: defaultAvatarUrl,
             points: 0,
             practice_time: 0,
             daily_points: 0,
@@ -55,82 +60,42 @@ const Index = () => {
           });
           return;
         }
-
         setProfile(newProfile);
-        setDailyPoints(0);
-        setDailyPracticeTime(0);
-        return;
-      }
-      
-      setProfile(existingProfile);
-      
-      // Check if last practice date is from a previous day
-      const lastPracticeDate = new Date(existingProfile.last_practice_date);
-      const today = new Date();
-      
-      if (lastPracticeDate.toDateString() !== today.toDateString()) {
-        // If it's a new day, start with fresh daily stats
-        setDailyPoints(0);
-        setDailyPracticeTime(0);
       } else {
-        // If it's the same day, use the stored daily stats
+        setProfile(existingProfile);
         setDailyPoints(existingProfile.daily_points || 0);
         setDailyPracticeTime(existingProfile.daily_practice_time || 0);
       }
     } catch (error: any) {
-      console.error('Error fetching/creating profile:', error);
+      console.error('Error:', error);
       toast({
-        title: "Error loading profile",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
     }
   };
 
-  const handlePracticeTimeUpdate = async (sessionTime: number) => {
-    if (!session?.user) return;
+  const handlePointsUpdate = async (points: number) => {
+    if (!session?.user?.id) return;
 
     try {
-      const newPracticeTime = dailyPracticeTime + sessionTime;
-      setDailyPracticeTime(newPracticeTime);
-      
       const { error } = await supabase
         .from('profiles')
         .update({ 
-          practice_time: (profile.practice_time || 0) + sessionTime,
-          daily_practice_time: newPracticeTime,
-          last_practice_date: new Date().toISOString()
+          points: (profile?.points || 0) + points,
+          daily_points: dailyPoints + points 
         })
         .eq('id', session.user.id);
 
       if (error) throw error;
-    } catch (error: any) {
-      console.error('Error updating practice time:', error);
-      toast({
-        title: "Error updating practice time",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handlePointsUpdate = async (sessionPoints: number) => {
-    if (!session?.user) return;
-
-    try {
-      const newDailyPoints = dailyPoints + sessionPoints;
-      setDailyPoints(newDailyPoints);
       
-      const { error } = await supabase
-        .from('profiles')
-        .update({ 
-          points: (profile.points || 0) + sessionPoints,
-          daily_points: newDailyPoints,
-          last_practice_date: new Date().toISOString()
-        })
-        .eq('id', session.user.id);
-
-      if (error) throw error;
+      setDailyPoints(prev => prev + points);
+      setProfile(prev => ({
+        ...prev,
+        points: (prev?.points || 0) + points,
+        daily_points: dailyPoints + points
+      }));
     } catch (error: any) {
       console.error('Error updating points:', error);
       toast({
@@ -141,19 +106,46 @@ const Index = () => {
     }
   };
 
+  const handlePracticeTimeUpdate = async (time: number) => {
+    if (!session?.user?.id) return;
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          practice_time: (profile?.practice_time || 0) + time,
+          daily_practice_time: dailyPracticeTime + time 
+        })
+        .eq('id', session.user.id);
+
+      if (error) throw error;
+      
+      setDailyPracticeTime(prev => prev + time);
+      setProfile(prev => ({
+        ...prev,
+        practice_time: (prev?.practice_time || 0) + time,
+        daily_practice_time: dailyPracticeTime + time
+      }));
+    } catch (error: any) {
+      console.error('Error updating practice time:', error);
+      toast({
+        title: "Error updating practice time",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
-    <div className="min-h-screen pb-16 md:pb-0" style={{ backgroundColor: '#F5E6DB' }}>
-      <Header 
-        profile={profile}
-        onProfileUpdate={fetchProfile}
-      />
-      <MainContent 
+    <>
+      <Header profile={profile} onProfileUpdate={fetchProfile} />
+      <MainContent
         dailyPoints={dailyPoints}
         dailyPracticeTime={dailyPracticeTime}
         onPointsUpdate={handlePointsUpdate}
         onPracticeTimeUpdate={handlePracticeTimeUpdate}
       />
-    </div>
+    </>
   );
 };
 

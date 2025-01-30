@@ -1,12 +1,7 @@
--- Add is_admin column to profiles table
+-- Add is_admin column to profiles table if it doesn't exist
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE;
 
--- Set Fernando as admin
+-- Set Fernando as admin using their profile ID
 UPDATE profiles 
 SET is_admin = TRUE 
-WHERE id IN (
-    SELECT user_id 
-    FROM profiles 
-    WHERE username = 'fernando' 
-    LIMIT 1
-);
+WHERE id = (SELECT id FROM profiles WHERE username ILIKE 'fernando' LIMIT 1);

@@ -1,17 +1,35 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = "https://jebbjrmtzmovxubjcdki.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImplYmJqcm10em1vdnh1YmpjZGtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU2MzIzMzcsImV4cCI6MjA1MTIwODMzN30.aOxeQUg88mIpI-_m7XSpJV26rAiyADzuV-x_W9eg5HU";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!SUPABASE_URL) throw new Error('Missing VITE_SUPABASE_URL');
+if (!SUPABASE_ANON_KEY) throw new Error('Missing VITE_SUPABASE_ANON_KEY');
 
 export const supabase = createClient<Database>(
   SUPABASE_URL,
-  SUPABASE_PUBLISHABLE_KEY,
+  SUPABASE_ANON_KEY,
   {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      storage: localStorage
+      storage: localStorage,
+      detectSessionInUrl: true,
+    },
+    db: {
+      schema: 'public'
+    },
+    global: {
+      fetch: (url, options = {}) => {
+        const headers = new Headers(options.headers);
+        headers.set('Cache-Control', 'no-cache');
+        return fetch(url, {
+          ...options,
+          headers,
+          credentials: 'include',
+        });
+      }
     }
   }
 );

@@ -1,9 +1,8 @@
 import { useMemo } from 'react';
 import { UserRound } from 'lucide-react';
 import { Session } from '@supabase/auth-helpers-react';
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { UserAvatar } from '@/components/ui/user-avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,7 +29,7 @@ const ProfileMenu = ({
 }: ProfileMenuProps) => {
   const avatarUrl = useMemo(() => {
     if (!profile?.avatar_url) return undefined;
-    return supabase.storage.from('avatars').getPublicUrl(profile.avatar_url).data.publicUrl;
+    return profile.avatar_url;
   }, [profile?.avatar_url]);
 
   if (!session) {
@@ -46,18 +45,22 @@ const ProfileMenu = ({
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 md:h-10 md:w-10 md:px-4 rounded-full">
           <div className="flex items-center gap-2">
-            <Avatar className="h-6 w-6 md:h-8 md:w-8">
-              <AvatarImage src={avatarUrl} />
-              <AvatarFallback>
-                <UserRound className="h-4 w-4" />
-              </AvatarFallback>
-            </Avatar>
+            <UserAvatar
+              profilePicture={profile?.avatar_url}
+              userId={session.user.id}
+              username={profile?.username || session.user.email?.split("@")[0]}
+              size="sm"
+            />
           </div>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={onProfileClick}>Profile</DropdownMenuItem>
-        <DropdownMenuItem onClick={onLogout}>Logout</DropdownMenuItem>
+        <DropdownMenuItem onClick={onProfileClick}>
+          Edit Profile
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={onLogout}>
+          Sign Out
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

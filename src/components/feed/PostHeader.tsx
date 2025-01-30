@@ -1,7 +1,7 @@
 import { Card, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2, UserRound } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { AvatarWithFallback } from "@/components/ui/avatar-with-fallback";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Shield } from 'lucide-react';
@@ -19,12 +19,11 @@ const PostHeader = ({ avatarUrl, username, createdAt, isOwner, onEdit, onDelete 
   return (
     <CardHeader className="flex flex-row items-center justify-between p-2">
       <div className="flex items-center gap-2">
-        <Avatar className="h-8 w-8">
-          <AvatarImage src={avatarUrl || ''} alt={username} />
-          <AvatarFallback>
-            <UserRound className="h-4 w-4" />
-          </AvatarFallback>
-        </Avatar>
+        <AvatarWithFallback
+          username={username}
+          src={avatarUrl}
+          size="sm"
+        />
         <div className="flex flex-col">
           <div className="flex items-center gap-2">
             <h3 className="font-semibold text-sm">{username}</h3>
