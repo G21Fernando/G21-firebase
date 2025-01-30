@@ -47,19 +47,6 @@ const AuthPage = () => {
     }
   };
 
-  const handleAuthError = (error: Error) => {
-    console.error('Auth error:', error);
-    let errorMessage = 'An error occurred during authentication. ';
-    
-    if (error.message.includes('Failed to fetch')) {
-      errorMessage += 'Please check your internet connection and try again.';
-    } else {
-      errorMessage += error.message;
-    }
-    
-    setError(errorMessage);
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F5E6DB' }}>
       <div className="w-full max-w-sm p-6 bg-white rounded-lg shadow-md">
@@ -100,7 +87,6 @@ const AuthPage = () => {
           providers={[]}
           view="sign_in"
           redirectTo={window.location.origin}
-          onError={handleAuthError}
         />
         <div className="mt-6 text-center">
           <Button 

@@ -112,6 +112,7 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
                   {page.posts.map((post, postIndex) => {
                     const isLastPost = pageIndex === data.pages.length - 1 && postIndex === page.posts.length - 1;
                     const isExpanded = expandedComments.includes(post.id);
+                    const currentCommentContent = commentContent[post.id] || '';
                     
                     return (
                       <div
@@ -182,8 +183,10 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
                             {isExpanded && (
                               <CommentList
                                 postId={post.id}
-                                commentContent={commentContent}
-                                onCommentChange={setCommentContent}
+                                commentContent={currentCommentContent}
+                                onCommentChange={(content: string) => 
+                                  setCommentContent(prev => ({ ...prev, [post.id]: content }))
+                                }
                                 onSubmitComment={() => handleComment(post.id)}
                               />
                             )}
