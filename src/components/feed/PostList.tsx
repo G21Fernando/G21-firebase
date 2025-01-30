@@ -131,6 +131,7 @@ const PostList = ({ onUpdate }: { onUpdate: number }) => {
                               setEditContent(post.content);
                             }}
                             onDelete={() => handleDeletePost(post.id)}
+                            city={post.profiles.city}
                           />
                           
                           <CardContent className="p-4">

@@ -1,6 +1,6 @@
 import { Card, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, UserRound } from 'lucide-react';
+import { Pencil, Trash2, UserRound, MapPin } from 'lucide-react';
 import { AvatarWithFallback } from "@/components/ui/avatar-with-fallback";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -13,9 +13,18 @@ interface PostHeaderProps {
   isOwner?: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
+  city?: string;
 }
 
-const PostHeader = ({ avatarUrl, username, createdAt, isOwner, onEdit, onDelete }: PostHeaderProps) => {
+const PostHeader = ({ 
+  avatarUrl, 
+  username, 
+  createdAt, 
+  isOwner, 
+  onEdit, 
+  onDelete,
+  city 
+}: PostHeaderProps) => {
   return (
     <CardHeader className="flex flex-row items-center justify-between p-2">
       <div className="flex items-center gap-2">
@@ -27,6 +36,12 @@ const PostHeader = ({ avatarUrl, username, createdAt, isOwner, onEdit, onDelete 
         <div className="flex flex-col">
           <div className="flex items-center gap-2">
             <h3 className="font-semibold text-sm">{username}</h3>
+            {city && (
+              <div className="flex items-center text-xs text-muted-foreground gap-1">
+                <MapPin className="h-3 w-3" />
+                <span>{city}</span>
+              </div>
+            )}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>

@@ -14,6 +14,7 @@ export interface Post {
   profiles: {
     username: string;
     avatar_url: string | null;
+    city: string | null;
   };
   likes: { user_id: string }[];
   comments_count: number;
@@ -30,7 +31,7 @@ export interface Comment {
   };
 }
 
-const POSTS_PER_PAGE = 5; // Reduced for faster initial load
+const POSTS_PER_PAGE = 5;
 const COMMENTS_PER_PAGE = 10;
 
 export const usePosts = (onUpdate: number, selectedTheme: string | null) => {
@@ -55,7 +56,8 @@ export const usePosts = (onUpdate: number, selectedTheme: string | null) => {
           themes,
           profiles!inner (
             username,
-            avatar_url
+            avatar_url,
+            city
           ),
           likes (
             user_id
@@ -93,11 +95,11 @@ export const usePosts = (onUpdate: number, selectedTheme: string | null) => {
     },
     getNextPageParam: (lastPage) => lastPage.nextPage,
     initialPageParam: 0,
-    staleTime: 1000 * 30, // Cache data for 30 seconds
-    gcTime: 1000 * 60 * 5, // Keep unused data in cache for 5 minutes
-    refetchOnWindowFocus: true, // Enable refetch when window regains focus
-    refetchOnReconnect: true, // Enable refetch on reconnection
-    refetchOnMount: true, // Enable refetch on component mount
+    staleTime: 1000 * 30,
+    gcTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    refetchOnMount: true,
   });
 };
 

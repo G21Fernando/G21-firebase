@@ -395,6 +395,7 @@ export type Database = {
         Row: {
           acquisition_type: string | null
           avatar_url: string | null
+          city: string | null
           created_at: string
           daily_points: number | null
           daily_practice_time: number | null
@@ -409,6 +410,7 @@ export type Database = {
         Insert: {
           acquisition_type?: string | null
           avatar_url?: string | null
+          city?: string | null
           created_at?: string
           daily_points?: number | null
           daily_practice_time?: number | null
@@ -423,6 +425,7 @@ export type Database = {
         Update: {
           acquisition_type?: string | null
           avatar_url?: string | null
+          city?: string | null
           created_at?: string
           daily_points?: number | null
           daily_practice_time?: number | null
