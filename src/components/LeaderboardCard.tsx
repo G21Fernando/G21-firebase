@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Trophy, Shield } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { AvatarWithFallback } from "@/components/ui/avatar-with-fallback";
 
 interface Profile {
   username: string;
   points: number;
   cpm?: number;
   id: string;
+  avatar_url?: string | null;
 }
 
 const LeaderboardCard: React.FC = () => {
@@ -17,7 +19,7 @@ const LeaderboardCard: React.FC = () => {
     const fetchLeaderboard = async () => {
       const { data: pointsData } = await supabase
         .from('profiles')
-        .select('id, username, points')
+        .select('id, username, points, avatar_url')
         .order('points', { ascending: false })
         .limit(5);
       
@@ -71,8 +73,13 @@ const LeaderboardCard: React.FC = () => {
             key={player.username}
             className="flex justify-between items-center p-2 md:p-4 bg-white/50 backdrop-blur-sm rounded-lg"
           >
-            <span className="flex items-center gap-1 md:gap-2">
-              <span className="font-bold text-gray-500 text-xs md:text-base">#{index + 1}</span>
+            <span className="flex items-center gap-2 md:gap-3">
+              <span className="font-bold text-gray-500 text-xs md:text-base min-w-[24px]">#{index + 1}</span>
+              <AvatarWithFallback
+                username={player.username}
+                src={player.avatar_url}
+                size="sm"
+              />
               <span className="text-xs md:text-base">{player.username}</span>
               {player.points >= 1000 && (
                 <TooltipProvider>
