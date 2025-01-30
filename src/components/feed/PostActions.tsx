@@ -1,30 +1,23 @@
 import { Button } from "@/components/ui/button";
-import { Heart, MessageSquare } from 'lucide-react';
 
-interface PostActionsProps {
-  likesCount: number;
+export interface PostActionsProps {
+  postId: string;
+  likes: { user_id: string; }[];
   commentsCount: number;
-  isLiked: boolean;
-  onLike: () => void;
+  onLike: () => Promise<void>;
+  onToggleComments: () => void;
 }
 
-const PostActions = ({ likesCount, commentsCount, isLiked, onLike }: PostActionsProps) => {
+const PostActions = ({ postId, likes, commentsCount, onLike, onToggleComments }: PostActionsProps) => {
   return (
-    <div className="flex items-center justify-between w-full">
-      <div className="flex items-center gap-6">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onLike}
-          className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
-        >
-          <Heart className={`h-5 w-5 ${isLiked ? 'fill-current text-red-500' : ''}`} />
-          <span>{likesCount}</span>
+    <div className="flex items-center justify-between">
+      <div className="flex items-center space-x-2">
+        <Button onClick={onLike}>
+          {likes.length} {likes.length === 1 ? 'Like' : 'Likes'}
         </Button>
-        <div className="flex items-center gap-1 text-gray-600">
-          <MessageSquare className="h-5 w-5" />
-          <span>{commentsCount}</span>
-        </div>
+        <Button onClick={onToggleComments}>
+          {commentsCount} {commentsCount === 1 ? 'Comment' : 'Comments'}
+        </Button>
       </div>
     </div>
   );

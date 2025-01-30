@@ -21,8 +21,8 @@ export const supabase = createClient<Database>(
       schema: 'public'
     },
     global: {
-      fetch: (url, options = {}) => {
-        const headers = new Headers(options.headers);
+      fetch: (url, options) => {
+        const headers = new Headers(options?.headers || {});
         headers.set('Cache-Control', 'no-cache');
         return fetch(url, {
           ...options,

@@ -42,7 +42,6 @@ export const usePosts = (onUpdate: number, selectedTheme: string | null) => {
       const from = pageParam * POSTS_PER_PAGE;
       const to = from + POSTS_PER_PAGE - 1;
 
-      // Create a more efficient query by using count() directly in the subquery
       let query = supabase
         .from('posts')
         .select(`
@@ -61,7 +60,7 @@ export const usePosts = (onUpdate: number, selectedTheme: string | null) => {
           likes (
             user_id
           ),
-          comments_count:comments(count)
+          comments:comments(count)
         `, { count: 'exact' })
         .order('created_at', { ascending: false })
         .range(from, to);
@@ -81,8 +80,13 @@ export const usePosts = (onUpdate: number, selectedTheme: string | null) => {
         throw error;
       }
 
+      const postsWithFormattedData = data.map(post => ({
+        ...post,
+        comments_count: post.comments[0]?.count || 0
+      }));
+
       return {
-        posts: data as Post[],
+        posts: postsWithFormattedData as Post[],
         nextPage: (from + POSTS_PER_PAGE) < (count || 0) ? pageParam + 1 : undefined,
         totalCount: count
       };

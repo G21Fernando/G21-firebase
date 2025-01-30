@@ -17,7 +17,6 @@ import { useToast } from "./components/ui/use-toast";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Loader2 } from "lucide-react";
 
-// Initialize QueryClient with better defaults for immediate rendering
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -27,7 +26,6 @@ const queryClient = new QueryClient({
       refetchOnMount: true,
       refetchOnReconnect: true,
       staleTime: 1000 * 30,
-      suspense: false,
       networkMode: 'always',
     },
   },
