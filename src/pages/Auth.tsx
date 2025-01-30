@@ -84,8 +84,8 @@ const AuthPage = () => {
             }
           }}
           providers={[]}
-          view="sign_in"
           redirectTo={window.location.origin}
+          view="sign_in"
         />
         <div className="mt-6 text-center">
           <Button 
