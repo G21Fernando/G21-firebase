@@ -18,7 +18,7 @@ const PostList = ({ selectedTheme }: PostListProps) => {
     hasNextPage, 
     isFetchingNextPage,
     refetch 
-  } = usePosts(selectedTheme);
+  } = usePosts(0, selectedTheme);
   
   const { handleLike, handleComment, handleDeletePost, handleUpdatePost } = usePostActions(refetch);
 
