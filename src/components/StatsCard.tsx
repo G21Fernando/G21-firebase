@@ -1,5 +1,5 @@
 import { Clock } from "lucide-react";
-import { GuitarIcon } from "./icons/TimekeeperIcon";
+import TimekeeperIcon from "./icons/TimekeeperIcon";
 
 interface StatsCardProps {
   practiceTime: number;
@@ -26,7 +26,7 @@ const StatsCard = ({ practiceTime, points }: StatsCardProps) => {
       </div>
       
       <div className="flex items-start space-x-2 md:space-x-3">
-        <GuitarIcon className="w-5 h-5 md:w-6 md:h-6 text-[#11245A] mt-1" />
+        <TimekeeperIcon className="w-5 h-5 md:w-6 md:h-6 text-[#11245A] mt-1" />
         <div className="flex flex-col">
           <span className="text-base md:text-lg font-medium text-[#11245A]">
             Points:
