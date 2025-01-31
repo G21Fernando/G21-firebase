@@ -24,6 +24,8 @@ const MainContent = ({
             <StatsCard 
               points={dailyPoints}
               practiceTime={dailyPracticeTime}
+              dailyPoints={dailyPoints}
+              dailyPracticeTime={dailyPracticeTime}
             />
           </div>
 

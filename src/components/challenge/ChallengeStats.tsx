@@ -10,6 +10,8 @@ const ChallengeStats = ({ profile }: ChallengeStatsProps) => {
       <StatsCard 
         practiceTime={profile?.daily_practice_time || 0}
         points={profile?.daily_points || 0}
+        dailyPoints={profile?.daily_points || 0}
+        dailyPracticeTime={profile?.daily_practice_time || 0}
       />
     </div>
   );
