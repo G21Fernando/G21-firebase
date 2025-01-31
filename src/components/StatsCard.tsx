@@ -17,7 +17,7 @@ const StatsCard: React.FC<StatsCardProps> = ({
 }) => {
   return (
     <div className="rounded-lg shadow-sm p-2 pt-4 md:p-4 md:pt-6">
-      <div className="flex flex-col space-y-2 md:space-y-4">
+      <div className="flex flex-col space-y-2">
         <div className="flex items-start space-x-3">
           <TimekeeperIcon className="w-6 h-6 mt-1 text-[#11245A]" />
           <div className="flex flex-col">
