@@ -13,19 +13,29 @@ const StatsCard: React.FC<StatsCardProps> = ({ practiceTime, points }) => {
   };
 
   return (
-    <div className="p-4 flex flex-col justify-center gap-4">
-      <div className="flex items-center gap-3">
-        <Clock className="w-5 h-5 text-[#11245A]" />
-        <div className="flex items-center">
-          <span className="text-base text-[#11245A]">
-            Minutes Mastered Today: {formatTime(practiceTime)}
+    <div className="flex flex-col space-y-8 p-6">
+      <div className="flex items-start space-x-3">
+        <Clock className="w-6 h-6 text-[#11245A] mt-1" />
+        <div className="flex flex-col">
+          <span className="text-lg font-medium text-[#11245A]">
+            Minutes Mastered Today:
+          </span>
+          <span className="text-2xl font-semibold text-[#11245A]">
+            {formatTime(practiceTime)}
           </span>
         </div>
       </div>
       
-      <div className="flex items-center gap-3">
-        <GuitarIcon className="w-5 h-5 text-[#11245A]" />
-        <span className="text-base text-[#11245A]">Points: {points}</span>
+      <div className="flex items-start space-x-3">
+        <GuitarIcon className="w-6 h-6 text-[#11245A] mt-1" />
+        <div className="flex flex-col">
+          <span className="text-lg font-medium text-[#11245A]">
+            Points:
+          </span>
+          <span className="text-2xl font-semibold text-[#11245A]">
+            {points}
+          </span>
+        </div>
       </div>
     </div>
   );
