@@ -7,7 +7,7 @@ import { SessionContextProvider, useSession } from '@supabase/auth-helpers-react
 import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
-import Challenge from "./pages/Challenge";
+import Sprinter from "./pages/Sprinter";
 import Feed from "./pages/Feed";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -40,7 +40,6 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-// Protected route wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const session = useSession();
   const { toast } = useToast();
@@ -138,9 +137,9 @@ const App = () => (
                   <Feed />
                 </ProtectedRoute>
               } />
-              <Route path="/challenge" element={
+              <Route path="/sprinter" element={
                 <ProtectedRoute>
-                  <Challenge />
+                  <Sprinter />
                 </ProtectedRoute>
               } />
               <Route path="/dashboard" element={

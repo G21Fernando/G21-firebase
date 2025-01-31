@@ -25,10 +25,10 @@ const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
       </Button>
       <Button
         type="button"
-        variant={location.pathname === '/challenge' ? 'ghost' : 'ghost'}
+        variant={location.pathname === '/sprinter' ? 'ghost' : 'ghost'}
         size="icon"
-        onClick={() => onNavigate('/challenge')}
-        className={location.pathname === '/challenge' ? 'bg-[#F1F0FB] hover:bg-[#F1F0FB]' : ''}
+        onClick={() => onNavigate('/sprinter')}
+        className={location.pathname === '/sprinter' ? 'bg-[#F1F0FB] hover:bg-[#F1F0FB]' : ''}
       >
         <Zap className="h-5 w-5" />
       </Button>
