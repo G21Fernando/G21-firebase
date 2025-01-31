@@ -31,7 +31,7 @@ const StatsCard = ({ practiceTime, points }: StatsCardProps) => {
           <span className="text-base md:text-lg font-medium text-[#11245A]">
             Points:
           </span>
-          <span className="text-xl md:text-2xl font-semibold text-[#11245A]">
+          <span className="text-xl md:text-2xl font-semibold text-[#11245A] mb-0">
             {points}
           </span>
         </div>
