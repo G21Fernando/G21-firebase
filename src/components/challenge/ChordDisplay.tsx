@@ -37,10 +37,10 @@ const ChordDisplay = ({
   }
 
   return (
-    <>
+    <div className="flex flex-col md:flex-row items-center justify-center gap-8 w-full">
       {/* Left/Top Chord */}
-      <div className="flex flex-col items-center order-1 md:order-1">
-        <div className="text-xl font-bold text-[#11245A]">{leftChord}</div>
+      <div className="flex flex-col items-center order-1">
+        <div className="text-xl font-bold text-[#11245A] mb-2">{leftChord}</div>
         <div className="bg-white rounded-lg shadow-md">
           {leftChordSvg && (
             <div 
@@ -52,7 +52,7 @@ const ChordDisplay = ({
       </div>
       
       {/* Timer Circle */}
-      <div className="flex flex-col items-center order-3 md:order-2">
+      <div className="flex flex-col items-center order-3 md:order-2 my-6 md:my-0">
         <TimerCircle 
           isActive={showContent}
           timeLeft={timeLeft}
@@ -63,7 +63,7 @@ const ChordDisplay = ({
 
       {/* Right/Bottom Chord */}
       <div className="flex flex-col items-center order-2 md:order-3">
-        <div className="text-xl font-bold text-[#11245A]">{rightChord}</div>
+        <div className="text-xl font-bold text-[#11245A] mb-2">{rightChord}</div>
         <div className="bg-white rounded-lg shadow-md">
           {rightChordSvg && (
             <div 
@@ -73,7 +73,7 @@ const ChordDisplay = ({
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
