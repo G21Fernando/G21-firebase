@@ -4,7 +4,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { useSession } from '@supabase/auth-helpers-react';
 
 export const usePostActions = (refetch: () => void) => {
-  const [commentContent, setCommentContent] = useState<{ [key: string]: string }>({});
   const { toast } = useToast();
   const session = useSession();
 
@@ -49,13 +48,10 @@ export const usePostActions = (refetch: () => void) => {
     }
   };
 
-  const handleComment = async (postId: string) => {
-    if (!session?.user?.id) return;
+  const handleComment = async (postId: string, content: string) => {
+    if (!session?.user?.id || !content?.trim()) return;
     
     try {
-      const content = commentContent[postId];
-      if (!content?.trim()) return;
-
       await supabase
         .from('comments')
         .insert({ 
@@ -65,7 +61,6 @@ export const usePostActions = (refetch: () => void) => {
         });
 
       await refetch();
-      setCommentContent({ ...commentContent, [postId]: '' });
       
       toast({
         title: "Success",
@@ -133,8 +128,6 @@ export const usePostActions = (refetch: () => void) => {
   };
 
   return {
-    commentContent,
-    setCommentContent,
     handleLike,
     handleComment,
     handleDeletePost,

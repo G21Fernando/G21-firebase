@@ -1,14 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useQuery } from '@tanstack/react-query';
 import Header from '@/components/Header';
 import CreatePost from '@/components/feed/CreatePost';
-import PostList from '@/components/feed/PostList';
+import PostListContainer from '@/components/feed/PostListContainer';
 import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const Feed = () => {
-  const [updateTrigger, setUpdateTrigger] = useState(0);
   const session = useSession();
   const supabase = useSupabaseClient();
   const { toast } = useToast();
@@ -37,12 +36,6 @@ const Feed = () => {
       return data;
     },
     enabled: !!session?.user?.id,
-    staleTime: 1000 * 60 * 5,
-    gcTime: 1000 * 60 * 10,
-    retry: 2,
-    retryDelay: 1000,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
   });
 
   useEffect(() => {
@@ -51,10 +44,6 @@ const Feed = () => {
       document.body.style.backgroundColor = '';
     };
   }, []);
-
-  const handlePostCreated = () => {
-    setUpdateTrigger(prev => prev + 1);
-  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -67,9 +56,9 @@ const Feed = () => {
           </div>
         ) : (
           <>
-            <CreatePost onPostCreated={handlePostCreated} />
+            <CreatePost onPostCreated={() => {}} />
             <div className="mt-6">
-              <PostList onUpdate={updateTrigger} />
+              <PostListContainer />
             </div>
           </>
         )}
