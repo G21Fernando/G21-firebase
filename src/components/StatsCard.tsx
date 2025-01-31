@@ -16,15 +16,15 @@ const StatsCard: React.FC<StatsCardProps> = ({
   dailyPracticeTime,
 }) => {
   return (
-    <div className="rounded-lg shadow-sm p-2 pt-4 md:p-4 md:pt-6">
+    <div className="rounded-lg shadow-sm p-2 pt-3">
       <div className="flex flex-col space-y-2">
         <div className="flex items-start space-x-3">
           <TimekeeperIcon className="w-6 h-6 mt-1 text-[#11245A]" />
-          <div className="flex flex-col">
-            <span className="text-base md:text-lg font-medium text-[#11245A]">
+          <div className="flex flex-col -mt-1">
+            <span className="text-base font-medium text-[#11245A]">
               Points:
             </span>
-            <span className="text-xl md:text-2xl font-semibold text-[#11245A]">
+            <span className="text-xl font-semibold text-[#11245A] -mt-1">
               {points}
             </span>
           </div>
@@ -32,11 +32,11 @@ const StatsCard: React.FC<StatsCardProps> = ({
 
         <div className="flex items-start space-x-3">
           <Clock className="w-6 h-6 mt-1 text-[#11245A]" />
-          <div className="flex flex-col">
-            <span className="text-base md:text-lg font-medium text-[#11245A]">
+          <div className="flex flex-col -mt-1">
+            <span className="text-base font-medium text-[#11245A]">
               Practice Time:
             </span>
-            <span className="text-xl md:text-2xl font-semibold text-[#11245A]">
+            <span className="text-xl font-semibold text-[#11245A] -mt-1">
               {Math.floor(practiceTime / 60)} min
             </span>
           </div>
@@ -44,14 +44,14 @@ const StatsCard: React.FC<StatsCardProps> = ({
 
         <div className="flex items-start space-x-3">
           <Music className="w-6 h-6 mt-1 text-[#11245A]" />
-          <div className="flex flex-col">
-            <span className="text-base md:text-lg font-medium text-[#11245A]">
+          <div className="flex flex-col -mt-1">
+            <span className="text-base font-medium text-[#11245A]">
               Today:
             </span>
-            <span className="text-xl md:text-2xl font-semibold text-[#11245A]">
+            <span className="text-xl font-semibold text-[#11245A] -mt-1">
               {dailyPoints} points
             </span>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-gray-600 -mt-1">
               {Math.floor(dailyPracticeTime / 60)} min
             </span>
           </div>
