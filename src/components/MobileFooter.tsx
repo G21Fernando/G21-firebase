@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Home, Zap, BarChart2, Users, Settings } from "lucide-react";
 import { useSession } from "@supabase/auth-helpers-react";
 import { useAdmin } from "@/hooks/useAdmin";
+import TimekeeperIcon from './icons/TimekeeperIcon';
 
 const MobileFooter = () => {
   const location = useLocation();
@@ -18,28 +19,18 @@ const MobileFooter = () => {
               location.pathname === "/" ? "text-[#11245A]" : "text-gray-500"
             }`}
           >
-            <Home className="w-6 h-6" />
-            <span className="text-xs mt-1">Home</span>
+            <TimekeeperIcon className="w-6 h-6" />
+            <span className="text-xs mt-1">Timekeeper</span>
           </Link>
           
           <Link
-            to="/challenge"
+            to="/sprinter"
             className={`flex flex-col items-center ${
-              location.pathname === "/challenge" ? "text-[#11245A]" : "text-gray-500"
+              location.pathname === "/sprinter" ? "text-[#11245A]" : "text-gray-500"
             }`}
           >
             <Zap className="w-6 h-6" />
-            <span className="text-xs mt-1">Challenge</span>
-          </Link>
-
-          <Link
-            to="/stats"
-            className={`flex flex-col items-center ${
-              location.pathname === "/stats" ? "text-[#11245A]" : "text-gray-500"
-            }`}
-          >
-            <BarChart2 className="w-6 h-6" />
-            <span className="text-xs mt-1">Stats</span>
+            <span className="text-xs mt-1">Sprinter</span>
           </Link>
 
           <Link
