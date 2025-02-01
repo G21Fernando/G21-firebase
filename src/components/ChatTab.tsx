@@ -166,8 +166,9 @@ const ChatTab = () => {
     setIsLoading(true);
 
     try {
-      console.log('Sending message with profile data:', profile);
+      console.log('Starting message send process...');
       
+      // First, insert the user's message
       const { error: messageError } = await supabase
         .from('messages')
         .insert({
@@ -178,8 +179,10 @@ const ChatTab = () => {
 
       if (messageError) throw messageError;
 
-      console.log('Calling chat-with-tutor function with profile:', profile);
-      const response = await supabase.functions.invoke('chat-with-tutor', {
+      console.log('User message inserted, calling Edge Function...');
+      
+      // Call the Edge Function with user progress data
+      const { data: response, error: functionError } = await supabase.functions.invoke('chat-with-tutor', {
         body: {
           message: newMessage.trim(),
           userProgress: {
@@ -192,14 +195,23 @@ const ChatTab = () => {
         }
       });
 
-      console.log('Response from chat-with-tutor:', response);
+      console.log('Edge Function response:', response);
+      
+      if (functionError) {
+        console.error('Edge Function error:', functionError);
+        throw functionError;
+      }
 
-      if (response.error) throw response.error;
+      if (!response?.response) {
+        console.error('No response from Edge Function');
+        throw new Error('No response from AI tutor');
+      }
 
+      // Insert AI's response
       const { error: aiMessageError } = await supabase
         .from('messages')
         .insert({
-          content: response.data.response,
+          content: response.response,
           user_id: 'ai-tutor',
           username: 'Guitar Tutor',
           is_ai: true
@@ -219,6 +231,10 @@ const ChatTab = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   return (
     <div className="flex flex-col h-[500px] p-4">
