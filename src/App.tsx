@@ -13,6 +13,7 @@ import Sprinter from "./pages/Sprinter";
 import Feed from "./pages/Feed";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import Tutor from "./pages/Tutor";
 import MobileFooter from "./components/MobileFooter";
 
 const queryClient = new QueryClient({
@@ -60,6 +61,11 @@ const App = () => (
               <Route path="/sprinter" element={
                 <ProtectedRoute>
                   <Sprinter />
+                </ProtectedRoute>
+              } />
+              <Route path="/tutor" element={
+                <ProtectedRoute>
+                  <Tutor />
                 </ProtectedRoute>
               } />
               <Route path="/dashboard" element={
