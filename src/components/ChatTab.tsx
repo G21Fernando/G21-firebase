@@ -73,17 +73,37 @@ const ChatTab = () => {
         .limit(1)
         .single();
 
-      let welcomeMessage = `Hi ${profile.username}! I'm your guitar tutor assistant. `;
+      const { data: chordResults } = await supabase
+        .from('chord_sprinter_results')
+        .select('reps')
+        .eq('user_id', session.user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      let welcomeMessage = `Hey ${profile.username}! 👋 I'm your guitar practice buddy! `;
+      
+      if (profile.points > 0) {
+        welcomeMessage += `You've earned ${profile.points} points so far - that's awesome! `;
+      }
       
       if (profile.daily_practice_time > 0) {
-        welcomeMessage += `I see you've practiced for ${Math.round(profile.daily_practice_time / 60)} minutes today. `;
+        welcomeMessage += `Today you've already practiced for ${Math.round(profile.daily_practice_time / 60)} minutes. Keep it up! `;
       }
       
       if (lastSession) {
         welcomeMessage += `Your last practice session was ${Math.round(lastSession.practice_duration / 60)} minutes long. `;
       }
 
-      welcomeMessage += "\n\nI can help you with practice advice and song recommendations based on your skill level. What would you like to know?";
+      if (chordResults) {
+        welcomeMessage += `And I see you've been working on your chord transitions - ${chordResults.reps} changes in your last sprint! `;
+      }
+
+      welcomeMessage += "\n\nI'm here to help you level up your guitar skills. What would you like to work on today? We could:\n";
+      welcomeMessage += "• Review your progress and set new goals\n";
+      welcomeMessage += "• Get song recommendations based on your current level\n";
+      welcomeMessage += "• Plan your next practice session\n";
+      welcomeMessage += "• Or anything else you'd like to discuss!";
 
       const { error: aiMessageError } = await supabase
         .from('messages')
