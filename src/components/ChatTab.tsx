@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSession } from '@supabase/auth-helpers-react';
 import { supabase } from '@/integrations/supabase/client';
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -22,11 +22,22 @@ const ChatTab = () => {
   const [isLoading, setIsLoading] = useState(false);
   const session = useSession();
   const { toast } = useToast();
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchMessages();
     subscribeToMessages();
   }, []);
+
+  useEffect(() => {
+    // Scroll to bottom when messages update
+    if (scrollAreaRef.current) {
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }
+    }
+  }, [messages]);
 
   const fetchMessages = async () => {
     const { data, error } = await supabase
@@ -125,7 +136,7 @@ const ChatTab = () => {
 
   return (
     <div className="flex flex-col h-[500px] p-4">
-      <ScrollArea className="flex-1 pr-4">
+      <ScrollArea className="flex-1 pr-4" ref={scrollAreaRef}>
         <div className="space-y-4">
           {messages.map((message) => (
             <div
