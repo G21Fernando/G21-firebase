@@ -73,17 +73,17 @@ const ChatTab = () => {
         .limit(1)
         .single();
 
-      let welcomeMessage = `Hi ${profile.username}! `;
+      let welcomeMessage = "I'm your guitar tutor assistant. I can help you with practice advice and song recommendations based on your skill level. ";
       
       if (profile.daily_practice_time > 0) {
-        welcomeMessage += `I see you've practiced for ${Math.round(profile.daily_practice_time / 60)} minutes today. `;
+        welcomeMessage += `\n\nI see you've practiced for ${Math.round(profile.daily_practice_time / 60)} minutes today. `;
       }
       
       if (lastSession) {
         welcomeMessage += `Your last practice session was ${Math.round(lastSession.practice_duration / 60)} minutes long. `;
       }
 
-      welcomeMessage += "What can I help you with today?";
+      welcomeMessage += "\n\nWhat would you like to know?";
 
       const { error: aiMessageError } = await supabase
         .from('messages')
@@ -196,7 +196,7 @@ const ChatTab = () => {
               <div className="font-semibold text-sm">
                 {message.username}
               </div>
-              <div>{message.content}</div>
+              <div className="whitespace-pre-wrap">{message.content}</div>
             </div>
           ))}
           <div ref={messagesEndRef} />
