@@ -16,7 +16,7 @@ interface NavigationLinksProps {
 
 const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
   const location = useLocation();
-  const { isAdmin } = useAdmin();
+  const { isAdmin, isLoading } = useAdmin();
 
   return (
     <div className="hidden md:flex items-center gap-2">
@@ -89,7 +89,7 @@ const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
           </TooltipContent>
         </Tooltip>
 
-        {isAdmin && (
+        {isAdmin && !isLoading && (
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
