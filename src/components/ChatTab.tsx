@@ -73,17 +73,17 @@ const ChatTab = () => {
         .limit(1)
         .single();
 
-      let welcomeMessage = "I'm your guitar tutor assistant. I can help you with practice advice and song recommendations based on your skill level. ";
+      let welcomeMessage = `Hi ${profile.username}! I'm your guitar tutor assistant. `;
       
       if (profile.daily_practice_time > 0) {
-        welcomeMessage += `\n\nI see you've practiced for ${Math.round(profile.daily_practice_time / 60)} minutes today. `;
+        welcomeMessage += `I see you've practiced for ${Math.round(profile.daily_practice_time / 60)} minutes today. `;
       }
       
       if (lastSession) {
         welcomeMessage += `Your last practice session was ${Math.round(lastSession.practice_duration / 60)} minutes long. `;
       }
 
-      welcomeMessage += "\n\nWhat would you like to know?";
+      welcomeMessage += "\n\nI can help you with practice advice and song recommendations based on your skill level. What would you like to know?";
 
       const { error: aiMessageError } = await supabase
         .from('messages')
@@ -115,7 +115,6 @@ const ChatTab = () => {
 
     setMessages(data);
     
-    // If there are no messages, create a welcome message
     if (data.length === 0 && !hasInitialMessage) {
       createWelcomeMessage();
     }
@@ -168,7 +167,7 @@ const ChatTab = () => {
       console.error('Error in chat:', error);
       toast({
         title: "Error sending message",
-        description: error.message,
+        description: "Failed to send message. Please try again.",
         variant: "destructive",
       });
     } finally {
