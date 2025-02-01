@@ -22,47 +22,12 @@ const ChatTab = () => {
   const [isLoading, setIsLoading] = useState(false);
   const session = useSession();
   const { toast } = useToast();
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchMessages();
-    const channel = subscribeToMessages();
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const scrollToBottom = () => {
-    if (scrollAreaRef.current) {
-      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-      if (scrollContainer) {
-        scrollContainer.scrollTop = scrollContainer.scrollHeight;
-      }
-    }
-  };
-
-  const fetchMessages = async () => {
-    const { data, error } = await supabase
-      .from('messages')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(50);
-
-    if (error) {
-      console.error('Error fetching messages:', error);
-      return;
-    }
-
-    setMessages(data.reverse());
-  };
-
-  const subscribeToMessages = () => {
     const channel = supabase
-      .channel('schema-db-changes')
+      .channel('messages')
       .on(
         'postgres_changes',
         {
@@ -76,7 +41,28 @@ const ChatTab = () => {
       )
       .subscribe();
 
-    return channel;
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const fetchMessages = async () => {
+    const { data, error } = await supabase
+      .from('messages')
+      .select('*')
+      .order('created_at', { ascending: true })
+      .limit(50);
+
+    if (error) {
+      console.error('Error fetching messages:', error);
+      return;
+    }
+
+    setMessages(data);
   };
 
   const sendMessage = async (e: React.FormEvent) => {
@@ -85,7 +71,6 @@ const ChatTab = () => {
     setIsLoading(true);
 
     try {
-      // First, save the user's message
       const { error: messageError } = await supabase
         .from('messages')
         .insert({
@@ -96,14 +81,12 @@ const ChatTab = () => {
 
       if (messageError) throw messageError;
 
-      // Get user progress for context
       const { data: progressData } = await supabase
         .from('profiles')
         .select('points, practice_time, daily_practice_time')
         .eq('id', session.user.id)
         .single();
 
-      // Get AI response
       const response = await supabase.functions.invoke('chat-with-tutor', {
         body: {
           message: newMessage.trim(),
@@ -113,7 +96,6 @@ const ChatTab = () => {
 
       if (response.error) throw response.error;
 
-      // Save AI response
       const { error: aiMessageError } = await supabase
         .from('messages')
         .insert({
@@ -140,7 +122,7 @@ const ChatTab = () => {
 
   return (
     <div className="flex flex-col h-[500px] p-4">
-      <ScrollArea className="flex-1 pr-4" ref={scrollAreaRef}>
+      <ScrollArea className="flex-1 pr-4">
         <div className="space-y-4">
           {messages.map((message) => (
             <div
@@ -161,6 +143,7 @@ const ChatTab = () => {
               <div>{message.content}</div>
             </div>
           ))}
+          <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
       
