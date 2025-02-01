@@ -1,8 +1,7 @@
 import { useLocation } from 'react-router-dom';
-import { Users, Zap, Settings, Compass } from 'lucide-react';
+import { Users, Zap, Compass } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import TimekeeperIcon from '../icons/TimekeeperIcon';
-import { useAdmin } from '@/hooks/useAdmin';
 import {
   Tooltip,
   TooltipContent,
@@ -16,7 +15,6 @@ interface NavigationLinksProps {
 
 const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
   const location = useLocation();
-  const { isAdmin, isLoading } = useAdmin();
 
   return (
     <div className="hidden md:flex items-center gap-2">
@@ -88,25 +86,6 @@ const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
             <p>Feed</p>
           </TooltipContent>
         </Tooltip>
-
-        {isAdmin && !isLoading && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                type="button"
-                variant={location.pathname === '/admin' ? 'ghost' : 'ghost'}
-                size="icon"
-                onClick={() => onNavigate('/admin')}
-                className={location.pathname === '/admin' ? 'bg-[#F1F0FB] hover:bg-[#F1F0FB]' : ''}
-              >
-                <Settings className="h-5 w-5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Admin</p>
-            </TooltipContent>
-          </Tooltip>
-        )}
       </TooltipProvider>
     </div>
   );

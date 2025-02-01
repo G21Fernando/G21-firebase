@@ -1,12 +1,14 @@
 import { useMemo } from 'react';
-import { UserRound } from 'lucide-react';
+import { UserRound, Settings } from 'lucide-react';
 import { Session } from '@supabase/auth-helpers-react';
 import { Button } from '@/components/ui/button';
 import { UserAvatar } from '@/components/ui/user-avatar';
+import { useAdmin } from '@/hooks/useAdmin';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
@@ -27,6 +29,7 @@ const ProfileMenu = ({
   onProfileClick,
   onLogout,
 }: ProfileMenuProps) => {
+  const { isAdmin, isLoading } = useAdmin();
   const avatarUrl = useMemo(() => {
     if (!profile?.avatar_url) return undefined;
     return profile.avatar_url;
@@ -58,6 +61,16 @@ const ProfileMenu = ({
         <DropdownMenuItem onClick={onProfileClick}>
           Edit Profile
         </DropdownMenuItem>
+        {isAdmin && !isLoading && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => window.location.href = '/admin'}>
+              <Settings className="mr-2 h-4 w-4" />
+              Admin Dashboard
+            </DropdownMenuItem>
+          </>
+        )}
+        <DropdownMenuSeparator />
         <DropdownMenuItem onClick={onLogout}>
           Sign Out
         </DropdownMenuItem>
