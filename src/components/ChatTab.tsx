@@ -23,32 +23,83 @@ const ChatTab = () => {
   const session = useSession();
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [hasInitialMessage, setHasInitialMessage] = useState(false);
 
   useEffect(() => {
-    fetchMessages();
-    const channel = supabase
-      .channel('messages')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages'
-        },
-        (payload) => {
-          setMessages(prev => [...prev, payload.new as Message]);
-        }
-      )
-      .subscribe();
+    if (session?.user) {
+      fetchMessages();
+      const channel = supabase
+        .channel('messages')
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'messages'
+          },
+          (payload) => {
+            setMessages(prev => [...prev, payload.new as Message]);
+          }
+        )
+        .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [session]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  const createWelcomeMessage = async () => {
+    if (!session?.user) return;
+
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+
+      if (!profile) return;
+
+      const { data: lastSession } = await supabase
+        .from('user_sessions')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      let welcomeMessage = `Hi ${profile.username}! `;
+      
+      if (profile.daily_practice_time > 0) {
+        welcomeMessage += `I see you've practiced for ${Math.round(profile.daily_practice_time / 60)} minutes today. `;
+      }
+      
+      if (lastSession) {
+        welcomeMessage += `Your last practice session was ${Math.round(lastSession.practice_duration / 60)} minutes long. `;
+      }
+
+      welcomeMessage += "What can I help you with today?";
+
+      const { error: aiMessageError } = await supabase
+        .from('messages')
+        .insert({
+          content: welcomeMessage,
+          user_id: 'ai-tutor',
+          username: 'Guitar Tutor',
+          is_ai: true
+        });
+
+      if (aiMessageError) throw aiMessageError;
+      setHasInitialMessage(true);
+    } catch (error) {
+      console.error('Error creating welcome message:', error);
+    }
+  };
 
   const fetchMessages = async () => {
     const { data, error } = await supabase
@@ -63,6 +114,11 @@ const ChatTab = () => {
     }
 
     setMessages(data);
+    
+    // If there are no messages, create a welcome message
+    if (data.length === 0 && !hasInitialMessage) {
+      createWelcomeMessage();
+    }
   };
 
   const sendMessage = async (e: React.FormEvent) => {
