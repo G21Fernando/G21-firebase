@@ -182,7 +182,7 @@ const ChatTab = () => {
       console.log('User message inserted, calling Edge Function...');
       
       // Call the Edge Function with user progress data
-      const { data: response, error: functionError } = await supabase.functions.invoke('chat-with-tutor', {
+      const { data, error: functionError } = await supabase.functions.invoke<{ response: string }>('chat-with-tutor', {
         body: {
           message: newMessage.trim(),
           userProgress: {
@@ -195,14 +195,14 @@ const ChatTab = () => {
         }
       });
 
-      console.log('Edge Function response:', response);
+      console.log('Edge Function response:', data);
       
       if (functionError) {
         console.error('Edge Function error:', functionError);
         throw functionError;
       }
 
-      if (!response?.response) {
+      if (!data?.response) {
         console.error('No response from Edge Function');
         throw new Error('No response from AI tutor');
       }
@@ -211,7 +211,7 @@ const ChatTab = () => {
       const { error: aiMessageError } = await supabase
         .from('messages')
         .insert({
-          content: response.response,
+          content: data.response,
           user_id: 'ai-tutor',
           username: 'Guitar Tutor',
           is_ai: true
