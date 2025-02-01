@@ -146,6 +146,8 @@ const ChatTab = () => {
     setIsLoading(true);
 
     try {
+      console.log('Sending message...');
+      
       const { error: messageError } = await supabase
         .from('messages')
         .insert({
@@ -156,18 +158,29 @@ const ChatTab = () => {
 
       if (messageError) throw messageError;
 
+      console.log('Fetching user progress...');
       const { data: progressData } = await supabase
         .from('profiles')
-        .select('points, practice_time, daily_practice_time')
+        .select('points, practice_time, daily_practice_time, daily_points')
         .eq('id', session.user.id)
         .single();
 
+      if (!progressData) {
+        throw new Error('Could not fetch user progress');
+      }
+
+      console.log('Calling chat-with-tutor function...');
       const response = await supabase.functions.invoke('chat-with-tutor', {
         body: {
           message: newMessage.trim(),
-          userProgress: progressData
+          userProgress: {
+            ...progressData,
+            user_id: session.user.id
+          }
         }
       });
+
+      console.log('Response from chat-with-tutor:', response);
 
       if (response.error) throw response.error;
 

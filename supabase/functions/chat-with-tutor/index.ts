@@ -13,6 +13,7 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Function started - Processing request');
     const { message, userProgress } = await req.json();
     console.log('Received message:', message);
     console.log('User progress:', userProgress);
@@ -30,9 +31,34 @@ serve(async (req) => {
       }
     );
 
-    // Format practice time to minutes
+    console.log('Fetching additional user data...');
+    
+    // Get the latest chord sprinter result
+    const { data: chordResults } = await supabaseAdmin
+      .from('chord_sprinter_results')
+      .select('reps')
+      .eq('user_id', userProgress.user_id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    console.log('Chord results:', chordResults);
+
+    // Get the latest practice session
+    const { data: lastSession } = await supabaseAdmin
+      .from('user_sessions')
+      .select('practice_duration')
+      .eq('user_id', userProgress.user_id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    console.log('Last session:', lastSession);
+
+    // Format practice times
     const totalPracticeMinutes = Math.round((userProgress.practice_time || 0) / 60);
     const dailyPracticeMinutes = Math.round((userProgress.daily_practice_time || 0) / 60);
+    const lastSessionMinutes = lastSession ? Math.round(lastSession.practice_duration / 60) : 0;
 
     // Create a personalized system message
     const systemMessage = `You are a friendly and encouraging guitar tutor assistant. Your role is to help students improve their guitar skills while maintaining a casual, supportive tone.
@@ -43,6 +69,8 @@ Current student progress:
 - Today's Progress:
   * Points: ${userProgress.daily_points || 0} points
   * Practice Time: ${dailyPracticeMinutes} minutes
+- Last Practice Session: ${lastSessionMinutes} minutes
+${chordResults ? `- Latest Chord Sprint: ${chordResults.reps} transitions` : ''}
 
 Guidelines:
 1. Be encouraging and acknowledge their practice efforts
@@ -59,7 +87,7 @@ Remember to:
 - Make suggestions based on their current stats
 - Keep the conversation engaging and motivational`;
 
-    console.log('Sending request to OpenAI with system message');
+    console.log('Sending request to OpenAI');
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -84,7 +112,7 @@ Remember to:
     }
 
     const data = await response.json();
-    console.log('OpenAI response received');
+    console.log('OpenAI response received successfully');
 
     return new Response(JSON.stringify({
       response: data.choices[0].message.content,
