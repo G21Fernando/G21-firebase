@@ -26,18 +26,24 @@ const ChatTab = () => {
 
   useEffect(() => {
     fetchMessages();
-    subscribeToMessages();
+    const channel = subscribeToMessages();
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   useEffect(() => {
-    // Scroll to bottom when messages update
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
     if (scrollAreaRef.current) {
       const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
       if (scrollContainer) {
         scrollContainer.scrollTop = scrollContainer.scrollHeight;
       }
     }
-  }, [messages]);
+  };
 
   const fetchMessages = async () => {
     const { data, error } = await supabase
@@ -70,9 +76,7 @@ const ChatTab = () => {
       )
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return channel;
   };
 
   const sendMessage = async (e: React.FormEvent) => {
