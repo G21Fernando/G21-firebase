@@ -16,10 +16,21 @@ interface Message {
   is_ai?: boolean;
 }
 
+interface Profile {
+  id: string;
+  username: string;
+  points: number;
+  practice_time: number;
+  daily_practice_time: number;
+  daily_points: number;
+  last_practice_date: string;
+}
+
 const ChatTab = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const session = useSession();
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -27,6 +38,7 @@ const ChatTab = () => {
 
   useEffect(() => {
     if (session?.user) {
+      fetchProfile();
       fetchMessages();
       const channel = supabase
         .channel('messages')
@@ -49,22 +61,34 @@ const ChatTab = () => {
     }
   }, [session]);
 
+  const fetchProfile = async () => {
+    if (!session?.user) return;
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching profile:', error);
+      return;
+    }
+
+    setProfile(data);
+    if (!hasInitialMessage) {
+      createWelcomeMessage(data);
+    }
+  };
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const createWelcomeMessage = async () => {
+  const createWelcomeMessage = async (userProfile: Profile) => {
     if (!session?.user) return;
 
     try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .single();
-
-      if (!profile) return;
-
       const { data: lastSession } = await supabase
         .from('user_sessions')
         .select('*')
@@ -81,14 +105,14 @@ const ChatTab = () => {
         .limit(1)
         .single();
 
-      let welcomeMessage = `Hey ${profile.username}! 👋 I'm your guitar practice buddy! `;
+      let welcomeMessage = `Hey ${userProfile.username}! 👋 I'm your guitar practice buddy! `;
       
-      if (profile.points > 0) {
-        welcomeMessage += `You've earned ${profile.points} points so far - that's awesome! `;
+      if (userProfile.points > 0) {
+        welcomeMessage += `You've earned ${userProfile.points} points so far - that's awesome! `;
       }
       
-      if (profile.daily_practice_time > 0) {
-        welcomeMessage += `Today you've already practiced for ${Math.round(profile.daily_practice_time / 60)} minutes. Keep it up! `;
+      if (userProfile.daily_practice_time > 0) {
+        welcomeMessage += `Today you've already practiced for ${Math.round(userProfile.daily_practice_time / 60)} minutes. Keep it up! `;
       }
       
       if (lastSession) {
@@ -134,47 +158,35 @@ const ChatTab = () => {
     }
 
     setMessages(data);
-    
-    if (data.length === 0 && !hasInitialMessage) {
-      createWelcomeMessage();
-    }
   };
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!session?.user || !newMessage.trim()) return;
+    if (!session?.user || !newMessage.trim() || !profile) return;
     setIsLoading(true);
 
     try {
-      console.log('Sending message...');
+      console.log('Sending message with profile data:', profile);
       
       const { error: messageError } = await supabase
         .from('messages')
         .insert({
           content: newMessage.trim(),
           user_id: session.user.id,
-          username: session.user.email?.split('@')[0] || 'Anonymous'
+          username: profile.username || session.user.email?.split('@')[0] || 'Anonymous'
         });
 
       if (messageError) throw messageError;
 
-      console.log('Fetching user progress...');
-      const { data: progressData } = await supabase
-        .from('profiles')
-        .select('points, practice_time, daily_practice_time, daily_points')
-        .eq('id', session.user.id)
-        .single();
-
-      if (!progressData) {
-        throw new Error('Could not fetch user progress');
-      }
-
-      console.log('Calling chat-with-tutor function...');
+      console.log('Calling chat-with-tutor function with profile:', profile);
       const response = await supabase.functions.invoke('chat-with-tutor', {
         body: {
           message: newMessage.trim(),
           userProgress: {
-            ...progressData,
+            points: profile.points,
+            practice_time: profile.practice_time,
+            daily_practice_time: profile.daily_practice_time,
+            daily_points: profile.daily_points,
             user_id: session.user.id
           }
         }
