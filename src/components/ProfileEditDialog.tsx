@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { UserAvatar } from "@/components/ui/user-avatar"; // Import the new UserAvatar component
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { Trash2 } from "lucide-react";
 
 interface ProfileEditDialogProps {
@@ -242,6 +242,17 @@ export default function ProfileEditDialog({
                 </Button>
               )}
             </div>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="email" className="text-right">
+              Email
+            </Label>
+            <Input
+              id="email"
+              className="col-span-3 bg-muted"
+              value={session?.user?.email || ""}
+              readOnly
+            />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="username" className="text-right">
