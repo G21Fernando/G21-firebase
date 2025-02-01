@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom';
-import { Users, Zap, Settings, BookOpen } from 'lucide-react';
+import { Users, Zap, Settings, Compass } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import TimekeeperIcon from '../icons/TimekeeperIcon';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -39,7 +39,7 @@ const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
         onClick={() => onNavigate('/tutor')}
         className={location.pathname === '/tutor' ? 'bg-[#F1F0FB] hover:bg-[#F1F0FB]' : ''}
       >
-        <BookOpen className="h-5 w-5" />
+        <Compass className="h-5 w-5" />
       </Button>
       <Button
         type="button"
