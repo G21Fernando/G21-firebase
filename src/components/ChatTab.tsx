@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { Loader2 } from "lucide-react";
 
 interface Message {
   id: string;
@@ -12,11 +13,13 @@ interface Message {
   created_at: string;
   username: string;
   user_id: string;
+  is_ai?: boolean;
 }
 
 const ChatTab = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const session = useSession();
   const { toast } = useToast();
 
@@ -64,25 +67,60 @@ const ChatTab = () => {
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!session?.user || !newMessage.trim()) return;
+    setIsLoading(true);
 
-    const { error } = await supabase
-      .from('messages')
-      .insert({
-        content: newMessage.trim(),
-        user_id: session.user.id,
-        username: session.user.email?.split('@')[0] || 'Anonymous'
+    try {
+      // First, save the user's message
+      const { error: messageError } = await supabase
+        .from('messages')
+        .insert({
+          content: newMessage.trim(),
+          user_id: session.user.id,
+          username: session.user.email?.split('@')[0] || 'Anonymous'
+        });
+
+      if (messageError) throw messageError;
+
+      // Get user progress for context
+      const { data: progressData } = await supabase
+        .from('profiles')
+        .select('points, practice_time, daily_practice_time')
+        .eq('id', session.user.id)
+        .single();
+
+      // Get AI response
+      const response = await supabase.functions.invoke('chat-with-tutor', {
+        body: {
+          message: newMessage.trim(),
+          userProgress: progressData
+        }
       });
 
-    if (error) {
+      if (response.error) throw response.error;
+
+      // Save AI response
+      const { error: aiMessageError } = await supabase
+        .from('messages')
+        .insert({
+          content: response.data.response,
+          user_id: 'ai-tutor',
+          username: 'Guitar Tutor',
+          is_ai: true
+        });
+
+      if (aiMessageError) throw aiMessageError;
+
+      setNewMessage('');
+    } catch (error) {
+      console.error('Error in chat:', error);
       toast({
         title: "Error sending message",
         description: error.message,
         variant: "destructive",
       });
-      return;
+    } finally {
+      setIsLoading(false);
     }
-
-    setNewMessage('');
   };
 
   return (
@@ -95,8 +133,12 @@ const ChatTab = () => {
               className={`p-3 rounded-lg ${
                 message.user_id === session?.user?.id
                   ? 'bg-primary text-primary-foreground ml-auto'
+                  : message.is_ai
+                  ? 'bg-secondary'
                   : 'bg-muted'
-              } max-w-[80%] break-words`}
+              } max-w-[80%] break-words ${
+                message.user_id === session?.user?.id ? 'ml-auto' : ''
+              }`}
             >
               <div className="font-semibold text-sm">
                 {message.username}
@@ -111,11 +153,12 @@ const ChatTab = () => {
         <Input
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="Type a message..."
+          placeholder="Ask about your progress, get song recommendations, or guitar advice..."
           className="flex-1"
+          disabled={isLoading}
         />
-        <Button type="submit" disabled={!newMessage.trim()}>
-          Send
+        <Button type="submit" disabled={!newMessage.trim() || isLoading}>
+          {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Send'}
         </Button>
       </form>
     </div>
