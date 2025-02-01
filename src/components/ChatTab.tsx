@@ -192,6 +192,9 @@ const ChatTab = () => {
             daily_points: profile.daily_points,
             user_id: session.user.id
           }
+        },
+        headers: {
+          'Content-Type': 'application/json'
         }
       });
 
