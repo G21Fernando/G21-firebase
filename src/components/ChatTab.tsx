@@ -36,195 +36,92 @@ const ChatTab = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
-  const initializationRef = useRef(false);
+  const hasInitialized = useRef(false);
 
-  // Check session and redirect if not authenticated
+  // Redirect if no session
   useEffect(() => {
-    if (!session) {
+    if (!session?.user) {
       navigate('/auth');
     }
   }, [session, navigate]);
 
+  // Initialize chat and subscribe to messages
   useEffect(() => {
-    if (session?.user && !initializationRef.current) {
-      console.log('Initializing chat...');
-      initializationRef.current = true;
-      fetchProfile();
-      fetchMessages();
-      
-      const channel = supabase
-        .channel('messages')
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'messages'
-          },
-          (payload) => {
-            console.log('New message received:', payload);
-            setMessages(prev => [...prev, payload.new as Message]);
-          }
-        )
-        .subscribe();
+    if (!session?.user || hasInitialized.current) return;
 
-      return () => {
-        console.log('Cleaning up subscription...');
-        supabase.removeChannel(channel);
-      };
-    }
-  }, [session]);
+    const initializeChat = async () => {
+      try {
+        // Fetch profile
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
 
-  const fetchProfile = async () => {
-    if (!session?.user) {
-      navigate('/auth');
-      return;
-    }
+        if (profileError) throw profileError;
+        setProfile(profileData);
 
-    try {
-      console.log('Fetching profile...');
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .single();
+        // Fetch existing messages
+        const { data: messagesData, error: messagesError } = await supabase
+          .from('messages')
+          .select('*')
+          .order('created_at', { ascending: true });
 
-      if (error) {
-        console.error('Error fetching profile:', error);
-        if (error.code === 'PGRST116' || error.message.includes('JWT')) {
+        if (messagesError) throw messagesError;
+        setMessages(messagesData || []);
+
+        // Subscribe to new messages
+        const channel = supabase
+          .channel('messages')
+          .on(
+            'postgres_changes',
+            { event: 'INSERT', schema: 'public', table: 'messages' },
+            (payload) => setMessages(prev => [...prev, payload.new as Message])
+          )
+          .subscribe();
+
+        // Create welcome message if no messages exist
+        if (!messagesData?.length) {
+          await supabase
+            .from('messages')
+            .insert({
+              content: `Hey! I'm your guitar tutor assistant. I can help you with practice advice and song recommendations based on your skill level. What would you like to know?`,
+              user_id: 'ai-tutor',
+              username: 'Guitar Tutor',
+              is_ai: true
+            });
+        }
+
+        hasInitialized.current = true;
+        return () => supabase.removeChannel(channel);
+      } catch (error: any) {
+        console.error('Error initializing chat:', error);
+        if (error.message?.includes('JWT')) {
           navigate('/auth');
-          return;
         }
         toast({
-          title: "Error fetching profile",
+          title: "Error initializing chat",
           description: error.message,
           variant: "destructive",
         });
-        return;
       }
+    };
 
-      console.log('Profile fetched:', data);
-      setProfile(data);
-      if (!isInitialized) {
-        await createWelcomeMessage(data);
-        setIsInitialized(true);
-      }
-    } catch (error) {
-      console.error('Error in fetchProfile:', error);
-    }
-  };
+    initializeChat();
+  }, [session, navigate, toast]);
 
-  const fetchMessages = async () => {
-    try {
-      console.log('Fetching messages...');
-      const { data, error } = await supabase
-        .from('messages')
-        .select('*')
-        .order('created_at', { ascending: true })
-        .limit(50);
-
-      if (error) {
-        console.error('Error fetching messages:', error);
-        toast({
-          title: "Error fetching messages",
-          description: error.message,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      console.log('Messages fetched:', data);
-      setMessages(data || []);
-    } catch (error) {
-      console.error('Error in fetchMessages:', error);
-    }
-  };
-
-  const createWelcomeMessage = async (userProfile: Profile) => {
-    if (!session?.user || isInitialized) return;
-
-    try {
-      console.log('Creating welcome message...');
-      const { data: lastSession } = await supabase
-        .from('user_sessions')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      const { data: chordResults } = await supabase
-        .from('chord_sprinter_results')
-        .select('reps')
-        .eq('user_id', session.user.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      let welcomeMessage = `Hey ${userProfile.username}! 👋 I'm your guitar practice buddy! `;
-      
-      if (userProfile.points > 0) {
-        welcomeMessage += `You've earned ${userProfile.points} points so far - that's awesome! `;
-      }
-      
-      if (userProfile.daily_practice_time > 0) {
-        welcomeMessage += `Today you've already practiced for ${Math.round(userProfile.daily_practice_time / 60)} minutes. Keep it up! `;
-      }
-      
-      if (lastSession) {
-        welcomeMessage += `Your last practice session was ${Math.round(lastSession.practice_duration / 60)} minutes long. `;
-      }
-
-      if (chordResults) {
-        welcomeMessage += `And I see you've been working on your chord transitions - ${chordResults.reps} changes in your last sprint! `;
-      }
-
-      welcomeMessage += "\n\nI'm here to help you level up your guitar skills. What would you like to work on today? We could:\n";
-      welcomeMessage += "• Review your progress and set new goals\n";
-      welcomeMessage += "• Get song recommendations based on your current level\n";
-      welcomeMessage += "• Plan your next practice session\n";
-      welcomeMessage += "• Or anything else you'd like to discuss!";
-
-      const { error: aiMessageError } = await supabase
-        .from('messages')
-        .insert({
-          content: welcomeMessage,
-          user_id: 'ai-tutor',
-          username: 'Guitar Tutor',
-          is_ai: true
-        });
-
-      if (aiMessageError) {
-        console.error('Error creating welcome message:', aiMessageError);
-        throw aiMessageError;
-      }
-      
-      console.log('Welcome message created successfully');
-    } catch (error) {
-      console.error('Error creating welcome message:', error);
-    }
-  };
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!session?.user || !newMessage.trim() || !profile) {
-      if (!session?.user) {
-        toast({
-          title: "Session expired",
-          description: "Please log in again to continue chatting",
-          variant: "destructive",
-        });
-        navigate('/auth');
-      }
-      return;
-    }
-    setIsLoading(true);
+    if (!session?.user || !newMessage.trim() || !profile || isLoading) return;
 
+    setIsLoading(true);
     try {
-      console.log('Starting message send process...');
-      
-      // First, insert the user's message
+      // Send user message
       const { error: messageError } = await supabase
         .from('messages')
         .insert({
@@ -235,23 +132,11 @@ const ChatTab = () => {
 
       if (messageError) throw messageError;
 
-      console.log('User message inserted, calling Edge Function...');
-      
-      // Ensure we have a valid session before proceeding
-      const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError || !currentSession) {
-        console.error('Session error:', sessionError);
-        toast({
-          title: "Session expired",
-          description: "Please log in again to continue chatting",
-          variant: "destructive",
-        });
-        navigate('/auth');
-        return;
-      }
+      // Get fresh session token
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      if (!currentSession) throw new Error('Session expired');
 
-      // Call the Edge Function with user progress data and auth token
+      // Call AI tutor
       const { data, error: functionError } = await supabase.functions.invoke('chat-with-tutor', {
         body: JSON.stringify({
           message: newMessage.trim(),
@@ -262,26 +147,12 @@ const ChatTab = () => {
             daily_points: profile.daily_points,
             user_id: session.user.id
           }
-        }),
-        headers: {
-          Authorization: `Bearer ${currentSession.access_token}`,
-          'Content-Type': 'application/json'
-        }
+        })
       });
 
-      console.log('Edge Function response:', data);
-      
-      if (functionError) {
-        console.error('Edge Function error:', functionError);
-        throw functionError;
-      }
+      if (functionError) throw functionError;
 
-      if (!data?.response) {
-        console.error('No response from Edge Function');
-        throw new Error('No response from AI tutor');
-      }
-
-      // Insert AI's response
+      // Insert AI response
       const { error: aiMessageError } = await supabase
         .from('messages')
         .insert({
@@ -292,32 +163,21 @@ const ChatTab = () => {
         });
 
       if (aiMessageError) throw aiMessageError;
-
       setNewMessage('');
     } catch (error: any) {
-      console.error('Error in chat:', error);
-      if (error.message?.includes('refresh_token') || error.message?.includes('JWT')) {
-        toast({
-          title: "Session expired",
-          description: "Please log in again to continue chatting",
-          variant: "destructive",
-        });
+      console.error('Error sending message:', error);
+      if (error.message?.includes('JWT') || error.message?.includes('expired')) {
         navigate('/auth');
-        return;
       }
       toast({
         title: "Error sending message",
-        description: error.message || "Failed to send message. Please try again.",
+        description: error.message,
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
 
   return (
     <div className="flex flex-col h-[500px] p-4">
