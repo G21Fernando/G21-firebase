@@ -37,7 +37,7 @@ export const useChat = (userId: string | undefined) => {
 
     const fetchProfile = async () => {
       try {
-        console.log('Fetching profile...');
+        console.log('Fetching profile for user:', userId);
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
@@ -45,23 +45,26 @@ export const useChat = (userId: string | undefined) => {
           .single();
 
         if (error) throw error;
-        console.log('Profile fetched:', data);
+        console.log('Profile data:', data);
         setProfile(data);
 
-        const { data: messages } = await supabase
+        const { data: messages, error: messagesError } = await supabase
           .from('messages')
           .select('*')
           .order('created_at', { ascending: true });
 
-        if (messages && messages.length === 0) {
-          await supabase.from('messages').insert({
+        if (messagesError) throw messagesError;
+
+        if (!messages || messages.length === 0) {
+          const { error: welcomeError } = await supabase.from('messages').insert({
             content: "Hey! I'm your guitar tutor assistant. I can help you with practice advice and song recommendations based on your skill level. What would you like to know?",
             user_id: 'ai-tutor',
             username: 'Guitar Tutor',
             is_ai: true
           });
+          if (welcomeError) throw welcomeError;
         } else {
-          setMessages(messages || []);
+          setMessages(messages);
         }
       } catch (error: any) {
         console.error('Error fetching data:', error);
@@ -97,7 +100,7 @@ export const useChat = (userId: string | undefined) => {
     if (!userId || !content.trim() || !profile || isLoading) return;
 
     setIsLoading(true);
-    console.log('Sending message...');
+    console.log('Sending message with content:', content);
 
     try {
       const { error: messageError } = await supabase
@@ -109,8 +112,9 @@ export const useChat = (userId: string | undefined) => {
         });
 
       if (messageError) throw messageError;
-      console.log('User message sent, calling AI...');
+      console.log('User message sent successfully, calling AI tutor...');
 
+      // Call the v2 Edge Function with authorization
       const { data: functionData, error: functionError } = await supabase.functions.invoke(
         'chat-with-tutor-v2',
         {
@@ -127,7 +131,10 @@ export const useChat = (userId: string | undefined) => {
         }
       );
 
-      if (functionError) throw functionError;
+      if (functionError) {
+        console.error('Edge Function error:', functionError);
+        throw functionError;
+      }
       console.log('AI response received:', functionData);
 
       const { error: aiMessageError } = await supabase
@@ -141,7 +148,7 @@ export const useChat = (userId: string | undefined) => {
 
       if (aiMessageError) throw aiMessageError;
     } catch (error: any) {
-      console.error('Error sending message:', error);
+      console.error('Error in chat flow:', error);
       toast({
         title: "Error sending message",
         description: error.message,
