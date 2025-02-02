@@ -8,17 +8,23 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     console.log('Function started - Processing request');
-    const { message, userProgress } = await req.json();
-    console.log('Received message:', message);
-    console.log('User progress:', userProgress);
+    console.log('Request headers:', Object.fromEntries(req.headers.entries()));
 
-    // Create Supabase client
+    // Get the authorization header
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) {
+      console.log('No authorization header found');
+      throw new Error('No authorization header');
+    }
+
+    // Create Supabase client with auth context
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
@@ -31,8 +37,20 @@ serve(async (req) => {
       }
     );
 
-    console.log('Fetching additional user data...');
+    // Verify the JWT token
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(authHeader.replace('Bearer ', ''));
     
+    if (authError || !user) {
+      console.error('Auth error:', authError);
+      throw new Error('Invalid JWT token');
+    }
+
+    console.log('Authenticated user:', user.id);
+
+    const { message, userProgress } = await req.json();
+    console.log('Received message:', message);
+    console.log('User progress:', userProgress);
+
     // Get the latest chord sprinter result
     const { data: chordResults } = await supabaseAdmin
       .from('chord_sprinter_results')
@@ -96,7 +114,7 @@ Remember to:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4',
         messages: [
           { role: 'system', content: systemMessage },
           { role: 'user', content: message }
@@ -123,7 +141,7 @@ Remember to:
   } catch (error) {
     console.error('Error in chat-with-tutor function:', error);
     return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
+      status: error.message === 'Invalid JWT token' ? 401 : 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
