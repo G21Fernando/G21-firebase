@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
 
 interface Message {
   id: string;
@@ -33,6 +34,7 @@ const ChatTab = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const session = useSession();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const initializationRef = useRef(false);
@@ -68,7 +70,10 @@ const ChatTab = () => {
   }, [session]);
 
   const fetchProfile = async () => {
-    if (!session?.user) return;
+    if (!session?.user) {
+      navigate('/auth');
+      return;
+    }
 
     try {
       console.log('Fetching profile...');
@@ -80,6 +85,10 @@ const ChatTab = () => {
 
       if (error) {
         console.error('Error fetching profile:', error);
+        if (error.code === 'PGRST116') {
+          navigate('/auth');
+          return;
+        }
         toast({
           title: "Error fetching profile",
           description: error.message,
@@ -192,7 +201,17 @@ const ChatTab = () => {
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!session?.user || !newMessage.trim() || !profile) return;
+    if (!session?.user || !newMessage.trim() || !profile) {
+      if (!session?.user) {
+        toast({
+          title: "Session expired",
+          description: "Please log in again to continue chatting",
+          variant: "destructive",
+        });
+        navigate('/auth');
+      }
+      return;
+    }
     setIsLoading(true);
 
     try {
@@ -211,8 +230,20 @@ const ChatTab = () => {
 
       console.log('User message inserted, calling Edge Function...');
       
-      // Get the session token
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      // Get a fresh session token
+      const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error('Session error:', sessionError);
+        toast({
+          title: "Authentication error",
+          description: "Please log in again to continue",
+          variant: "destructive",
+        });
+        navigate('/auth');
+        return;
+      }
+
       if (!currentSession?.access_token) {
         throw new Error('No access token available');
       }
@@ -264,6 +295,15 @@ const ChatTab = () => {
       setNewMessage('');
     } catch (error: any) {
       console.error('Error in chat:', error);
+      if (error.message?.includes('refresh_token') || error.message?.includes('JWT')) {
+        toast({
+          title: "Session expired",
+          description: "Please log in again to continue chatting",
+          variant: "destructive",
+        });
+        navigate('/auth');
+        return;
+      }
       toast({
         title: "Error sending message",
         description: error.message || "Failed to send message. Please try again.",
