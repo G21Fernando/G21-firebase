@@ -112,7 +112,7 @@ export const useChat = (userId: string | undefined) => {
       console.log('User message sent, calling AI...');
 
       const { data: functionData, error: functionError } = await supabase.functions.invoke(
-        'chat-with-tutor',
+        'chat-with-tutor-v2',
         {
           body: JSON.stringify({
             message: content.trim(),
