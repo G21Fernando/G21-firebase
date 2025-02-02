@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 
 interface Message {
@@ -35,11 +35,15 @@ const ChatTab = () => {
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [hasInitialMessage, setHasInitialMessage] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    if (session?.user) {
+    if (session?.user && !isInitialized) {
+      console.log('Initializing chat...');
       fetchProfile();
       fetchMessages();
+      setIsInitialized(true);
+      
       const channel = supabase
         .channel('messages')
         .on(
@@ -50,45 +54,81 @@ const ChatTab = () => {
             table: 'messages'
           },
           (payload) => {
+            console.log('New message received:', payload);
             setMessages(prev => [...prev, payload.new as Message]);
           }
         )
         .subscribe();
 
       return () => {
+        console.log('Cleaning up subscription...');
         supabase.removeChannel(channel);
       };
     }
-  }, [session]);
+  }, [session, isInitialized]);
 
   const fetchProfile = async () => {
     if (!session?.user) return;
 
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', session.user.id)
-      .single();
+    try {
+      console.log('Fetching profile...');
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
 
-    if (error) {
-      console.error('Error fetching profile:', error);
-      return;
-    }
+      if (error) {
+        console.error('Error fetching profile:', error);
+        toast({
+          title: "Error fetching profile",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
 
-    setProfile(data);
-    if (!hasInitialMessage) {
-      createWelcomeMessage(data);
+      console.log('Profile fetched:', data);
+      setProfile(data);
+      if (!hasInitialMessage && !messages.length) {
+        await createWelcomeMessage(data);
+      }
+    } catch (error) {
+      console.error('Error in fetchProfile:', error);
     }
   };
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  const fetchMessages = async () => {
+    try {
+      console.log('Fetching messages...');
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .order('created_at', { ascending: true })
+        .limit(50);
+
+      if (error) {
+        console.error('Error fetching messages:', error);
+        toast({
+          title: "Error fetching messages",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log('Messages fetched:', data);
+      setMessages(data || []);
+    } catch (error) {
+      console.error('Error in fetchMessages:', error);
+    }
+  };
 
   const createWelcomeMessage = async (userProfile: Profile) => {
-    if (!session?.user) return;
+    if (!session?.user || hasInitialMessage) return;
 
     try {
+      console.log('Creating welcome message...');
       const { data: lastSession } = await supabase
         .from('user_sessions')
         .select('*')
@@ -138,26 +178,16 @@ const ChatTab = () => {
           is_ai: true
         });
 
-      if (aiMessageError) throw aiMessageError;
+      if (aiMessageError) {
+        console.error('Error creating welcome message:', aiMessageError);
+        throw aiMessageError;
+      }
+      
+      console.log('Welcome message created successfully');
       setHasInitialMessage(true);
     } catch (error) {
       console.error('Error creating welcome message:', error);
     }
-  };
-
-  const fetchMessages = async () => {
-    const { data, error } = await supabase
-      .from('messages')
-      .select('*')
-      .order('created_at', { ascending: true })
-      .limit(50);
-
-    if (error) {
-      console.error('Error fetching messages:', error);
-      return;
-    }
-
-    setMessages(data);
   };
 
   const sendMessage = async (e: React.FormEvent) => {
@@ -174,7 +204,7 @@ const ChatTab = () => {
         .insert({
           content: newMessage.trim(),
           user_id: session.user.id,
-          username: profile.username || session.user.email?.split('@')[0] || 'Anonymous'
+          username: profile.username
         });
 
       if (messageError) throw messageError;
@@ -192,9 +222,6 @@ const ChatTab = () => {
             daily_points: profile.daily_points,
             user_id: session.user.id
           }
-        },
-        headers: {
-          'Content-Type': 'application/json'
         }
       });
 
@@ -223,11 +250,11 @@ const ChatTab = () => {
       if (aiMessageError) throw aiMessageError;
 
       setNewMessage('');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error in chat:', error);
       toast({
         title: "Error sending message",
-        description: "Failed to send message. Please try again.",
+        description: error.message || "Failed to send message. Please try again.",
         variant: "destructive",
       });
     } finally {
