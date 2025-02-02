@@ -55,12 +55,12 @@ serve(async (req) => {
 
     console.log('Last session:', lastSession);
 
-    // Format practice times
+    // Format practice times for better context
     const totalPracticeMinutes = Math.round((userProgress.practice_time || 0) / 60);
     const dailyPracticeMinutes = Math.round((userProgress.daily_practice_time || 0) / 60);
     const lastSessionMinutes = lastSession ? Math.round(lastSession.practice_duration / 60) : 0;
 
-    // Create a personalized system message
+    // Create a detailed system message with user context
     const systemMessage = `You are a friendly and encouraging guitar tutor assistant. Your role is to help students improve their guitar skills while maintaining a casual, supportive tone.
 
 Current student progress:
