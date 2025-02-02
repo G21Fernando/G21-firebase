@@ -39,6 +39,13 @@ const ChatTab = () => {
   const [isInitialized, setIsInitialized] = useState(false);
   const initializationRef = useRef(false);
 
+  // Check session and redirect if not authenticated
+  useEffect(() => {
+    if (!session) {
+      navigate('/auth');
+    }
+  }, [session, navigate]);
+
   useEffect(() => {
     if (session?.user && !initializationRef.current) {
       console.log('Initializing chat...');
@@ -85,7 +92,7 @@ const ChatTab = () => {
 
       if (error) {
         console.error('Error fetching profile:', error);
-        if (error.code === 'PGRST116') {
+        if (error.code === 'PGRST116' || error.message.includes('JWT')) {
           navigate('/auth');
           return;
         }
@@ -230,25 +237,19 @@ const ChatTab = () => {
 
       console.log('User message inserted, calling Edge Function...');
       
-      // Get a fresh session token
+      // Ensure we have a valid session before proceeding
       const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
       
-      if (sessionError) {
+      if (sessionError || !currentSession) {
         console.error('Session error:', sessionError);
         toast({
-          title: "Authentication error",
-          description: "Please log in again to continue",
+          title: "Session expired",
+          description: "Please log in again to continue chatting",
           variant: "destructive",
         });
         navigate('/auth');
         return;
       }
-
-      if (!currentSession?.access_token) {
-        throw new Error('No access token available');
-      }
-
-      console.log('Got session token, invoking Edge Function...');
 
       // Call the Edge Function with user progress data and auth token
       const { data, error: functionError } = await supabase.functions.invoke('chat-with-tutor', {
