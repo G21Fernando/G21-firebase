@@ -217,9 +217,11 @@ const ChatTab = () => {
         throw new Error('No access token available');
       }
 
+      console.log('Got session token, invoking Edge Function...');
+
       // Call the Edge Function with user progress data and auth token
-      const { data, error: functionError } = await supabase.functions.invoke<{ response: string }>('chat-with-tutor', {
-        body: {
+      const { data, error: functionError } = await supabase.functions.invoke('chat-with-tutor', {
+        body: JSON.stringify({
           message: newMessage.trim(),
           userProgress: {
             points: profile.points,
@@ -228,9 +230,10 @@ const ChatTab = () => {
             daily_points: profile.daily_points,
             user_id: session.user.id
           }
-        },
+        }),
         headers: {
-          Authorization: `Bearer ${currentSession.access_token}`
+          Authorization: `Bearer ${currentSession.access_token}`,
+          'Content-Type': 'application/json'
         }
       });
 
