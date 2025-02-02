@@ -34,15 +34,15 @@ const ChatTab = () => {
   const session = useSession();
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [hasInitialMessage, setHasInitialMessage] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const initializationRef = useRef(false);
 
   useEffect(() => {
-    if (session?.user && !isInitialized) {
+    if (session?.user && !initializationRef.current) {
       console.log('Initializing chat...');
+      initializationRef.current = true;
       fetchProfile();
       fetchMessages();
-      setIsInitialized(true);
       
       const channel = supabase
         .channel('messages')
@@ -65,7 +65,7 @@ const ChatTab = () => {
         supabase.removeChannel(channel);
       };
     }
-  }, [session, isInitialized]);
+  }, [session]);
 
   const fetchProfile = async () => {
     if (!session?.user) return;
@@ -90,8 +90,9 @@ const ChatTab = () => {
 
       console.log('Profile fetched:', data);
       setProfile(data);
-      if (!hasInitialMessage && !messages.length) {
+      if (!isInitialized) {
         await createWelcomeMessage(data);
+        setIsInitialized(true);
       }
     } catch (error) {
       console.error('Error in fetchProfile:', error);
@@ -125,7 +126,7 @@ const ChatTab = () => {
   };
 
   const createWelcomeMessage = async (userProfile: Profile) => {
-    if (!session?.user || hasInitialMessage) return;
+    if (!session?.user || isInitialized) return;
 
     try {
       console.log('Creating welcome message...');
@@ -184,7 +185,6 @@ const ChatTab = () => {
       }
       
       console.log('Welcome message created successfully');
-      setHasInitialMessage(true);
     } catch (error) {
       console.error('Error creating welcome message:', error);
     }
