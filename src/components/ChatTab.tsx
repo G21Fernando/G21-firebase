@@ -36,22 +36,21 @@ const ChatTab = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const hasInitialized = useRef(false);
+  const initialized = useRef(false);
 
-  // Redirect if no session
+  // Single initialization effect
   useEffect(() => {
-    if (!session?.user) {
+    if (!session?.user?.id) {
       navigate('/auth');
+      return;
     }
-  }, [session, navigate]);
-
-  // Initialize chat and subscribe to messages
-  useEffect(() => {
-    if (!session?.user || hasInitialized.current) return;
 
     const initializeChat = async () => {
+      if (initialized.current) return;
+      initialized.current = true;
+
       try {
-        // Fetch profile
+        console.log('Fetching profile...');
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('*')
@@ -61,27 +60,16 @@ const ChatTab = () => {
         if (profileError) throw profileError;
         setProfile(profileData);
 
-        // Fetch existing messages
+        console.log('Fetching messages...');
         const { data: messagesData, error: messagesError } = await supabase
           .from('messages')
           .select('*')
           .order('created_at', { ascending: true });
 
         if (messagesError) throw messagesError;
-        setMessages(messagesData || []);
-
-        // Subscribe to new messages
-        const channel = supabase
-          .channel('messages')
-          .on(
-            'postgres_changes',
-            { event: 'INSERT', schema: 'public', table: 'messages' },
-            (payload) => setMessages(prev => [...prev, payload.new as Message])
-          )
-          .subscribe();
-
-        // Create welcome message if no messages exist
+        
         if (!messagesData?.length) {
+          console.log('Creating welcome message...');
           await supabase
             .from('messages')
             .insert({
@@ -90,10 +78,10 @@ const ChatTab = () => {
               username: 'Guitar Tutor',
               is_ai: true
             });
+        } else {
+          setMessages(messagesData);
         }
 
-        hasInitialized.current = true;
-        return () => supabase.removeChannel(channel);
       } catch (error: any) {
         console.error('Error initializing chat:', error);
         if (error.message?.includes('JWT')) {
@@ -108,6 +96,23 @@ const ChatTab = () => {
     };
 
     initializeChat();
+
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('messages')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'messages' },
+        (payload) => {
+          console.log('New message received:', payload);
+          setMessages(prev => [...prev, payload.new as Message]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [session, navigate, toast]);
 
   // Scroll to bottom when messages change
@@ -117,11 +122,12 @@ const ChatTab = () => {
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!session?.user || !newMessage.trim() || !profile || isLoading) return;
+    if (!session?.user?.id || !newMessage.trim() || !profile || isLoading) return;
 
     setIsLoading(true);
+    console.log('Sending message...');
+
     try {
-      // Send user message
       const { error: messageError } = await supabase
         .from('messages')
         .insert({
@@ -131,14 +137,10 @@ const ChatTab = () => {
         });
 
       if (messageError) throw messageError;
+      console.log('User message sent, calling AI...');
 
-      // Get fresh session token
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      if (!currentSession) throw new Error('Session expired');
-
-      // Call AI tutor
       const { data, error: functionError } = await supabase.functions.invoke('chat-with-tutor', {
-        body: JSON.stringify({
+        body: {
           message: newMessage.trim(),
           userProgress: {
             points: profile.points,
@@ -147,12 +149,12 @@ const ChatTab = () => {
             daily_points: profile.daily_points,
             user_id: session.user.id
           }
-        })
+        }
       });
 
       if (functionError) throw functionError;
+      console.log('AI response received:', data);
 
-      // Insert AI response
       const { error: aiMessageError } = await supabase
         .from('messages')
         .insert({
@@ -166,9 +168,6 @@ const ChatTab = () => {
       setNewMessage('');
     } catch (error: any) {
       console.error('Error sending message:', error);
-      if (error.message?.includes('JWT') || error.message?.includes('expired')) {
-        navigate('/auth');
-      }
       toast({
         title: "Error sending message",
         description: error.message,
