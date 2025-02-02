@@ -139,6 +139,21 @@ const ChatTab = () => {
       if (messageError) throw messageError;
       console.log('User message sent, calling AI...');
 
+      // Get current session
+      const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !currentSession?.access_token) {
+        console.error('Session error:', sessionError);
+        toast({
+          title: "Session expired",
+          description: "Please log in again to continue chatting",
+          variant: "destructive",
+        });
+        navigate('/auth');
+        return;
+      }
+
+      // Call the Edge Function with user progress data and auth token
       const { data, error: functionError } = await supabase.functions.invoke('chat-with-tutor', {
         body: {
           message: newMessage.trim(),
