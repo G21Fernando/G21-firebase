@@ -1,91 +1,80 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { SessionContextProvider } from '@supabase/auth-helpers-react';
-import { supabase } from "@/integrations/supabase/client";
-import { ProtectedRoute } from "./components/routing/ProtectedRoute";
-import { AdminRoute } from "./components/routing/AdminRoute";
-import Timekeeper from "./pages/Timekeeper";
-import Auth from "./pages/Auth";
-import Sprinter from "./pages/Sprinter";
-import Feed from "./pages/Feed";
-import Dashboard from "./pages/Dashboard";
-import AdminDashboard from "./pages/AdminDashboard";
-import Tutor from "./pages/Tutor";
-import MobileFooter from "./components/MobileFooter";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
+import { Toaster } from '@/components/ui/toaster';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import MainContent from '@/components/MainContent';
+import AuthPage from '@/pages/AuthPage';
+import Dashboard from '@/pages/Dashboard';
+import ChordSprinter from '@/pages/ChordSprinter';
+import UserProfile from './pages/UserProfile';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 2,
-      retryDelay: 1000,
-      refetchOnWindowFocus: true,
-      refetchOnMount: true,
-      refetchOnReconnect: true,
-      staleTime: 1000 * 30,
-      networkMode: 'always',
-    },
-  },
-});
+const App = () => {
+  const session = useSession();
+  const supabase = useSupabaseClient();
+  const [dailyPoints, setDailyPoints] = useState(0);
+  const [dailyPracticeTime, setDailyPracticeTime] = useState(0);
 
-const RootLayout = ({ children }: { children: React.ReactNode }) => (
-  <div className="min-h-screen bg-[#F5E6DB] flex flex-col">
-    {children}
-  </div>
-);
+  useEffect(() => {
+    const fetchDailyStats = async () => {
+      if (session?.user?.id) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('daily_points, daily_practice_time')
+          .eq('id', session.user.id)
+          .single();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <SessionContextProvider 
-      supabaseClient={supabase}
-      initialSession={null}
-    >
-      <TooltipProvider>
-        <RootLayout>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={
-                <ProtectedRoute>
-                  <Timekeeper />
-                </ProtectedRoute>
-              } />
-              <Route path="/feed" element={
-                <ProtectedRoute>
-                  <Feed />
-                </ProtectedRoute>
-              } />
-              <Route path="/sprinter" element={
-                <ProtectedRoute>
-                  <Sprinter />
-                </ProtectedRoute>
-              } />
-              <Route path="/tutor" element={
-                <ProtectedRoute>
-                  <Tutor />
-                </ProtectedRoute>
-              } />
-              <Route path="/dashboard" element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/admin" element={
-                <AdminRoute>
-                  <AdminDashboard />
-                </AdminRoute>
-              } />
-              <Route path="/auth" element={<Auth />} />
-            </Routes>
-            <MobileFooter />
-          </BrowserRouter>
-        </RootLayout>
-      </TooltipProvider>
-    </SessionContextProvider>
-  </QueryClientProvider>
-);
+        if (data) {
+          setDailyPoints(data.daily_points || 0);
+          setDailyPracticeTime(data.daily_practice_time || 0);
+        }
+      }
+    };
+
+    fetchDailyStats();
+  }, [session, supabase]);
+
+  const handlePointsUpdate = (points: number) => {
+    setDailyPoints(points);
+  };
+
+  const handlePracticeTimeUpdate = (time: number) => {
+    setDailyPracticeTime(time);
+  };
+
+  return (
+    <Router>
+      <Routes>
+        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/" element={
+          <ProtectedRoute>
+            <MainContent
+              dailyPoints={dailyPoints}
+              dailyPracticeTime={dailyPracticeTime}
+              onPointsUpdate={handlePointsUpdate}
+              onPracticeTimeUpdate={handlePracticeTimeUpdate}
+            />
+          </ProtectedRoute>
+        } />
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/chord-sprinter" element={
+          <ProtectedRoute>
+            <ChordSprinter />
+          </ProtectedRoute>
+        } />
+        <Route path="/profile/:username" element={
+          <ProtectedRoute>
+            <UserProfile />
+          </ProtectedRoute>
+        } />
+      </Routes>
+      <Toaster />
+    </Router>
+  );
+};
 
 export default App;

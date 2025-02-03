@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Trophy, Shield } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { AvatarWithFallback } from "@/components/ui/avatar-with-fallback";
@@ -80,7 +81,12 @@ const LeaderboardCard: React.FC = () => {
                 src={player.avatar_url}
                 size="sm"
               />
-              <span className="text-xs md:text-base">{player.username}</span>
+              <Link 
+                to={`/profile/${player.username}`} 
+                className="text-xs md:text-base hover:text-blue-600 transition-colors"
+              >
+                {player.username}
+              </Link>
               {player.points >= 1000 && (
                 <TooltipProvider>
                   <Tooltip>
