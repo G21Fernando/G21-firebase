@@ -13,6 +13,12 @@ const AuthPage = () => {
   const session = useSession();
 
   useEffect(() => {
+    if (session) {
+      navigate('/');
+    }
+  }, [session, navigate]);
+
+  useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('Auth state changed:', event, session);
       if (event === 'SIGNED_IN' && session) {
@@ -26,12 +32,6 @@ const AuthPage = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate, toast]);
-
-  useEffect(() => {
-    if (session) {
-      navigate('/');
-    }
-  }, [session, navigate]);
 
   const handleBackToPractice = () => {
     navigate('/');
