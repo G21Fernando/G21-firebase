@@ -10,6 +10,8 @@ import Dashboard from '@/pages/Dashboard';
 import ChordSprinter from '@/pages/ChordSprinter';
 import UserProfile from './pages/UserProfile';
 import Tutor from './pages/Tutor';
+import MobileFooter from './components/MobileFooter';
+import Feed from './pages/Feed';
 
 const App = () => {
   console.log('App rendering...');
@@ -99,6 +101,11 @@ const App = () => {
                 <ChordSprinter />
               </ProtectedRoute>
             } />
+            <Route path="/feed" element={
+              <ProtectedRoute>
+                <Feed />
+              </ProtectedRoute>
+            } />
             {/* Add redirect from /sprinter to /chord-sprinter */}
             <Route path="/sprinter" element={<Navigate to="/chord-sprinter" replace />} />
             <Route path="/profile/:username" element={
@@ -108,6 +115,7 @@ const App = () => {
             } />
           </Routes>
         </div>
+        {session && <MobileFooter />}
         <Toaster />
       </div>
     </Router>

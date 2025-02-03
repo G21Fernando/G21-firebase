@@ -405,6 +405,7 @@ export type Database = {
           points: number | null
           practice_time: number | null
           subscription_status: string | null
+          updated_at: string | null
           username: string
         }
         Insert: {
@@ -420,6 +421,7 @@ export type Database = {
           points?: number | null
           practice_time?: number | null
           subscription_status?: string | null
+          updated_at?: string | null
           username: string
         }
         Update: {
@@ -435,6 +437,7 @@ export type Database = {
           points?: number | null
           practice_time?: number | null
           subscription_status?: string | null
+          updated_at?: string | null
           username?: string
         }
         Relationships: []
