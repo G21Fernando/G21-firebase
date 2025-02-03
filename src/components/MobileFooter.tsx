@@ -1,13 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Zap, Settings } from "lucide-react";
+import { Zap, MessageSquare } from "lucide-react";
 import { useSession } from "@supabase/auth-helpers-react";
-import { useAdmin } from "@/hooks/useAdmin";
 import TimekeeperIcon from './icons/TimekeeperIcon';
 
 const MobileFooter = () => {
   const location = useLocation();
   const session = useSession();
-  const { isAdmin } = useAdmin();
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-3 px-4 md:hidden">
@@ -33,17 +31,15 @@ const MobileFooter = () => {
             <span className="text-xs mt-1">Sprinter</span>
           </Link>
 
-          {isAdmin && (
-            <Link
-              to="/admin"
-              className={`flex flex-col items-center ${
-                location.pathname === "/admin" ? "text-[#11245A]" : "text-gray-500"
-              }`}
-            >
-              <Settings className="w-6 h-6" />
-              <span className="text-xs mt-1">Admin</span>
-            </Link>
-          )}
+          <Link
+            to="/tutor"
+            className={`flex flex-col items-center ${
+              location.pathname === "/tutor" ? "text-[#11245A]" : "text-gray-500"
+            }`}
+          >
+            <MessageSquare className="w-6 h-6" />
+            <span className="text-xs mt-1">Chat</span>
+          </Link>
         </div>
       </div>
     </div>
