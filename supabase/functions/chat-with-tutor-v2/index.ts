@@ -9,8 +9,7 @@ const corsHeaders = {
 
 serve(async (req) => {
   console.log('Chat with Tutor v2.0 - Starting function execution');
-  console.log('Request headers:', Object.fromEntries(req.headers.entries()));
-
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     console.log('Handling CORS preflight request');
@@ -24,6 +23,8 @@ serve(async (req) => {
       console.log('No authorization header found');
       throw new Error('No authorization header');
     }
+
+    console.log('Authorization header found:', authHeader.substring(0, 20) + '...');
 
     // Create Supabase client with auth context
     const supabaseAdmin = createClient(
@@ -54,8 +55,13 @@ serve(async (req) => {
     console.log('Received message:', message);
     console.log('User progress:', userProgress);
 
+    if (!message || !userProgress) {
+      console.error('Missing required data');
+      throw new Error('Missing required data in request body');
+    }
+
     // Get the latest chord sprinter result
-    const { data: chordResults } = await supabaseAdmin
+    const { data: chordResults, error: chordError } = await supabaseAdmin
       .from('chord_sprinter_results')
       .select('reps')
       .eq('user_id', userProgress.user_id)
@@ -63,10 +69,14 @@ serve(async (req) => {
       .limit(1)
       .single();
 
-    console.log('Chord results:', chordResults);
+    if (chordError) {
+      console.error('Error fetching chord results:', chordError);
+    } else {
+      console.log('Chord results:', chordResults);
+    }
 
     // Get the latest practice session
-    const { data: lastSession } = await supabaseAdmin
+    const { data: lastSession, error: sessionError } = await supabaseAdmin
       .from('user_sessions')
       .select('practice_duration')
       .eq('user_id', userProgress.user_id)
@@ -74,7 +84,11 @@ serve(async (req) => {
       .limit(1)
       .single();
 
-    console.log('Last session:', lastSession);
+    if (sessionError) {
+      console.error('Error fetching last session:', sessionError);
+    } else {
+      console.log('Last session:', lastSession);
+    }
 
     // Format practice times for better context
     const totalPracticeMinutes = Math.round((userProgress.practice_time || 0) / 60);
@@ -110,10 +124,15 @@ Remember to:
 
     console.log('Sending request to OpenAI');
 
+    const openAIKey = Deno.env.get('OPENAI_API_KEY');
+    if (!openAIKey) {
+      throw new Error('OpenAI API key not found');
+    }
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+        'Authorization': `Bearer ${openAIKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
