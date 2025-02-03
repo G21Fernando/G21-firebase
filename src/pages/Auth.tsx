@@ -23,10 +23,13 @@ const AuthPage = () => {
       console.log('Auth state changed:', event, session);
       if (event === 'SIGNED_IN' && session) {
         navigate('/');
-        toast({
-          title: "Welcome back!",
-          description: "You have successfully logged in.",
-        });
+        // Only show toast after successful sign in
+        setTimeout(() => {
+          toast({
+            title: "Welcome back!",
+            description: "You have successfully logged in.",
+          });
+        }, 100);
       }
     });
 
