@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from 'react-router-dom';
@@ -23,71 +23,77 @@ interface Profile {
 }
 
 export const useChat = (userId: string | undefined) => {
-  console.log('🎸 useChat hook initialized with userId:', userId);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  useEffect(() => {
+  const fetchInitialData = useCallback(async () => {
     if (!userId) {
       navigate('/auth');
       return;
     }
 
-    const fetchProfile = async () => {
-      try {
-        console.log('Fetching profile for user:', userId);
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', userId)
-          .single();
+    try {
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
 
-        if (error) throw error;
-        console.log('Profile data:', data);
-        setProfile(data);
+      if (profileError) throw profileError;
+      setProfile(profileData);
 
-        const { data: messages, error: messagesError } = await supabase
+      const { data: messagesData, error: messagesError } = await supabase
+        .from('messages')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (messagesError) throw messagesError;
+
+      if (!messagesData || messagesData.length === 0) {
+        const welcomeMessage = {
+          content: "Hey! I'm your guitar tutor assistant. I can help you with practice advice and song recommendations based on your skill level. What would you like to know?",
+          user_id: 'ai-tutor',
+          username: 'Guitar Tutor',
+          is_ai: true
+        };
+
+        const { error: welcomeError } = await supabase
           .from('messages')
-          .select('*')
-          .order('created_at', { ascending: true });
+          .insert(welcomeMessage);
 
-        if (messagesError) throw messagesError;
-
-        if (!messages || messages.length === 0) {
-          const { error: welcomeError } = await supabase.from('messages').insert({
-            content: "Hey! I'm your guitar tutor assistant. I can help you with practice advice and song recommendations based on your skill level. What would you like to know?",
-            user_id: 'ai-tutor',
-            username: 'Guitar Tutor',
-            is_ai: true
-          });
-          if (welcomeError) throw welcomeError;
-        } else {
-          setMessages(messages);
-        }
-      } catch (error: any) {
-        console.error('Error fetching data:', error);
-        toast({
-          title: "Error fetching data",
-          description: error.message,
-          variant: "destructive",
-        });
+        if (welcomeError) throw welcomeError;
+        setMessages([welcomeMessage as Message]);
+      } else {
+        setMessages(messagesData);
       }
-    };
+    } catch (error: any) {
+      console.error('Error fetching data:', error);
+      toast({
+        title: "Error fetching data",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  }, [userId, navigate, toast]);
 
-    fetchProfile();
+  useEffect(() => {
+    fetchInitialData();
 
-    // Set up realtime subscription
     const channel = supabase
       .channel('messages')
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'messages' },
         (payload) => {
-          console.log('New message received:', payload);
-          setMessages(prev => [...prev, payload.new as Message]);
+          setMessages(prev => {
+            // Check if message already exists to prevent duplicates
+            const exists = prev.some(msg => msg.id === payload.new.id);
+            if (exists) return prev;
+            return [...prev, payload.new as Message];
+          });
         }
       )
       .subscribe();
@@ -95,25 +101,12 @@ export const useChat = (userId: string | undefined) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userId, navigate, toast]);
+  }, [fetchInitialData]);
 
   const sendMessage = async (content: string) => {
-    if (!userId || !content.trim() || !profile || isLoading) {
-      console.log('Cannot send message, checks failed:', {
-        hasUserId: !!userId,
-        hasContent: !!content.trim(),
-        hasProfile: !!profile,
-        isLoading
-      });
-      return;
-    }
+    if (!userId || !content.trim() || !profile || isLoading) return;
 
     setIsLoading(true);
-    console.log('Starting message send process...', {
-      userId,
-      content,
-      profileId: profile.id
-    });
 
     try {
       const { error: messageError } = await supabase
@@ -124,24 +117,14 @@ export const useChat = (userId: string | undefined) => {
           username: profile.username
         });
 
-      if (messageError) {
-        console.error('Error inserting user message:', messageError);
-        throw messageError;
-      }
-      console.log('User message inserted successfully');
+      if (messageError) throw messageError;
 
-      // Get the current session
-      console.log('Getting current session...');
       const { data: { session } } = await supabase.auth.getSession();
-      console.log('Session retrieved:', session ? 'Yes' : 'No');
       
       if (!session?.access_token) {
-        console.error('No access token in session');
         throw new Error('No access token available');
       }
 
-      // Call the v2 Edge Function with authorization
-      console.log('Preparing Edge Function call...');
       const payload = {
         message: content.trim(),
         userProgress: {
@@ -152,7 +135,6 @@ export const useChat = (userId: string | undefined) => {
           user_id: userId
         }
       };
-      console.log('Edge Function payload:', payload);
       
       const { data: functionData, error: functionError } = await supabase.functions.invoke(
         'chat-with-tutor-v2',
@@ -164,12 +146,7 @@ export const useChat = (userId: string | undefined) => {
         }
       );
 
-      if (functionError) {
-        console.error('Edge Function error:', functionError);
-        console.error('Full error details:', JSON.stringify(functionError, null, 2));
-        throw functionError;
-      }
-      console.log('AI response received:', functionData);
+      if (functionError) throw functionError;
 
       const { error: aiMessageError } = await supabase
         .from('messages')
