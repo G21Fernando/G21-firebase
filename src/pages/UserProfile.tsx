@@ -36,7 +36,6 @@ const UserProfile = () => {
       if (profileData) {
         setProfile(profileData);
 
-        // Fetch chord sprint results for this user
         const { data: sprintResults } = await supabase
           .from('chord_sprinter_results')
           .select('*')
@@ -63,7 +62,7 @@ const UserProfile = () => {
         <AvatarWithFallback
           username={profile.username}
           src={profile.avatar_url}
-          size="xl"
+          size="lg"
         />
         <h1 className="text-2xl font-bold mt-4">{profile.username}</h1>
       </div>

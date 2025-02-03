@@ -4,7 +4,7 @@ import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Toaster } from '@/components/ui/toaster';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import MainContent from '@/components/MainContent';
-import AuthPage from '@/pages/AuthPage';
+import Auth from '@/pages/Auth';
 import Dashboard from '@/pages/Dashboard';
 import ChordSprinter from '@/pages/ChordSprinter';
 import UserProfile from './pages/UserProfile';
@@ -45,7 +45,7 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/auth" element={<Auth />} />
         <Route path="/" element={
           <ProtectedRoute>
             <MainContent
