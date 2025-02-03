@@ -4,6 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { AvatarWithFallback } from "@/components/ui/avatar-with-fallback";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 interface Profile {
   username: string;
@@ -56,6 +62,8 @@ const UserProfile = () => {
     return <div className="p-8 text-center">Loading profile...</div>;
   }
 
+  const isMaestro = profile.practice_time >= 36000000; // 10000 hours in seconds
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col items-center mb-8">
@@ -64,7 +72,24 @@ const UserProfile = () => {
           src={profile.avatar_url}
           size="lg"
         />
-        <h1 className="text-2xl font-bold mt-4">{profile.username}</h1>
+        <div className="flex items-center gap-2 mt-4">
+          <h1 className="text-2xl font-bold">{profile.username}</h1>
+          {isMaestro && (
+            <HoverCard>
+              <HoverCardTrigger>
+                <Badge variant="secondary" className="bg-purple-100 text-purple-800 hover:bg-purple-200">
+                  MAESTRO
+                </Badge>
+              </HoverCardTrigger>
+              <HoverCardContent className="w-80">
+                <p className="text-sm text-muted-foreground">
+                  This badge is awarded to users who have practiced for over 10,000 hours. 
+                  This achievement is typically verified by administrators.
+                </p>
+              </HoverCardContent>
+            </HoverCard>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
