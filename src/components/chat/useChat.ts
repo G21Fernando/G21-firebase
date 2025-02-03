@@ -23,6 +23,7 @@ interface Profile {
 }
 
 export const useChat = (userId: string | undefined) => {
+  console.log('🎸 useChat hook initialized with userId:', userId);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);

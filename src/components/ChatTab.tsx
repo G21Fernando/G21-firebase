@@ -5,6 +5,7 @@ import { MessageInput } from './chat/MessageInput';
 import { useChat } from './chat/useChat';
 
 const ChatTab = () => {
+  console.log('🎸 ChatTab component loaded at:', new Date().toISOString());
   const [newMessage, setNewMessage] = useState('');
   const session = useSession();
   const { messages, isLoading, sendMessage } = useChat(session?.user?.id);

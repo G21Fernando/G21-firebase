@@ -16,6 +16,7 @@ interface Message {
 }
 
 const Tutor = () => {
+  console.log('🎸 Tutor page loaded at:', new Date().toISOString());
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const session = useSession();
