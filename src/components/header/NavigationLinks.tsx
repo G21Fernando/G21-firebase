@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom';
-import { Users, Zap, Compass } from 'lucide-react';
+import { Users, Zap, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import TimekeeperIcon from '../icons/TimekeeperIcon';
 import {
@@ -62,7 +62,7 @@ const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
               onClick={() => onNavigate('/tutor')}
               className={location.pathname === '/tutor' ? 'bg-[#F1F0FB] hover:bg-[#F1F0FB]' : ''}
             >
-              <Compass className="h-5 w-5" />
+              <MessageSquare className="h-5 w-5" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
