@@ -8,19 +8,23 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  console.log('ProtectedRoute rendering...');
   const session = useSession();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isChecking, setIsChecking] = useState(true);
-
-  console.log('Protected Route - Session:', session ? 'Present' : 'Not present');
+  const [hasRedirected, setHasRedirected] = useState(false);
 
   useEffect(() => {
     const checkSession = async () => {
-      console.log('Checking session...');
-      if (!session) {
+      console.log('Checking session state:', {
+        session: session ? 'Present' : 'Not present',
+        isChecking,
+        hasRedirected
+      });
+
+      if (!session && !hasRedirected) {
         console.log('No session found, redirecting to auth...');
+        setHasRedirected(true);
         toast({
           title: "Authentication required",
           description: "Please log in to access this page",
@@ -32,7 +36,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     };
 
     checkSession();
-  }, [session, navigate, toast]);
+  }, [session, navigate, toast, hasRedirected]);
 
   if (isChecking) {
     console.log('Still checking session...');
