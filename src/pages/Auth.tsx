@@ -12,6 +12,7 @@ const AuthPage = () => {
   const { toast } = useToast();
   const session = useSession();
 
+  // Redirect if already logged in
   useEffect(() => {
     if (session) {
       navigate('/');
@@ -19,17 +20,19 @@ const AuthPage = () => {
   }, [session, navigate]);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session);
       if (event === 'SIGNED_IN' && session) {
+        // First navigate
         navigate('/');
-        // Only show toast after successful sign in
+        
+        // Then show toast after a small delay to ensure navigation completes
         setTimeout(() => {
           toast({
             title: "Welcome back!",
             description: "You have successfully logged in.",
           });
-        }, 100);
+        }, 500);
       }
     });
 
