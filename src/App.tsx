@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Toaster } from '@/components/ui/toaster';
@@ -21,30 +21,30 @@ const App = () => {
 
   console.log('Session state:', session ? 'Logged in' : 'Not logged in');
 
-  useEffect(() => {
-    const fetchDailyStats = async () => {
-      if (session?.user?.id) {
-        console.log('Fetching user stats...');
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('daily_points, daily_practice_time, *')
-          .eq('id', session.user.id)
-          .single();
+  const fetchDailyStats = async () => {
+    if (session?.user?.id) {
+      console.log('Fetching user stats...');
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('daily_points, daily_practice_time, *')
+        .eq('id', session.user.id)
+        .single();
 
-        if (error) {
-          console.error('Error fetching profile:', error);
-          return;
-        }
-
-        if (data) {
-          console.log('Profile data received:', data);
-          setDailyPoints(data.daily_points || 0);
-          setDailyPracticeTime(data.daily_practice_time || 0);
-          setProfile(data);
-        }
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return;
       }
-    };
 
+      if (data) {
+        console.log('Profile data received:', data);
+        setDailyPoints(data.daily_points || 0);
+        setDailyPracticeTime(data.daily_practice_time || 0);
+        setProfile(data);
+      }
+    }
+  };
+
+  useEffect(() => {
     fetchDailyStats();
   }, [session, supabase]);
 
@@ -99,6 +99,8 @@ const App = () => {
                 <ChordSprinter />
               </ProtectedRoute>
             } />
+            {/* Add redirect from /sprinter to /chord-sprinter */}
+            <Route path="/sprinter" element={<Navigate to="/chord-sprinter" replace />} />
             <Route path="/profile/:username" element={
               <ProtectedRoute>
                 <UserProfile />
