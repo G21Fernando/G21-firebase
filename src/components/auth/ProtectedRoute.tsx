@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useSession } from '@supabase/auth-helpers-react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useToast } from '@/components/ui/use-toast';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -10,11 +10,10 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const session = useSession();
   const navigate = useNavigate();
-  const location = useLocation();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!session && !location.state?.fromAuth) {
+    if (!session) {
       toast({
         title: "Authentication required",
         description: "Please log in to access this page",
@@ -22,7 +21,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       });
       navigate('/auth');
     }
-  }, [session, navigate, toast, location.state]);
+  }, [session, navigate, toast]);
 
   if (!session) {
     return null;

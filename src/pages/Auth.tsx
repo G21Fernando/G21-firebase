@@ -1,11 +1,11 @@
-import { Auth } from "@supabase/auth-ui-react";
-import { ThemeSupa } from "@supabase/auth-ui-shared";
-import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
-import { useSession } from "@supabase/auth-helpers-react";
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Auth } from '@supabase/auth-ui-react';
+import { ThemeSupa } from '@supabase/auth-ui-shared';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { useSession } from '@supabase/auth-helpers-react';
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -13,26 +13,14 @@ const AuthPage = () => {
   const session = useSession();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN") {
-        navigate("/", { state: { fromAuth: true } });
-        setTimeout(() => {
-          toast({
-            title: "Welcome back!",
-            description: "You have successfully logged in.",
-          });
-        }, 100);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate, toast]);
-
-  useEffect(() => {
     if (session) {
-      navigate('/');
+      navigate("/");
+      toast({
+        title: "Welcome back!",
+        description: "You have successfully logged in.",
+      });
     }
-  }, [session, navigate]);
+  }, [session, navigate, toast]);
 
   const handleBackToPractice = () => {
     navigate('/');
