@@ -97,10 +97,22 @@ export const useChat = (userId: string | undefined) => {
   }, [userId, navigate, toast]);
 
   const sendMessage = async (content: string) => {
-    if (!userId || !content.trim() || !profile || isLoading) return;
+    if (!userId || !content.trim() || !profile || isLoading) {
+      console.log('Cannot send message, checks failed:', {
+        hasUserId: !!userId,
+        hasContent: !!content.trim(),
+        hasProfile: !!profile,
+        isLoading
+      });
+      return;
+    }
 
     setIsLoading(true);
-    console.log('Sending message with content:', content);
+    console.log('Starting message send process...', {
+      userId,
+      content,
+      profileId: profile.id
+    });
 
     try {
       const { error: messageError } = await supabase
@@ -111,29 +123,40 @@ export const useChat = (userId: string | undefined) => {
           username: profile.username
         });
 
-      if (messageError) throw messageError;
-      console.log('User message sent successfully, calling AI tutor...');
+      if (messageError) {
+        console.error('Error inserting user message:', messageError);
+        throw messageError;
+      }
+      console.log('User message inserted successfully');
 
       // Get the current session
+      console.log('Getting current session...');
       const { data: { session } } = await supabase.auth.getSession();
+      console.log('Session retrieved:', session ? 'Yes' : 'No');
+      
       if (!session?.access_token) {
+        console.error('No access token in session');
         throw new Error('No access token available');
       }
 
       // Call the v2 Edge Function with authorization
+      console.log('Preparing Edge Function call...');
+      const payload = {
+        message: content.trim(),
+        userProgress: {
+          points: profile.points,
+          practice_time: profile.practice_time,
+          daily_practice_time: profile.daily_practice_time,
+          daily_points: profile.daily_points,
+          user_id: userId
+        }
+      };
+      console.log('Edge Function payload:', payload);
+      
       const { data: functionData, error: functionError } = await supabase.functions.invoke(
         'chat-with-tutor-v2',
         {
-          body: JSON.stringify({
-            message: content.trim(),
-            userProgress: {
-              points: profile.points,
-              practice_time: profile.practice_time,
-              daily_practice_time: profile.daily_practice_time,
-              daily_points: profile.daily_points,
-              user_id: userId
-            }
-          }),
+          body: JSON.stringify(payload),
           headers: {
             Authorization: `Bearer ${session.access_token}`
           }
@@ -142,6 +165,7 @@ export const useChat = (userId: string | undefined) => {
 
       if (functionError) {
         console.error('Edge Function error:', functionError);
+        console.error('Full error details:', JSON.stringify(functionError, null, 2));
         throw functionError;
       }
       console.log('AI response received:', functionData);
