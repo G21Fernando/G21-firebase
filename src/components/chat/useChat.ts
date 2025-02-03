@@ -114,6 +114,12 @@ export const useChat = (userId: string | undefined) => {
       if (messageError) throw messageError;
       console.log('User message sent successfully, calling AI tutor...');
 
+      // Get the current session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error('No access token available');
+      }
+
       // Call the v2 Edge Function with authorization
       const { data: functionData, error: functionError } = await supabase.functions.invoke(
         'chat-with-tutor-v2',
@@ -127,7 +133,10 @@ export const useChat = (userId: string | undefined) => {
               daily_points: profile.daily_points,
               user_id: userId
             }
-          })
+          }),
+          headers: {
+            Authorization: `Bearer ${session.access_token}`
+          }
         }
       );
 
