@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Timer, Zap, MessageSquare } from "lucide-react";
+import { Timer, Zap, MessageSquare, Rss } from "lucide-react";
 import { useSession } from "@supabase/auth-helpers-react";
 
 const MobileFooter = () => {
@@ -28,6 +28,16 @@ const MobileFooter = () => {
           >
             <Zap className="w-6 h-6" />
             <span className="text-xs mt-1">Sprinter</span>
+          </Link>
+
+          <Link
+            to="/feed"
+            className={`flex flex-col items-center ${
+              location.pathname === "/feed" ? "text-[#11245A]" : "text-gray-500"
+            }`}
+          >
+            <Rss className="w-6 h-6" />
+            <span className="text-xs mt-1">Feed</span>
           </Link>
 
           <Link
