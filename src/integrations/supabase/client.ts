@@ -24,3 +24,6 @@ export const supabase = createClient<Database>(
     },
   }
 );
+
+// Configure Edge Functions URL
+supabase.functions.setEndpoint(`${SUPABASE_URL}/functions/v1`);
