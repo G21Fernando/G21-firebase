@@ -51,7 +51,11 @@ serve(async (req) => {
 
     console.log('Authenticated user:', user.id);
 
-    const { message, userProgress } = await req.json();
+    // Parse request body
+    const requestBody = await req.json();
+    console.log('Request body:', requestBody);
+
+    const { message, userProgress } = requestBody;
     console.log('Received message:', message);
     console.log('User progress:', userProgress);
 
@@ -136,7 +140,7 @@ Remember to:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4o',
         messages: [
           { role: 'system', content: systemMessage },
           { role: 'user', content: message }
