@@ -1,7 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
-import { Zap, MessageSquare } from "lucide-react";
+import { Timer, Zap, MessageSquare } from "lucide-react";
 import { useSession } from "@supabase/auth-helpers-react";
-import TimekeeperIcon from './icons/TimekeeperIcon';
 
 const MobileFooter = () => {
   const location = useLocation();
@@ -17,7 +16,7 @@ const MobileFooter = () => {
               location.pathname === "/" ? "text-[#11245A]" : "text-gray-500"
             }`}
           >
-            <TimekeeperIcon className="w-6 h-6" />
+            <Timer className="w-6 h-6" />
             <span className="text-xs mt-1">Timekeeper</span>
           </Link>
           
