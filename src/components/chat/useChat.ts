@@ -89,7 +89,6 @@ export const useChat = (userId: string | undefined) => {
         { event: 'INSERT', schema: 'public', table: 'messages' },
         (payload) => {
           setMessages(prev => {
-            // Check if message already exists to prevent duplicates
             const exists = prev.some(msg => msg.id === payload.new.id);
             if (exists) return prev;
             return [...prev, payload.new as Message];
@@ -107,8 +106,10 @@ export const useChat = (userId: string | undefined) => {
     if (!userId || !content.trim() || !profile || isLoading) return;
 
     setIsLoading(true);
+    console.log('Sending message...');
 
     try {
+      // First, insert the user's message
       const { error: messageError } = await supabase
         .from('messages')
         .insert({
@@ -119,35 +120,54 @@ export const useChat = (userId: string | undefined) => {
 
       if (messageError) throw messageError;
 
+      // Get the current session for authentication
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session?.access_token) {
         throw new Error('No access token available');
       }
 
+      console.log('Calling edge function with payload...');
+      
+      // Prepare the payload for the edge function
       const payload = {
         message: content.trim(),
         userProgress: {
-          points: profile.points,
-          practice_time: profile.practice_time,
-          daily_practice_time: profile.daily_practice_time,
-          daily_points: profile.daily_points,
+          points: profile.points || 0,
+          practice_time: profile.practice_time || 0,
+          daily_practice_time: profile.daily_practice_time || 0,
+          daily_points: profile.daily_points || 0,
           user_id: userId
         }
       };
+
+      console.log('Edge function payload:', payload);
       
+      // Call the edge function with proper authentication
       const { data: functionData, error: functionError } = await supabase.functions.invoke(
         'chat-with-tutor-v2',
         {
           body: JSON.stringify(payload),
           headers: {
-            Authorization: `Bearer ${session.access_token}`
+            Authorization: `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json'
           }
         }
       );
 
-      if (functionError) throw functionError;
+      console.log('Edge function response:', functionData);
 
+      if (functionError) {
+        console.error('Edge function error:', functionError);
+        throw functionError;
+      }
+
+      if (!functionData?.response) {
+        console.error('No response from edge function');
+        throw new Error('No response from AI tutor');
+      }
+
+      // Insert the AI's response
       const { error: aiMessageError } = await supabase
         .from('messages')
         .insert({
@@ -158,6 +178,7 @@ export const useChat = (userId: string | undefined) => {
         });
 
       if (aiMessageError) throw aiMessageError;
+      
     } catch (error: any) {
       console.error('Error in chat flow:', error);
       toast({
