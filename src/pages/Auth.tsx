@@ -13,6 +13,20 @@ const AuthPage = () => {
   const session = useSession();
 
   useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        navigate('/');
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully logged in.",
+        });
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate, toast]);
+
+  useEffect(() => {
     if (session) {
       navigate('/');
     }
