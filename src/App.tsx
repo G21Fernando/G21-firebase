@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Toaster } from '@/components/ui/toaster';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import Header from '@/components/Header';
 import MainContent from '@/components/MainContent';
 import Auth from '@/pages/Auth';
 import Dashboard from '@/pages/Dashboard';
@@ -14,19 +15,21 @@ const App = () => {
   const supabase = useSupabaseClient();
   const [dailyPoints, setDailyPoints] = useState(0);
   const [dailyPracticeTime, setDailyPracticeTime] = useState(0);
+  const [profile, setProfile] = useState<any>(null);
 
   useEffect(() => {
     const fetchDailyStats = async () => {
       if (session?.user?.id) {
         const { data } = await supabase
           .from('profiles')
-          .select('daily_points, daily_practice_time')
+          .select('daily_points, daily_practice_time, *')
           .eq('id', session.user.id)
           .single();
 
         if (data) {
           setDailyPoints(data.daily_points || 0);
           setDailyPracticeTime(data.daily_practice_time || 0);
+          setProfile(data);
         }
       }
     };
@@ -42,37 +45,46 @@ const App = () => {
     setDailyPracticeTime(time);
   };
 
+  const handleProfileUpdate = () => {
+    if (session?.user?.id) {
+      fetchDailyStats();
+    }
+  };
+
   return (
     <Router>
-      <Routes>
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/" element={
-          <ProtectedRoute>
-            <MainContent
-              dailyPoints={dailyPoints}
-              dailyPracticeTime={dailyPracticeTime}
-              onPointsUpdate={handlePointsUpdate}
-              onPracticeTimeUpdate={handlePracticeTimeUpdate}
-            />
-          </ProtectedRoute>
-        } />
-        <Route path="/dashboard" element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        } />
-        <Route path="/chord-sprinter" element={
-          <ProtectedRoute>
-            <ChordSprinter />
-          </ProtectedRoute>
-        } />
-        <Route path="/profile/:username" element={
-          <ProtectedRoute>
-            <UserProfile />
-          </ProtectedRoute>
-        } />
-      </Routes>
-      <Toaster />
+      <div className="flex flex-col min-h-screen">
+        {session && <Header profile={profile} onProfileUpdate={handleProfileUpdate} />}
+        <Routes>
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/" element={
+            <ProtectedRoute>
+              <MainContent
+                dailyPoints={dailyPoints}
+                dailyPracticeTime={dailyPracticeTime}
+                onPointsUpdate={handlePointsUpdate}
+                onPracticeTimeUpdate={handlePracticeTimeUpdate}
+              />
+            </ProtectedRoute>
+          } />
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/chord-sprinter" element={
+            <ProtectedRoute>
+              <ChordSprinter />
+            </ProtectedRoute>
+          } />
+          <Route path="/profile/:username" element={
+            <ProtectedRoute>
+              <UserProfile />
+            </ProtectedRoute>
+          } />
+        </Routes>
+        <Toaster />
+      </div>
     </Router>
   );
 };

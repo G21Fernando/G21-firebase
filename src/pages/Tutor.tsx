@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import Header from '@/components/Header';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -49,7 +48,6 @@ const Tutor = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F5E6DB]">
-      <Header />
       <main className="flex-1 container mx-auto px-4 py-6">
         <div className="bg-white rounded-lg shadow-md max-w-4xl mx-auto h-[calc(100vh-12rem)]">
           <div className="flex flex-col h-full">
