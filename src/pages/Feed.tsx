@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useQuery } from '@tanstack/react-query';
-import Header from '@/components/Header';
 import CreatePost from '@/components/feed/CreatePost';
 import PostListContainer from '@/components/feed/PostListContainer';
 import { useToast } from "@/components/ui/use-toast";
@@ -46,24 +45,21 @@ const Feed = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1 container mx-auto px-4 py-6 max-w-5xl">
-        {profileLoading ? (
-          <div className="space-y-4 animate-pulse">
-            <Skeleton className="h-32 w-full rounded-lg" />
-            <Skeleton className="h-64 w-full rounded-lg" />
+    <main className="flex-1 container mx-auto px-4 py-6 max-w-5xl">
+      {profileLoading ? (
+        <div className="space-y-4 animate-pulse">
+          <Skeleton className="h-32 w-full rounded-lg" />
+          <Skeleton className="h-64 w-full rounded-lg" />
+        </div>
+      ) : (
+        <>
+          <CreatePost onPostCreated={() => {}} />
+          <div className="mt-6">
+            <PostListContainer />
           </div>
-        ) : (
-          <>
-            <CreatePost onPostCreated={() => {}} />
-            <div className="mt-6">
-              <PostListContainer />
-            </div>
-          </>
-        )}
-      </main>
-    </div>
+        </>
+      )}
+    </main>
   );
 };
 
