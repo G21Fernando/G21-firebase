@@ -30,19 +30,43 @@ export const useChat = (userId: string | undefined) => {
   const navigate = useNavigate();
 
   const fetchInitialData = useCallback(async () => {
+    console.log('Fetching initial data with userId:', userId);
+    
     if (!userId) {
+      console.log('No userId provided, redirecting to auth');
       navigate('/auth');
       return;
     }
 
     try {
+      // Get the current session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error('Session error:', sessionError);
+        throw sessionError;
+      }
+
+      if (!session) {
+        console.log('No active session found');
+        navigate('/auth');
+        return;
+      }
+
+      console.log('Active session found for user:', session.user.id);
+
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error('Profile fetch error:', profileError);
+        throw profileError;
+      }
+
+      console.log('Profile data fetched:', profileData);
       setProfile(profileData);
 
       const { data: messagesData, error: messagesError } = await supabase
@@ -50,7 +74,12 @@ export const useChat = (userId: string | undefined) => {
         .select('*')
         .order('created_at', { ascending: true });
 
-      if (messagesError) throw messagesError;
+      if (messagesError) {
+        console.error('Messages fetch error:', messagesError);
+        throw messagesError;
+      }
+
+      console.log('Messages data fetched:', messagesData?.length || 0, 'messages');
 
       if (!messagesData || messagesData.length === 0) {
         const welcomeMessage = {
@@ -64,13 +93,18 @@ export const useChat = (userId: string | undefined) => {
           .from('messages')
           .insert(welcomeMessage);
 
-        if (welcomeError) throw welcomeError;
+        if (welcomeError) {
+          console.error('Welcome message insert error:', welcomeError);
+          throw welcomeError;
+        }
+
+        console.log('Welcome message inserted');
         setMessages([welcomeMessage as Message]);
       } else {
         setMessages(messagesData);
       }
     } catch (error: any) {
-      console.error('Error fetching data:', error);
+      console.error('Error in fetchInitialData:', error);
       toast({
         title: "Error fetching data",
         description: error.message,
@@ -80,6 +114,7 @@ export const useChat = (userId: string | undefined) => {
   }, [userId, navigate, toast]);
 
   useEffect(() => {
+    console.log('useChat effect triggered with userId:', userId);
     fetchInitialData();
 
     const channel = supabase
@@ -88,6 +123,7 @@ export const useChat = (userId: string | undefined) => {
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'messages' },
         (payload) => {
+          console.log('New message received:', payload);
           setMessages(prev => {
             const exists = prev.some(msg => msg.id === payload.new.id);
             if (exists) return prev;
@@ -98,15 +134,24 @@ export const useChat = (userId: string | undefined) => {
       .subscribe();
 
     return () => {
+      console.log('Cleaning up subscription');
       supabase.removeChannel(channel);
     };
   }, [fetchInitialData]);
 
   const sendMessage = async (content: string) => {
-    if (!userId || !content.trim() || !profile || isLoading) return;
+    if (!userId || !content.trim() || !profile || isLoading) {
+      console.log('Send message preconditions not met:', {
+        userId: !!userId,
+        content: !!content.trim(),
+        profile: !!profile,
+        isLoading
+      });
+      return;
+    }
 
     setIsLoading(true);
-    console.log('Sending message...');
+    console.log('Sending message:', content);
 
     try {
       // First, insert the user's message
@@ -118,12 +163,16 @@ export const useChat = (userId: string | undefined) => {
           username: profile.username
         });
 
-      if (messageError) throw messageError;
+      if (messageError) {
+        console.error('Message insert error:', messageError);
+        throw messageError;
+      }
 
       // Get the current session for authentication
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session?.access_token) {
+        console.error('No access token available');
         throw new Error('No access token available');
       }
 
@@ -177,7 +226,10 @@ export const useChat = (userId: string | undefined) => {
           is_ai: true
         });
 
-      if (aiMessageError) throw aiMessageError;
+      if (aiMessageError) {
+        console.error('AI message insert error:', aiMessageError);
+        throw aiMessageError;
+      }
       
     } catch (error: any) {
       console.error('Error in chat flow:', error);
