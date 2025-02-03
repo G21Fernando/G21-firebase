@@ -13,14 +13,25 @@ const AuthPage = () => {
   const session = useSession();
 
   useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        navigate('/');
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully logged in.",
+        });
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate, toast]);
+
+  // If already logged in, redirect to home
+  useEffect(() => {
     if (session) {
-      navigate("/");
-      toast({
-        title: "Welcome back!",
-        description: "You have successfully logged in.",
-      });
+      navigate('/');
     }
-  }, [session, navigate, toast]);
+  }, [session, navigate]);
 
   const handleBackToPractice = () => {
     navigate('/');
