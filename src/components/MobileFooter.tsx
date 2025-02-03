@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Zap, BarChart2, Users, Settings } from "lucide-react";
+import { Home, Zap, Settings } from "lucide-react";
 import { useSession } from "@supabase/auth-helpers-react";
 import { useAdmin } from "@/hooks/useAdmin";
 import TimekeeperIcon from './icons/TimekeeperIcon';
@@ -31,16 +31,6 @@ const MobileFooter = () => {
           >
             <Zap className="w-6 h-6" />
             <span className="text-xs mt-1">Sprinter</span>
-          </Link>
-
-          <Link
-            to="/feed"
-            className={`flex flex-col items-center ${
-              location.pathname === "/feed" ? "text-[#11245A]" : "text-gray-500"
-            }`}
-          >
-            <Users className="w-6 h-6" />
-            <span className="text-xs mt-1">Feed</span>
           </Link>
 
           {isAdmin && (
