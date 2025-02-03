@@ -8,7 +8,7 @@ import { useChallenge } from '@/hooks/useChallenge';
 const ChordSprinter = () => {
   const session = useSession();
   const navigate = useNavigate();
-  const { startChallenge, isLoading } = useChallenge();
+  const { startChallenge, isActive } = useChallenge();
   const [isStarted, setIsStarted] = useState(false);
 
   useEffect(() => {
@@ -35,7 +35,7 @@ const ChordSprinter = () => {
         {!isStarted ? (
           <Button 
             onClick={handleStart}
-            disabled={isLoading}
+            disabled={isActive}
             className="w-full"
           >
             Start Challenge
