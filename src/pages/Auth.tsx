@@ -8,20 +8,24 @@ import { Button } from '@/components/ui/button';
 import { useSession } from '@supabase/auth-helpers-react';
 
 const AuthPage = () => {
+  console.log('Auth page rendering...');
   const navigate = useNavigate();
   const { toast } = useToast();
   const session = useSession();
 
+  console.log('Auth page - Session state:', session ? 'Logged in' : 'Not logged in');
+
   // Redirect if already logged in
   useEffect(() => {
     if (session) {
+      console.log('Session found, redirecting to home...');
       navigate('/');
     }
   }, [session, navigate]);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event, session);
+      console.log('Auth state changed:', event, session ? 'Session present' : 'No session');
       if (event === 'SIGNED_IN' && session) {
         // First navigate
         navigate('/');
