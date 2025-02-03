@@ -22,7 +22,8 @@ export const supabase = createClient<Database>(
         'X-Client-Info': 'supabase-js-web'
       },
     },
-    // Configure Edge Functions URL directly in the client options
-    functionsUrl: `${SUPABASE_URL}/functions/v1`
+    db: {
+      schema: 'public'
+    }
   }
 );
