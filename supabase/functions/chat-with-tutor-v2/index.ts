@@ -9,6 +9,8 @@ const corsHeaders = {
 
 serve(async (req) => {
   console.log('Chat with Tutor v2.0 - Starting function execution');
+  console.log('Request method:', req.method);
+  console.log('Request headers:', Object.fromEntries(req.headers.entries()));
   
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -25,6 +27,14 @@ serve(async (req) => {
     }
 
     console.log('Authorization header found:', authHeader.substring(0, 20) + '...');
+
+    // Check for OpenAI API key
+    const openAIKey = Deno.env.get('OPENAI_API_KEY');
+    if (!openAIKey) {
+      console.error('OpenAI API key not found in environment');
+      throw new Error('OpenAI API key not configured');
+    }
+    console.log('OpenAI API key found');
 
     // Create Supabase client with auth context
     const supabaseAdmin = createClient(
@@ -52,17 +62,27 @@ serve(async (req) => {
     console.log('Authenticated user:', user.id);
 
     // Parse request body
-    const requestBody = await req.json();
-    console.log('Request body:', requestBody);
+    let requestBody;
+    try {
+      const text = await req.text();
+      console.log('Raw request body:', text);
+      requestBody = JSON.parse(text);
+    } catch (error) {
+      console.error('Error parsing request body:', error);
+      throw new Error('Invalid request body format');
+    }
+
+    console.log('Parsed request body:', requestBody);
 
     const { message, userProgress } = requestBody;
-    console.log('Received message:', message);
-    console.log('User progress:', userProgress);
-
+    
     if (!message || !userProgress) {
-      console.error('Missing required data');
+      console.error('Missing required data in request body');
       throw new Error('Missing required data in request body');
     }
+
+    console.log('Received message:', message);
+    console.log('User progress:', userProgress);
 
     // Get the latest chord sprinter result
     const { data: chordResults, error: chordError } = await supabaseAdmin
@@ -127,11 +147,7 @@ Remember to:
 - Keep the conversation engaging and motivational`;
 
     console.log('Sending request to OpenAI');
-
-    const openAIKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openAIKey) {
-      throw new Error('OpenAI API key not found');
-    }
+    console.log('System message:', systemMessage);
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -157,6 +173,7 @@ Remember to:
 
     const data = await response.json();
     console.log('OpenAI response received successfully');
+    console.log('Response data:', data);
 
     return new Response(JSON.stringify({
       response: data.choices[0].message.content,
