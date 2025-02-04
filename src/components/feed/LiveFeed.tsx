@@ -10,6 +10,7 @@ interface ActivityLog {
   user_id: string;
   activity_type: string;
   details: any;
+  points_earned: number;
   created_at: string;
   user: {
     username: string;
@@ -89,6 +90,10 @@ const LiveFeed = () => {
         return `${username} started practicing with The Timekeeper ${timeAgo}`;
       case 'chat_message':
         return `${username} asked a question to the Guitar Tutor ${timeAgo}`;
+      case 'chord_sprint':
+        const reps = activity.details?.reps || 0;
+        const points = activity.points_earned || 0;
+        return `${username} completed ${reps} chord transitions and earned ${points} points ${timeAgo}`;
       default:
         return `${username} performed an activity ${timeAgo}`;
     }
