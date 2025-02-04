@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSession } from '@supabase/auth-helpers-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useMetronomeSound } from './useMetronomeSound';
+import { useQuery } from '@tanstack/react-query';
 
 const POINTS_PER_MINUTE = 60;
 const IDLE_TIMEOUT = 300000; // 5 minutes in milliseconds
@@ -14,6 +15,23 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
   const [currentPoints, setCurrentPoints] = useState(0);
   const [showContinuePrompt, setShowContinuePrompt] = useState(false);
   const session = useSession();
+
+  // Fetch user profile to get the correct user_id for activity logs
+  const { data: profile } = useQuery({
+    queryKey: ['profile', session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return null;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!session?.user?.id
+  });
 
   const { playClick } = useMetronomeSound(volume);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -60,22 +78,25 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
   };
 
   const startMetronome = async () => {
+    if (!profile?.id) {
+      console.error('No profile found');
+      return;
+    }
+
     setIsPlaying(true);
     startTimer();
     
-    // Log the activity
-    if (session?.user) {
-      try {
-        await supabase
-          .from('user_activity_logs')
-          .insert({
-            user_id: session.user.id,
-            activity_type: 'metronome_start',
-            details: { bpm }
-          });
-      } catch (error) {
-        console.error('Error logging metronome activity:', error);
-      }
+    // Log the activity using profile.id instead of session.user.id
+    try {
+      await supabase
+        .from('user_activity_logs')
+        .insert({
+          user_id: profile.id,
+          activity_type: 'metronome_start',
+          details: { bpm }
+        });
+    } catch (error) {
+      console.error('Error logging metronome activity:', error);
     }
   };
 
