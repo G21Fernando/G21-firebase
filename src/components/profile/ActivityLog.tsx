@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDistanceToNow } from 'date-fns';
+import { Guitar } from "lucide-react";
 
 interface ActivityLog {
   id: string;
@@ -61,7 +62,8 @@ const ActivityLog = ({ userId }: ActivityLogProps) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Activity Log</CardTitle>
+        <CardTitle>Playtime Log</CardTitle>
+        <p className="text-sm text-muted-foreground">Today:</p>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[400px] pr-4">
@@ -72,7 +74,12 @@ const ActivityLog = ({ userId }: ActivityLogProps) => {
             >
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-sm font-medium">{formatActivity(activity)}</p>
+                  <div className="flex items-center gap-2">
+                    <Guitar className="h-4 w-4 text-[#11245A]" />
+                    <p className="text-sm font-medium">
+                      {activity.points_earned > 0 ? "Grit Level:" : formatActivity(activity)}
+                    </p>
+                  </div>
                   <p className="text-xs text-gray-500">
                     {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
                   </p>
