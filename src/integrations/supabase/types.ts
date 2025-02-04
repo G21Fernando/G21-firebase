@@ -469,6 +469,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_activity_logs: {
+        Row: {
+          activity_type: string
+          created_at: string
+          details: Json | null
+          id: string
+          points_earned: number | null
+          practice_time: number | null
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          points_earned?: number | null
+          practice_time?: number | null
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          points_earned?: number | null
+          practice_time?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_exercises: {
         Row: {
           created_at: string | null

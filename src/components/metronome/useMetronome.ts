@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from '@/integrations/supabase/client';
 
 export const useMetronome = (onPointsUpdate: (points: number) => void, onPracticeTimeUpdate: (seconds: number) => void) => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -75,6 +76,26 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
     setCurrentPoints(sessionPointsRef.current);
   };
 
+  const logActivity = async (points: number, practiceTime: number) => {
+    if (!supabase.auth.getUser()) return;
+
+    try {
+      const { error } = await supabase
+        .from('user_activity_logs')
+        .insert({
+          user_id: (await supabase.auth.getUser()).data.user?.id,
+          activity_type: 'metronome_practice',
+          points_earned: points,
+          practice_time: practiceTime,
+          details: { bpm }
+        });
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error logging activity:', error);
+    }
+  };
+
   const startMetronome = async () => {
     if (!isPlaying) {
       initAudioContext();
@@ -113,6 +134,7 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
       const practiceTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
       onPracticeTimeUpdate(practiceTime);
       onPointsUpdate(sessionPointsRef.current);
+      logActivity(sessionPointsRef.current, practiceTime);
       setCurrentPoints(0);
     }
   };
