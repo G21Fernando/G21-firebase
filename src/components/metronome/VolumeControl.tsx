@@ -1,70 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { Slider } from '@/components/ui/slider';
-import { Volume, VolumeX } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import React from 'react';
+import { Slider } from "@/components/ui/slider";
 
 interface VolumeControlProps {
   volume: number;
-  onVolumeChange: (value: number[]) => void;
+  onVolumeChange: (volume: number) => void;
 }
 
 const VolumeControl: React.FC<VolumeControlProps> = ({ volume, onVolumeChange }) => {
-  const [prevVolume, setPrevVolume] = useState<number>(0.5);
-  const [isMuted, setIsMuted] = useState(false);
-
-  useEffect(() => {
-    // Initialize prevVolume with current volume if not muted
-    if (volume > 0) {
-      setPrevVolume(volume);
-    }
-  }, []);
-
-  const handleMuteToggle = () => {
-    if (isMuted) {
-      // Unmute: restore previous volume
-      onVolumeChange([prevVolume * 100]);
-      setIsMuted(false);
-    } else {
-      // Mute: save current volume and set to 0
-      if (volume > 0) {
-        setPrevVolume(volume);
-      }
-      onVolumeChange([0]);
-      setIsMuted(true);
-    }
-  };
-
-  const handleVolumeChange = (newValue: number[]) => {
-    const newVolume = newValue[0] / 100;
-    if (newVolume > 0) {
-      setPrevVolume(newVolume);
-      setIsMuted(false);
-    } else {
-      setIsMuted(true);
-    }
-    onVolumeChange(newValue);
+  const handleChange = (value: number[]) => {
+    onVolumeChange(value[0]);
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8"
-        onClick={handleMuteToggle}
-      >
-        {isMuted || volume === 0 ? (
-          <VolumeX className="h-5 w-5" />
-        ) : (
-          <Volume className="h-5 w-5" />
-        )}
-      </Button>
+    <div className="w-full">
       <Slider
-        value={[volume * 100]}
-        onValueChange={handleVolumeChange}
-        max={100}
-        step={1}
-        className="w-32"
+        defaultValue={[volume]}
+        max={1}
+        step={0.1}
+        onValueChange={handleChange}
       />
     </div>
   );

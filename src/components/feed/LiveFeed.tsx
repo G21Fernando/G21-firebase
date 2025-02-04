@@ -13,14 +13,13 @@ interface ActivityLog {
   created_at: string;
   profiles: {
     username: string;
-  };
+  } | null;
 }
 
 const LiveFeed = () => {
   const [activities, setActivities] = useState<ActivityLog[]>([]);
 
   useEffect(() => {
-    // Initial fetch of recent activities
     const fetchActivities = async () => {
       const { data, error } = await supabase
         .from('user_activity_logs')
@@ -37,13 +36,12 @@ const LiveFeed = () => {
       }
 
       if (data) {
-        setActivities(data);
+        setActivities(data as ActivityLog[]);
       }
     };
 
     fetchActivities();
 
-    // Subscribe to real-time updates
     const channel = supabase
       .channel('public:user_activity_logs')
       .on(
@@ -54,7 +52,6 @@ const LiveFeed = () => {
           table: 'user_activity_logs'
         },
         async (payload) => {
-          // Fetch the complete activity data including profile
           const { data, error } = await supabase
             .from('user_activity_logs')
             .select(`
@@ -70,7 +67,7 @@ const LiveFeed = () => {
           }
 
           if (data) {
-            setActivities(prev => [data, ...prev].slice(0, 10));
+            setActivities(prev => [data as ActivityLog, ...prev].slice(0, 10));
           }
         }
       )
