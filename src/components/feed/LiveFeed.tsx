@@ -27,11 +27,7 @@ const LiveFeed = () => {
         .from('user_activity_logs')
         .select(`
           *,
-          user:user_id (
-            profile:profiles (
-              username
-            )
-          )
+          user:profiles!user_activity_logs_user_id_fkey(username)
         `)
         .order('created_at', { ascending: false })
         .limit(10);
@@ -42,7 +38,14 @@ const LiveFeed = () => {
       }
 
       if (data) {
-        setActivities(data as ActivityLog[]);
+        setActivities(data.map(item => ({
+          ...item,
+          user: {
+            profile: {
+              username: item.user?.username
+            }
+          }
+        })));
       }
     };
 
@@ -62,11 +65,7 @@ const LiveFeed = () => {
             .from('user_activity_logs')
             .select(`
               *,
-              user:user_id (
-                profile:profiles (
-                  username
-                )
-              )
+              user:profiles!user_activity_logs_user_id_fkey(username)
             `)
             .eq('id', payload.new.id)
             .single();
@@ -77,7 +76,15 @@ const LiveFeed = () => {
           }
 
           if (data) {
-            setActivities(prev => [data as ActivityLog, ...prev].slice(0, 10));
+            const formattedData = {
+              ...data,
+              user: {
+                profile: {
+                  username: data.user?.username
+                }
+              }
+            };
+            setActivities(prev => [formattedData, ...prev].slice(0, 10));
           }
         }
       )
