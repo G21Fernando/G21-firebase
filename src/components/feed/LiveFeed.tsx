@@ -22,11 +22,12 @@ const LiveFeed = () => {
 
   useEffect(() => {
     const fetchActivities = async () => {
+      console.log('Fetching initial activities...');
       const { data, error } = await supabase
         .from('user_activity_logs')
         .select(`
           *,
-          user:profiles!user_activity_logs_user_id_fkey(username)
+          user:profiles(username)
         `)
         .order('created_at', { ascending: false })
         .limit(10);
@@ -37,12 +38,14 @@ const LiveFeed = () => {
       }
 
       if (data) {
+        console.log('Initial activities loaded:', data);
         setActivities(data);
       }
     };
 
     fetchActivities();
 
+    // Set up real-time subscription
     const channel = supabase
       .channel('public:user_activity_logs')
       .on(
@@ -53,11 +56,13 @@ const LiveFeed = () => {
           table: 'user_activity_logs'
         },
         async (payload) => {
+          console.log('New activity received:', payload);
+          // Fetch the complete activity data including the user profile
           const { data, error } = await supabase
             .from('user_activity_logs')
             .select(`
               *,
-              user:profiles!user_activity_logs_user_id_fkey(username)
+              user:profiles(username)
             `)
             .eq('id', payload.new.id)
             .single();
@@ -68,13 +73,17 @@ const LiveFeed = () => {
           }
 
           if (data) {
+            console.log('New activity with user data:', data);
             setActivities(prev => [data, ...prev].slice(0, 10));
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Subscription status:', status);
+      });
 
     return () => {
+      console.log('Cleaning up subscription...');
       supabase.removeChannel(channel);
     };
   }, []);
@@ -110,14 +119,20 @@ const LiveFeed = () => {
       <CardContent>
         <ScrollArea className="h-[300px]">
           <div className="space-y-4">
-            {activities.map((activity) => (
-              <div
-                key={activity.id}
-                className="text-sm text-gray-600 border-l-2 border-blue-500 pl-3 py-1"
-              >
-                {getActivityMessage(activity)}
+            {activities.length === 0 ? (
+              <div className="text-sm text-gray-500 text-center py-4">
+                No activities yet
               </div>
-            ))}
+            ) : (
+              activities.map((activity) => (
+                <div
+                  key={activity.id}
+                  className="text-sm text-gray-600 border-l-2 border-blue-500 pl-3 py-1"
+                >
+                  {getActivityMessage(activity)}
+                </div>
+              ))
+            )}
           </div>
         </ScrollArea>
       </CardContent>
