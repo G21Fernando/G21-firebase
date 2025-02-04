@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Toaster } from '@/components/ui/toaster';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import { AdminRoute } from '@/components/routing/AdminRoute';
 import Header from '@/components/Header';
 import MainContent from '@/components/MainContent';
 import Auth from '@/pages/Auth';
@@ -12,6 +13,7 @@ import UserProfile from './pages/UserProfile';
 import Tutor from './pages/Tutor';
 import MobileFooter from './components/MobileFooter';
 import Feed from './pages/Feed';
+import AdminDashboard from './pages/AdminDashboard';
 
 const App = () => {
   console.log('App rendering...');
@@ -106,7 +108,11 @@ const App = () => {
                 <Feed />
               </ProtectedRoute>
             } />
-            {/* Add redirect from /sprinter to /chord-sprinter */}
+            <Route path="/admin" element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            } />
             <Route path="/sprinter" element={<Navigate to="/chord-sprinter" replace />} />
             <Route path="/profile/:username" element={
               <ProtectedRoute>
