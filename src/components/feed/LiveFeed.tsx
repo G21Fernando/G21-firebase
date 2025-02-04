@@ -11,8 +11,10 @@ interface ActivityLog {
   activity_type: string;
   details: any;
   created_at: string;
-  profiles: {
-    username: string;
+  user: {
+    profile: {
+      username: string;
+    };
   } | null;
 }
 
@@ -25,7 +27,11 @@ const LiveFeed = () => {
         .from('user_activity_logs')
         .select(`
           *,
-          profiles:profiles(username)
+          user:user_id (
+            profile:profiles (
+              username
+            )
+          )
         `)
         .order('created_at', { ascending: false })
         .limit(10);
@@ -56,7 +62,11 @@ const LiveFeed = () => {
             .from('user_activity_logs')
             .select(`
               *,
-              profiles:profiles(username)
+              user:user_id (
+                profile:profiles (
+                  username
+                )
+              )
             `)
             .eq('id', payload.new.id)
             .single();
@@ -79,7 +89,7 @@ const LiveFeed = () => {
   }, []);
 
   const getActivityMessage = (activity: ActivityLog) => {
-    const username = activity.profiles?.username || 'Someone';
+    const username = activity.user?.profile?.username || 'Someone';
     const timeAgo = formatDistanceToNow(new Date(activity.created_at), { addSuffix: true });
 
     switch (activity.activity_type) {
