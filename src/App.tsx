@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { useEffect, useState } from 'react';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Toaster } from '@/components/ui/toaster';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import { ProtectedRoute } from '@/components/routing/ProtectedRoute';
 import { AdminRoute } from '@/components/routing/AdminRoute';
 import Header from '@/components/Header';
 import MainContent from '@/components/MainContent';
