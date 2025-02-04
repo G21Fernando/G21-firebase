@@ -12,9 +12,7 @@ interface ActivityLog {
   details: any;
   created_at: string;
   user: {
-    profile: {
-      username: string;
-    };
+    username: string;
   } | null;
 }
 
@@ -38,14 +36,7 @@ const LiveFeed = () => {
       }
 
       if (data) {
-        setActivities(data.map(item => ({
-          ...item,
-          user: {
-            profile: {
-              username: item.user?.username
-            }
-          }
-        })));
+        setActivities(data);
       }
     };
 
@@ -76,15 +67,7 @@ const LiveFeed = () => {
           }
 
           if (data) {
-            const formattedData = {
-              ...data,
-              user: {
-                profile: {
-                  username: data.user?.username
-                }
-              }
-            };
-            setActivities(prev => [formattedData, ...prev].slice(0, 10));
+            setActivities(prev => [data, ...prev].slice(0, 10));
           }
         }
       )
@@ -96,7 +79,7 @@ const LiveFeed = () => {
   }, []);
 
   const getActivityMessage = (activity: ActivityLog) => {
-    const username = activity.user?.profile?.username || 'Someone';
+    const username = activity.user?.username || 'Someone';
     const timeAgo = formatDistanceToNow(new Date(activity.created_at), { addSuffix: true });
 
     switch (activity.activity_type) {
