@@ -4,6 +4,9 @@ import { Session } from '@supabase/auth-helpers-react';
 import { Button } from '@/components/ui/button';
 import { UserAvatar } from '@/components/ui/user-avatar';
 import { useAdmin } from '@/hooks/useAdmin';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/components/ui/use-toast';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,13 +30,36 @@ const ProfileMenu = ({
   dropdownOpen,
   setDropdownOpen,
   onProfileClick,
-  onLogout,
 }: ProfileMenuProps) => {
   const { isAdmin, isLoading } = useAdmin();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
   const avatarUrl = useMemo(() => {
     if (!profile?.avatar_url) return undefined;
     return profile.avatar_url;
   }, [profile?.avatar_url]);
+
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      toast({
+        title: "Signed out successfully",
+        description: "You have been signed out of your account.",
+      });
+      
+      navigate('/');
+    } catch (error: any) {
+      console.error('Error signing out:', error.message);
+      toast({
+        title: "Error signing out",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
 
   if (!session) {
     return (
@@ -71,7 +97,7 @@ const ProfileMenu = ({
           </>
         )}
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={onLogout}>
+        <DropdownMenuItem onClick={handleSignOut}>
           Sign Out
         </DropdownMenuItem>
       </DropdownMenuContent>
