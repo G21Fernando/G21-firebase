@@ -45,6 +45,26 @@ export const useChallenge = () => {
     };
   }, [isActive, isPaused]);
 
+  const logActivity = async (activityType: string, details: any = {}) => {
+    if (session?.user) {
+      try {
+        const { error } = await supabase
+          .from('user_activity_logs')
+          .insert({
+            user_id: session.user.id,
+            activity_type: activityType,
+            details
+          });
+
+        if (error) {
+          console.error('Error logging activity:', error);
+        }
+      } catch (error) {
+        console.error('Error logging activity:', error);
+      }
+    }
+  };
+
   const updatePracticeTime = async () => {
     if (session?.user) {
       try {
@@ -116,6 +136,7 @@ export const useChallenge = () => {
     setIsPaused(false);
     setTimeLeft(60);
     setChordChanges(0);
+    logActivity('chord_sprinter_start', { chord_pair: randomPair });
   };
 
   const stopChallenge = () => {

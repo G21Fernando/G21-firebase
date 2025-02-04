@@ -1,160 +1,108 @@
-import { useState, useRef, useEffect } from 'react';
-import { useToast } from "@/hooks/use-toast";
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useSession } from '@supabase/auth-helpers-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useMetronomeSound } from './useMetronomeSound';
+
+const POINTS_PER_MINUTE = 60;
+const IDLE_TIMEOUT = 300000; // 5 minutes in milliseconds
 
 export const useMetronome = (onPointsUpdate: (points: number) => void, onPracticeTimeUpdate: (seconds: number) => void) => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [bpm, setBpm] = useState(100);
+  const [bpm, setBpm] = useState(60);
   const [indicator, setIndicator] = useState(false);
   const [volume, setVolume] = useState(0.5);
   const [currentPoints, setCurrentPoints] = useState(0);
   const [showContinuePrompt, setShowContinuePrompt] = useState(false);
-  
-  const { toast } = useToast();
-  const audioContext = useRef<AudioContext | null>(null);
-  const gainNode = useRef<GainNode | null>(null);
+  const session = useSession();
+
+  const { playClick } = useMetronomeSound(volume);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const startTimeRef = useRef<number>(0);
-  const sessionPointsRef = useRef<number>(0);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const startTimeRef = useRef<number | null>(null);
 
-  const initAudioContext = () => {
-    if (!audioContext.current || audioContext.current.state === 'closed') {
-      audioContext.current = new AudioContext();
-      gainNode.current = audioContext.current.createGain();
-      gainNode.current.connect(audioContext.current.destination);
-      gainNode.current.gain.value = volume;
+  const resetIdleTimer = useCallback(() => {
+    if (idleTimerRef.current) {
+      clearTimeout(idleTimerRef.current);
     }
-  };
+    
+    if (isPlaying) {
+      idleTimerRef.current = setTimeout(() => {
+        setShowContinuePrompt(true);
+        stopMetronome();
+      }, IDLE_TIMEOUT);
+    }
+  }, [isPlaying]);
 
   useEffect(() => {
-    initAudioContext();
+    const handleActivity = () => resetIdleTimer();
+    
+    if (isPlaying) {
+      window.addEventListener('mousemove', handleActivity);
+      window.addEventListener('keypress', handleActivity);
+    }
+
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-      if (audioContext.current && audioContext.current.state !== 'closed') {
-        audioContext.current.close();
-      }
+      window.removeEventListener('mousemove', handleActivity);
+      window.removeEventListener('keypress', handleActivity);
     };
-  }, []);
+  }, [isPlaying, resetIdleTimer]);
 
-  useEffect(() => {
-    if (gainNode.current && audioContext.current) {
-      gainNode.current.gain.value = volume;
-    }
-  }, [volume]);
-
-  const playTick = () => {
-    if (!audioContext.current || !gainNode.current) return;
-    
-    if (audioContext.current.state === 'suspended') {
-      audioContext.current.resume();
-    }
-
-    const oscillator = audioContext.current.createOscillator();
-    oscillator.type = 'sine';
-    oscillator.frequency.value = 800;
-    
-    oscillator.connect(gainNode.current);
-    
-    const now = audioContext.current.currentTime;
-    const duration = 0.1;
-    
-    oscillator.start(now);
-    oscillator.stop(now + duration);
-    
-    setTimeout(() => {
-      oscillator.disconnect();
-    }, duration * 1000);
-
-    setIndicator(prev => !prev);
-    sessionPointsRef.current += 1;
-    setCurrentPoints(sessionPointsRef.current);
-  };
-
-  const logActivity = async (points: number, practiceTime: number) => {
-    if (!supabase.auth.getUser()) return;
-
-    try {
-      const { error } = await supabase
-        .from('user_activity_logs')
-        .insert({
-          user_id: (await supabase.auth.getUser()).data.user?.id,
-          activity_type: 'metronome_practice',
-          points_earned: points,
-          practice_time: practiceTime,
-          details: { bpm }
-        });
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error logging activity:', error);
-    }
+  const startTimer = () => {
+    startTimeRef.current = Date.now();
+    timerRef.current = setInterval(() => {
+      const elapsedSeconds = Math.floor((Date.now() - (startTimeRef.current || 0)) / 1000);
+      const points = Math.floor((elapsedSeconds / 60) * POINTS_PER_MINUTE);
+      setCurrentPoints(points);
+      onPointsUpdate(points);
+      onPracticeTimeUpdate(elapsedSeconds);
+    }, 1000);
   };
 
   const startMetronome = async () => {
-    if (!isPlaying) {
-      initAudioContext();
-      if (audioContext.current && audioContext.current.state === 'suspended') {
-        await audioContext.current.resume();
+    setIsPlaying(true);
+    startTimer();
+    
+    // Log the activity
+    if (session?.user) {
+      try {
+        await supabase
+          .from('user_activity_logs')
+          .insert({
+            user_id: session.user.id,
+            activity_type: 'metronome_start',
+            details: { bpm }
+          });
+      } catch (error) {
+        console.error('Error logging metronome activity:', error);
       }
-      
-      setIsPlaying(true);
-      startTimeRef.current = Date.now();
-      sessionPointsRef.current = 0;
-      setCurrentPoints(0);
-      const interval = (60 / bpm) * 1000;
-      
-      playTick();
-      intervalRef.current = setInterval(() => {
-        playTick();
-      }, interval);
-
-      // Set timeout for 4 minutes
-      timeoutRef.current = setTimeout(() => {
-        stopMetronome();
-        setShowContinuePrompt(true);
-      }, 4 * 60 * 1000);
     }
   };
 
   const stopMetronome = () => {
-    if (isPlaying) {
-      setIsPlaying(false);
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-      const practiceTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
-      onPracticeTimeUpdate(practiceTime);
-      onPointsUpdate(sessionPointsRef.current);
-      logActivity(sessionPointsRef.current, practiceTime);
-      setCurrentPoints(0);
+    setIsPlaying(false);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
     }
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+    if (idleTimerRef.current) {
+      clearTimeout(idleTimerRef.current);
+    }
+    setCurrentPoints(0);
+    startTimeRef.current = null;
   };
 
-  const handleBpmChange = (value: string) => {
-    const newBpm = parseInt(value);
+  const handleBpmChange = (newBpm: number) => {
     setBpm(newBpm);
     if (isPlaying) {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      const interval = (60 / newBpm) * 1000;
-      intervalRef.current = setInterval(() => {
-        playTick();
-      }, interval);
+      stopMetronome();
+      startMetronome();
     }
   };
 
-  const handleVolumeChange = (value: number[]) => {
-    const newVolume = value[0] / 100;
+  const handleVolumeChange = (newVolume: number) => {
     setVolume(newVolume);
   };
 
@@ -162,6 +110,23 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
     setShowContinuePrompt(false);
     startMetronome();
   };
+
+  useEffect(() => {
+    if (isPlaying) {
+      const interval = 60000 / bpm;
+      intervalRef.current = setInterval(() => {
+        setIndicator(prev => !prev);
+        playClick();
+      }, interval);
+      resetIdleTimer();
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [isPlaying, bpm, playClick, resetIdleTimer]);
 
   return {
     isPlaying,

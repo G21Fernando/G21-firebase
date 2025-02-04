@@ -3,6 +3,7 @@ import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useQuery } from '@tanstack/react-query';
 import CreatePost from '@/components/feed/CreatePost';
 import PostListContainer from '@/components/feed/PostListContainer';
+import LiveFeed from '@/components/feed/LiveFeed';
 import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -52,12 +53,15 @@ const Feed = () => {
           <Skeleton className="h-64 w-full rounded-lg" />
         </div>
       ) : (
-        <>
-          <CreatePost onPostCreated={() => {}} />
-          <div className="mt-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="md:col-span-2 space-y-6">
+            <CreatePost onPostCreated={() => {}} />
             <PostListContainer />
           </div>
-        </>
+          <div className="md:col-span-1">
+            <LiveFeed />
+          </div>
+        </div>
       )}
     </main>
   );
