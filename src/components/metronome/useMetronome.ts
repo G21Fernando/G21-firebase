@@ -3,6 +3,7 @@ import { useSession } from '@supabase/auth-helpers-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useMetronomeSound } from './useMetronomeSound';
 import { useQuery } from '@tanstack/react-query';
+import { useToast } from '@/components/ui/use-toast';
 
 const POINTS_PER_MINUTE = 60;
 const IDLE_TIMEOUT = 300000; // 5 minutes in milliseconds
@@ -15,6 +16,7 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
   const [currentPoints, setCurrentPoints] = useState(0);
   const [showContinuePrompt, setShowContinuePrompt] = useState(false);
   const session = useSession();
+  const { toast } = useToast();
 
   // Fetch user profile to get the correct user_id for activity logs
   const { data: profile } = useQuery({
@@ -80,21 +82,34 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
   const startMetronome = async () => {
     if (!profile?.id) {
       console.error('No profile found');
+      toast({
+        title: "Error",
+        description: "Unable to start metronome. Please try again.",
+        variant: "destructive"
+      });
       return;
     }
 
     setIsPlaying(true);
     startTimer();
     
-    // Log the activity using profile.id instead of session.user.id
     try {
-      await supabase
+      const { error } = await supabase
         .from('user_activity_logs')
         .insert({
           user_id: profile.id,
           activity_type: 'metronome_start',
           details: { bpm }
         });
+
+      if (error) {
+        console.error('Error logging metronome activity:', error);
+        toast({
+          title: "Warning",
+          description: "Started metronome but couldn't log activity.",
+          variant: "destructive"
+        });
+      }
     } catch (error) {
       console.error('Error logging metronome activity:', error);
     }
