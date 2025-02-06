@@ -3,7 +3,7 @@ import { useSession } from '@supabase/auth-helpers-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useMetronomeSound } from './useMetronomeSound';
 import { useQuery } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 const POINTS_PER_MINUTE = 60;
 const IDLE_TIMEOUT = 300000; // 5 minutes in milliseconds
@@ -19,7 +19,7 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
   const { toast } = useToast();
 
   // Fetch user profile to get the correct user_id for activity logs
-  const { data: profile } = useQuery({
+  const { data: profile, isLoading: isProfileLoading } = useQuery({
     queryKey: ['profile', session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) return null;
@@ -29,7 +29,10 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
         .eq('id', session.user.id)
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return null;
+      }
       return data;
     },
     enabled: !!session?.user?.id
@@ -80,19 +83,23 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
   };
 
   const startMetronome = async () => {
-    if (!profile?.id) {
-      console.error('No profile found');
+    if (isProfileLoading) {
       toast({
-        title: "Error",
-        description: "Unable to start metronome. Please try again.",
-        variant: "destructive"
+        title: "Please wait",
+        description: "Loading your profile...",
       });
       return;
     }
 
-    setIsPlaying(true);
-    startTimer();
-    
+    if (!profile?.id) {
+      toast({
+        title: "Error",
+        description: "Could not start metronome. Please try refreshing the page.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('user_activity_logs')
@@ -106,12 +113,21 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
         console.error('Error logging metronome activity:', error);
         toast({
           title: "Warning",
-          description: "Started metronome but couldn't log activity.",
-          variant: "destructive"
+          description: "Started metronome but couldn't log activity. Some features might be limited.",
+          variant: "destructive",
         });
       }
-    } catch (error) {
-      console.error('Error logging metronome activity:', error);
+
+      setIsPlaying(true);
+      startTimer();
+      
+    } catch (error: any) {
+      console.error('Error starting metronome:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Could not start metronome",
+        variant: "destructive",
+      });
     }
   };
 
