@@ -19,7 +19,7 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
   const { toast } = useToast();
 
   // Fetch user profile to get the correct user_id for activity logs
-  const { data: profile, isLoading: isProfileLoading } = useQuery({
+  const { data: profile } = useQuery({
     queryKey: ['profile', session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) return null;
@@ -83,18 +83,19 @@ export const useMetronome = (onPointsUpdate: (points: number) => void, onPractic
   };
 
   const startMetronome = async () => {
-    if (isProfileLoading) {
+    if (!session?.user?.id) {
       toast({
-        title: "Please wait",
-        description: "Loading your profile...",
+        title: "Authentication required",
+        description: "Please log in to use the metronome.",
+        variant: "destructive",
       });
       return;
     }
 
     if (!profile?.id) {
       toast({
-        title: "Error",
-        description: "Could not start metronome. Please try refreshing the page.",
+        title: "Profile not found",
+        description: "Please try refreshing the page.",
         variant: "destructive",
       });
       return;
