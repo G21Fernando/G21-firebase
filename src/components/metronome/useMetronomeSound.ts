@@ -16,10 +16,15 @@ export const useMetronomeSound = (volume: number) => {
     };
   }, []);
 
-  const playClick = () => {
+  const playClick = async () => {
     if (!audioContextRef.current) {
       console.error('AudioContext not initialized');
       return;
+    }
+
+    // Ensure audio context is running
+    if (audioContextRef.current.state === 'suspended') {
+      await audioContextRef.current.resume();
     }
 
     const currentTime = audioContextRef.current.currentTime;
