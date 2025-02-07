@@ -1,18 +1,40 @@
+
+import { useRef, useEffect } from 'react';
+
 export const useMetronomeSound = (volume: number) => {
-  const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-  
+  const audioContextRef = useRef<AudioContext | null>(null);
+
+  useEffect(() => {
+    // Initialize AudioContext on component mount
+    audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+
+    // Cleanup on unmount
+    return () => {
+      if (audioContextRef.current?.state !== 'closed') {
+        audioContextRef.current?.close();
+      }
+    };
+  }, []);
+
   const playClick = () => {
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
+    if (!audioContextRef.current) {
+      console.error('AudioContext not initialized');
+      return;
+    }
+
+    const currentTime = audioContextRef.current.currentTime;
+    
+    const oscillator = audioContextRef.current.createOscillator();
+    const gainNode = audioContextRef.current.createGain();
     
     oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
+    gainNode.connect(audioContextRef.current.destination);
     
     oscillator.frequency.value = 1000;
     gainNode.gain.value = volume;
     
-    oscillator.start();
-    oscillator.stop(audioContext.currentTime + 0.1);
+    oscillator.start(currentTime);
+    oscillator.stop(currentTime + 0.1);
   };
 
   return { playClick };
