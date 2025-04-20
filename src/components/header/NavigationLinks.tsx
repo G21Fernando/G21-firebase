@@ -1,93 +1,68 @@
-import { useLocation } from 'react-router-dom';
-import { Users, Zap, MessageSquare } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import TimekeeperIcon from '../icons/TimekeeperIcon';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
-interface NavigationLinksProps {
+import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
+import { cn } from "@/lib/utils";
+import { useAdmin } from "@/hooks/useAdmin";
+import { useLocation } from "react-router-dom";
+
+type NavigationLinkProps = {
   onNavigate: (path: string) => void;
-}
+};
 
-const NavigationLinks = ({ onNavigate }: NavigationLinksProps) => {
+const NavigationLinks = ({ onNavigate }: NavigationLinkProps) => {
   const location = useLocation();
-
+  const { isAdmin } = useAdmin();
+  
   return (
-    <div className="hidden md:flex items-center gap-2">
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              type="button"
-              variant={location.pathname === '/' ? 'ghost' : 'ghost'}
-              size="icon"
-              onClick={() => onNavigate('/')}
-              className={location.pathname === '/' ? 'bg-[#F1F0FB] hover:bg-[#F1F0FB]' : ''}
+    <NavigationMenu className="hidden md:flex">
+      <NavigationMenuList>
+        <NavigationMenuItem>
+          <NavigationMenuLink
+            onClick={() => onNavigate('/')}
+            className={cn(
+              "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer",
+              location.pathname === '/' ? "font-bold" : ""
+            )}
+          >
+            Home
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <NavigationMenuLink
+            onClick={() => onNavigate('/dashboard')}
+            className={cn(
+              "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer",
+              location.pathname === '/dashboard' ? "font-bold" : ""
+            )}
+          >
+            Dashboard
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <NavigationMenuLink
+            onClick={() => onNavigate('/feed')}
+            className={cn(
+              "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer",
+              location.pathname === '/feed' ? "font-bold" : ""
+            )}
+          >
+            Feed
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+        {isAdmin && (
+          <NavigationMenuItem>
+            <NavigationMenuLink
+              onClick={() => onNavigate('/admin')}
+              className={cn(
+                "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer",
+                location.pathname === '/admin' ? "font-bold" : ""
+              )}
             >
-              <TimekeeperIcon className="h-5 w-5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Timekeeper</p>
-          </TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              type="button"
-              variant={location.pathname === '/sprinter' ? 'ghost' : 'ghost'}
-              size="icon"
-              onClick={() => onNavigate('/sprinter')}
-              className={location.pathname === '/sprinter' ? 'bg-[#F1F0FB] hover:bg-[#F1F0FB]' : ''}
-            >
-              <Zap className="h-5 w-5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Sprinter</p>
-          </TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              type="button"
-              variant={location.pathname === '/tutor' ? 'ghost' : 'ghost'}
-              size="icon"
-              onClick={() => onNavigate('/tutor')}
-              className={location.pathname === '/tutor' ? 'bg-[#F1F0FB] hover:bg-[#F1F0FB]' : ''}
-            >
-              <MessageSquare className="h-5 w-5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Tutor</p>
-          </TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              type="button"
-              variant={location.pathname === '/feed' ? 'ghost' : 'ghost'}
-              size="icon"
-              onClick={() => onNavigate('/feed')}
-              className={location.pathname === '/feed' ? 'bg-[#F1F0FB] hover:bg-[#F1F0FB]' : ''}
-            >
-              <Users className="h-5 w-5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Feed</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    </div>
+              Admin
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+        )}
+      </NavigationMenuList>
+    </NavigationMenu>
   );
 };
 

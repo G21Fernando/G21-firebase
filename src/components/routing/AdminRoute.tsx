@@ -1,18 +1,20 @@
+
 import { useEffect } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { useSession } from "@supabase/auth-helpers-react";
+import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Loader2 } from "lucide-react";
 
 export const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const session = useSession();
+  const supabase = useSupabaseClient();
   const { isAdmin, isLoading } = useAdmin();
   const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isLoading && !isAdmin) {
+    if (!isLoading && !isAdmin && session) {
       toast({
         title: "Access denied",
         description: "You need admin privileges to access this page",
@@ -20,7 +22,7 @@ export const AdminRoute = ({ children }: { children: React.ReactNode }) => {
       });
       navigate('/');
     }
-  }, [isAdmin, isLoading, toast, navigate]);
+  }, [isAdmin, isLoading, toast, navigate, session]);
 
   if (!session) {
     return <Navigate to="/auth" replace />;
@@ -34,7 +36,7 @@ export const AdminRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  if (!isAdmin) {
+  if (!isAdmin && session) {
     return <Navigate to="/" replace />;
   }
 
