@@ -1,5 +1,6 @@
+
 import { useEffect, useRef } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useSession } from "@supabase/auth-helpers-react";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -9,6 +10,7 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const hadSession = useRef(false);
   const sessionCheckTimeout = useRef<NodeJS.Timeout>();
   const initialCheckDone = useRef(false);
+  const location = useLocation();
 
   useEffect(() => {
     if (!initialCheckDone.current) {
@@ -35,8 +37,9 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }, [session, toast]);
 
   if (!session) {
-    return <Navigate to="/auth" replace />;
+    // Save the current location they were trying to go to
+    return <Navigate to="/auth" state={{ from: location.pathname }} replace />;
   }
 
-  return children;
+  return <>{children}</>;
 };

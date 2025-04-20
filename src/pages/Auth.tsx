@@ -1,5 +1,6 @@
+
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,23 +13,26 @@ const AuthPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const session = useSession();
+  const location = useLocation();
+  const from = (location.state as { from?: string })?.from || '/';
 
   console.log('Auth page - Session state:', session ? 'Logged in' : 'Not logged in');
+  console.log('Redirecting to:', from);
 
   // Redirect if already logged in
   useEffect(() => {
     if (session) {
-      console.log('Session found, redirecting to home...');
-      navigate('/');
+      console.log('Session found, redirecting to:', from);
+      navigate(from);
     }
-  }, [session, navigate]);
+  }, [session, navigate, from]);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session ? 'Session present' : 'No session');
       if (event === 'SIGNED_IN' && session) {
-        // First navigate
-        navigate('/');
+        // First navigate back to the page they were trying to access
+        navigate(from);
         
         // Then show toast after a small delay to ensure navigation completes
         setTimeout(() => {
@@ -41,7 +45,7 @@ const AuthPage = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate, toast]);
+  }, [navigate, toast, from]);
 
   const handleBackToPractice = () => {
     navigate('/');

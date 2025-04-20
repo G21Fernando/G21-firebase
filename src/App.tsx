@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
@@ -14,6 +15,7 @@ import Tutor from './pages/Tutor';
 import MobileFooter from './components/MobileFooter';
 import Feed from './pages/Feed';
 import AdminDashboard from './pages/AdminDashboard';
+import Sprinter from './pages/Sprinter';
 
 const App = () => {
   console.log('App rendering...');
@@ -113,7 +115,12 @@ const App = () => {
                 <AdminDashboard />
               </AdminRoute>
             } />
-            <Route path="/sprinter" element={<Navigate to="/chord-sprinter" replace />} />
+            {/* Fix the /sprinter route to directly use the Sprinter component */}
+            <Route path="/sprinter" element={
+              <ProtectedRoute>
+                <Sprinter />
+              </ProtectedRoute>
+            } />
             <Route path="/profile/:username" element={
               <ProtectedRoute>
                 <UserProfile />
