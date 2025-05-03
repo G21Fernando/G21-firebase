@@ -1,7 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { UserRound, Settings } from 'lucide-react';
-import { Session } from '@supabase/auth-helpers-react';
 import { Button } from '@/components/ui/button';
+import { getAuth, signOut, User } from 'firebase/auth';
 import { UserAvatar } from '@/components/ui/user-avatar';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useNavigate } from 'react-router-dom';
@@ -16,8 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 interface ProfileMenuProps {
-  session: Session | null;
-  profile: any;
+  user: User | null;
   dropdownOpen: boolean;
   setDropdownOpen: (open: boolean) => void;
   onProfileClick: () => void;
@@ -25,23 +24,22 @@ interface ProfileMenuProps {
 }
 
 const ProfileMenu = ({
-  session,
-  profile,
+  user,
   dropdownOpen,
   setDropdownOpen,
   onProfileClick,
 }: ProfileMenuProps) => {
   const { isAdmin, isLoading } = useAdmin();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { toast } = useToast()
+  const auth = getAuth();
   
   const avatarUrl = useMemo(() => {
-    if (!profile?.avatar_url) return undefined;
-    return profile.avatar_url;
-  }, [profile?.avatar_url]);
+    if (!user?.photoURL) return undefined;
+    return user.photoURL;
+  }, [user?.photoURL]);
 
   const handleSignOut = async () => {
-    try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       

@@ -1,54 +1,61 @@
 
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Auth } from '@supabase/auth-ui-react';
-import { ThemeSupa } from '@supabase/auth-ui-shared';
-import { supabase } from '@/integrations/supabase/client';
+import { FormEvent } from 'react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { getAuth } from 'firebase/auth';
+import { signInWithRedirect, GoogleAuthProvider } from 'firebase/auth';
+import { useAuth } from '@/hooks/useAuth';
+import app from '@/integrations/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { useSession } from '@supabase/auth-helpers-react';
 
 const AuthPage = () => {
-  console.log('Auth page rendering...');
   const navigate = useNavigate();
   const { toast } = useToast();
-  const session = useSession();
   const location = useLocation();
   const from = (location.state as { from?: string })?.from || '/';
+  const user = useAuth(); // Use the custom hook
 
-  console.log('Auth page - Session state:', session ? 'Logged in' : 'Not logged in');
-  console.log('Redirecting to:', from);
+
+  const handleGoogleSignIn = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+ await signInWithRedirect(auth, provider);
+    } catch (error: any) {
+ console.error("Google sign-in error:", error);
+ toast({
+        title: "Google Sign-in Failed",
+        description: error.message,
+        variant: "destructive"
+ });
+    }
+  };
 
   // Redirect if already logged in
   useEffect(() => {
-    if (session) {
-      console.log('Session found, redirecting to:', from);
+    if (user) {
       navigate(from);
+      // Then show toast after a small delay to ensure navigation completes
+      setTimeout(() => {
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully logged in.",
+        });
+      }, 500);
     }
-  }, [session, navigate, from]);
+  }, [user, navigate, from, toast]); // Added toast to dependency array
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event, session ? 'Session present' : 'No session');
-      if (event === 'SIGNED_IN' && session) {
-        // First navigate back to the page they were trying to access
-        navigate(from);
-        
-        // Then show toast after a small delay to ensure navigation completes
-        setTimeout(() => {
-          toast({
-            title: "Welcome back!",
-            description: "You have successfully logged in.",
-          });
-        }, 500);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate, toast, from]);
-
+  const handleSignIn = (email: string, password: string) => { // This function is no longer needed for the current implementation using redirect, but keeping it for structure
+  };
   const handleBackToPractice = () => {
-    navigate('/');
+ navigate('/');
+  };
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    // For now, we'll just log that the form was submitted
   };
 
   return (
@@ -65,37 +72,34 @@ const AuthPage = () => {
           </h1>
         </div>
         
-        <Auth
-          supabaseClient={supabase}
-          appearance={{
-            theme: ThemeSupa,
-            variables: {
-              default: {
-                colors: {
-                  brand: '#1A1F2C',
-                  brandAccent: '#2A2F3C',
-                  inputBackground: 'white',
-                  inputText: '#1A1F2C',
-                  inputBorder: '#E2E8F0',
-                  inputBorderHover: '#CBD5E0',
-                  inputBorderFocus: '#1A1F2C',
-                }
-              }
-            },
-            className: {
-              container: 'flex flex-col gap-4',
-              label: 'text-sm font-medium text-gray-700',
-              input: 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-              button: 'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full',
-              anchor: 'text-sm text-gray-600 hover:text-gray-900 text-center block',
-              message: 'text-center text-sm text-red-600 bg-red-50 rounded p-2',
-            }
-          }}
-          providers={[]}
-          redirectTo={window.location.origin}
-          onlyThirdPartyProviders={false}
-          view="sign_in"
-        />
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+ <div className="grid gap-2">
+ <Label htmlFor="email">Email</Label>
+ <Input id="email" type="email" placeholder="m@example.com" required />
+          </div>
+ <div className="grid gap-2">
+ <Label htmlFor="password">Password</Label>
+ <Input id="password" type="password" required />
+          </div>
+ <Button type="submit" className="w-full">
+ Sign In
+          </Button>
+        </form>
+
+ <div className="relative mt-6">
+ <div className="absolute inset-0 flex items-center">
+ <span className="w-full border-t" />
+          </div>
+ <div className="relative flex justify-center text-xs uppercase">
+ <span className="bg-white px-2 text-muted-foreground">
+ Or continue with
+            </span>
+          </div>
+        </div>
+ <Button variant="outline" className="w-full mt-4" onClick={handleGoogleSignIn}>
+ {/* Add Google Icon here */}
+ Google
+        </Button>
         
         <div className="mt-6 text-center">
           <Button 
